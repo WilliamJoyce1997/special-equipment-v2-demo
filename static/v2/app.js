@@ -1,4 +1,52 @@
 
+// Shared help for device queries and both field settings dialogs.
+const V2Help=(()=>{
+ let serial=0;
+ function position(wrap){
+  const [trigger,tip]=wrap.children,anchor=trigger.getBoundingClientRect();
+  const dialog=wrap.closest('dialog')?.getBoundingClientRect(),inset=8;
+  const left=Math.max(inset,(dialog?.left??0)+inset);
+  const right=Math.min(document.documentElement.clientWidth-inset,(dialog?.right??innerWidth)-inset);
+  tip.style.setProperty('--help-available-width',Math.max(0,right-left)+'px');
+  tip.style.maxHeight='';
+  const {width,height}=tip.getBoundingClientRect();
+  const above=anchor.top-inset,below=document.documentElement.clientHeight-anchor.bottom-inset;
+  const preferBelow=!!dialog;
+  const openBelow=preferBelow ? below>=height||below>=above : above<height&&below>above;
+  const available=Math.max(0,openBelow?below:above),visibleHeight=Math.min(height,available);
+  tip.style.maxHeight=available+'px';
+  tip.style.left=Math.max(left,Math.min(anchor.right-width,right-width))+'px';
+  tip.style.top=(openBelow?anchor.bottom:anchor.top-visibleHeight)+'px';
+ }
+ function create(text,{header=false,compact=false,onClick}={}){
+  const {el}=V2QueryResults,wrap=el('span','boiler-help-wrap');
+  const trigger=el('button',header?'link boiler-help':'help'+(compact?'':' equipment-help'),header?'？帮助提示':'?');
+  const tip=el('span','boiler-tooltip',text);
+  trigger.type='button';
+  trigger.setAttribute('aria-label',header?'帮助提示':'查询使用说明');
+  tip.id='v2-help-'+(++serial);
+  trigger.setAttribute('aria-describedby',tip.id);
+  tip.setAttribute('role','tooltip');
+  if(onClick)trigger.onclick=onClick;
+  wrap.append(trigger,tip);
+  wrap.addEventListener('pointerenter',()=>position(wrap));
+  trigger.addEventListener('focus',()=>position(wrap));
+  return wrap;
+ }
+ function showSettings(show,title,body,mode,text){
+  const wrap=create(text,{header:true});
+  show(title,body,mode,()=>wrap.remove());
+  const header=document.querySelector('#dialog .dialog-header');
+  header.insertBefore(wrap,header.lastElementChild);
+ }
+ function reposition(){
+  for(const wrap of document.querySelectorAll('.boiler-help-wrap:hover,.boiler-help-wrap:focus-within'))position(wrap);
+ }
+ window.addEventListener('resize',reposition);
+ window.addEventListener('scroll',reposition,true);
+ return {create,showSettings};
+})();
+
 /* Isolated boiler page controller; shared V2 table/modal primitives, session-only configuration. */
 window.V2EquipmentPage=(()=>{
 'use strict';
@@ -8,7 +56,6 @@ const usageHelp='1、查询条件是范围查询的包含左右边界值查询\n
 const settingsHelp='提示\n1.勾选展示字段，可设置字段是否在页面上展示\n2.上下拖动字段名称，可调整字段在页面上的显示位置\n3.勾选冻结字段，左右拖动视图时，该字段及该字段之前字段将始终显示在页面上';
 function defaultColumns(){return V2.types[type].columns.map(c=>({...c,color:'#000000',shown:true,frozen:false}));}
 function initial(){return {searched:false,filters:{},draft:{},advanced:false,queryOrder:S().advanced.map(f=>f.key),hiddenQueries:new Set(),columns:defaultColumns(),table:U().state()};}
-function help(label,text){const {el}=U(),wrap=el('span','boiler-help-wrap'),b=el('button','link boiler-help',label),tip=el('span','boiler-tooltip',text);b.type='button';b.setAttribute('aria-label',label==='?'?'查询使用说明':'帮助提示');tip.setAttribute('role','tooltip');wrap.append(b,tip);return wrap;}
 function select(label,options,value,name){const {el}=U(),input=el('select','control');input.name=name;input.setAttribute('aria-label',label);for(const v of ['',...options]){const o=el('option','',v||'请选择');o.value=v;input.append(o);}input.value=value||'';return input;}
 function control(f,values){const {el}=U(),wrap=el('div','field'),label=el('label','',f.label),id='equipment-'+type+'-'+f.key+'-'+(++serial);label.htmlFor=id;wrap.append(label);
  const uniqueLabel=f.key==='creditCode'?'社会信用代码（使用单位）':f.key==='inspectionCredit'?'社会信用代码（检验机构）':f.label;
@@ -44,12 +91,13 @@ function settings(kind){
  if(!isQuery){const color=el('input');color.type='color';color.value=f.color;color.setAttribute('aria-label',f.label+'文字颜色');color.oninput=()=>f.color=color.value;const c=el('td');c.append(color);const frozen=el('input');frozen.type='checkbox';frozen.checked=f.frozen;frozen.setAttribute('aria-label','冻结 '+f.label);frozen.onchange=()=>f.frozen=frozen.checked;const freezeCell=el('td');freezeCell.append(frozen);tr.append(c,freezeCell);}body.append(tr);}
  table.append(head,body);holder.append(table);}
  const actions=el('div','boiler-modal-actions');actions.append(button('还原初始配置','primary',()=>{draft=isQuery?S().advanced.map(f=>({...f,shown:true})):defaultColumns();paint();}),button('保存','primary',()=>{if(!draft.some(f=>f.shown)){error.textContent='至少选择一个字段';return;}if(isQuery){st.queryOrder=draft.map(f=>f.key);st.hiddenQueries=new Set(draft.filter(f=>!f.shown).map(f=>f.key));for(const k of st.hiddenQueries)for(const suffix of ['', '_min','_max']){delete st.draft[k+suffix];delete st.filters[k+suffix];}st.table.selected.clear();}else st.columns=draft.map(f=>({...f}));apiRef.close();apiRef.refresh();}));
- root.append(holder,error,actions);paint();const h=help('？帮助提示',settingsHelp);apiRef.show(isQuery?'查询条件自定义字段':'表格自定义展示字段',root,'boiler-settings-dialog',()=>h.remove());const header=document.querySelector('#dialog .dialog-header');header.insertBefore(h,header.lastElementChild);
+ root.append(holder,error,actions);paint();
+ V2Help.showSettings(apiRef.show,isQuery?'查询条件自定义字段':'表格自定义展示字段',root,'boiler-settings-dialog',settingsHelp);
 }
 function render(api,key='boiler'){apiRef=api;type=key;st=states[type]??=initial();const {el,button}=U(),root=el('div','boiler-page'),panel=el('section','panel query-panel'),form=el('form');form.id='query-form';form.setAttribute('aria-label',V2.types[type].title+'查询条件');
  form.addEventListener('input',e=>{const source=e.target;if(source.name)for(const target of form.querySelectorAll('[name]'))if(target!==source&&target.name===source.name)target.value=source.value;});form.addEventListener('change',e=>{const source=e.target;if(source.name)for(const target of form.querySelectorAll('[name]'))if(target!==source&&target.name===source.name)target.value=source.value;});const grid=el('div','query-grid');for(const f of S().base)grid.append(control(f,st.draft));form.append(grid);
  if(st.advanced){const advanced=el('section','boiler-advanced'),h=el('h2','','高级查询条件'),g=el('div','query-grid');advanced.append(h);for(const key of st.queryOrder)if(!st.hiddenQueries.has(key))g.append(control(S().advanced.find(f=>f.key===key),st.draft));advanced.append(g);form.append(advanced);}
- const actions=el('div','query-actions'),submit=el('button','primary','⌕ 查询');submit.type='submit';const links=el('div','query-links');links.append(help('?',usageHelp),button('⚙ 设置','link',()=>{st.draft=Object.fromEntries(new FormData(form));settings('query');}),button(st.advanced?'⌕普通查询':'⌕高级查询','link',()=>{st.draft=Object.fromEntries(new FormData(form));st.advanced=!st.advanced;if(!st.advanced)for(const f of S().advanced)for(const suffix of ['', '_min','_max'])delete st.draft[f.key+suffix];api.refresh();}));
+ const actions=el('div','query-actions'),submit=el('button','primary','⌕ 查询');submit.type='submit';const links=el('div','query-links');links.append(V2Help.create(usageHelp),button('⚙ 设置','link',()=>{st.draft=Object.fromEntries(new FormData(form));settings('query');}),button(st.advanced?'⌕普通查询':'⌕高级查询','link',()=>{st.draft=Object.fromEntries(new FormData(form));st.advanced=!st.advanced;if(!st.advanced)for(const f of S().advanced)for(const suffix of ['', '_min','_max'])delete st.draft[f.key+suffix];api.refresh();}));
  actions.append(submit,button('⟳ 重置','secondary',()=>{st.searched=false;st.filters={};st.draft={};st.table.page=1;st.table.selected.clear();api.refresh();}),links);const error=el('p','form-error');error.id='form-error';error.setAttribute('role','alert');form.append(actions,error);
  form.onsubmit=e=>{e.preventDefault();const filters=Object.fromEntries(new FormData(form)),problem=S().valid(filters);if(problem){error.textContent=problem;return;}st.filters=filters;st.draft={...filters};st.searched=true;st.table.page=1;st.table.selected.clear();api.refresh();};panel.append(form);root.append(panel);
  const tablePanel=el('section','panel table-panel'),toolbar=el('div','table-toolbar'),agency=button('▤ 更改检验机构','tool',institution);
@@ -115,8 +163,11 @@ function render(){
  const grid=el('div','query-grid');
  for(const field of t.queries){const holder=fieldControl(field,p.filters);holder.hidden=p.hiddenQueries.has(field.key);if(holder.hidden)holder.style.display='none';grid.append(holder);}
  const actions=el('div','query-actions'),search=el('button','primary','⌕  查询');search.type='submit';const reset=button('⟳  重置','secondary',()=>{p.hasSearched=false;p.filters={};p.page=1;p.selected.clear();render();announce('已重置查询条件，列表等待查询');});
- const links=el('div','query-links'),help=button('?','help',()=>info('使用说明',t.entity==='safety-valve'?'按使用单位、装置名称、产品编号及日期范围组合查询；日期为独立虚构字段，不推算或承诺法定校验周期。':t.entity==='product'?'综合查询匹配设备代码、产品名称、产品规格、产品编号；全部为独立虚构产品，编辑及复制仅当前前端会话有效。':t.entity==='person'?'综合查询匹配姓名、演示身份证标识或关联单位名称；地区、持证状态、数据来源按且组合。全部为虚构人员，持证状态不是实际资格结论。':t.entity==='organization'?'单位名称、信用代码、联系人支持文本匹配；地区和超期状态精确组合筛选。超期为预设演示状态，不代表真实资质结论。':'查询条件按“且”组合；综合查询匹配设备代码、注册代码及使用证编号。日期和数值支持仅填单侧边界；表头可排序，表格可横向滚动。全部记录为虚构样本。'));
- help.setAttribute('aria-label','查询使用说明');links.append(help,button('⚙ 设置','link',()=>settings('query')),button('⌕高级查询','link',advanced));
+ const links=el('div','query-links'),helpText=t.entity==='safety-valve'?'按使用单位、装置名称、产品编号及日期范围组合查询；日期为独立虚构字段，不推算或承诺法定校验周期。':t.entity==='product'?'综合查询匹配设备代码、产品名称、产品规格、产品编号；全部为独立虚构产品，编辑及复制仅当前前端会话有效。':t.entity==='person'?'综合查询匹配姓名、演示身份证标识或关联单位名称；地区、持证状态、数据来源按且组合。全部为虚构人员，持证状态不是实际资格结论。':t.entity==='organization'?'单位名称、信用代码、联系人支持文本匹配；地区和超期状态精确组合筛选。超期为预设演示状态，不代表真实资质结论。':'查询条件按“且”组合；综合查询匹配设备代码、注册代码及使用证编号。日期和数值支持仅填单侧边界；表头可排序，表格可横向滚动。全部记录为虚构样本。';
+ const showHelp=()=>info('使用说明',helpText);
+ const help=['installation','pipeline'].includes(state.key)?V2Help.create(helpText,{compact:true,onClick:showHelp}):button('?','help',showHelp);
+ if(help.tagName==='BUTTON')help.setAttribute('aria-label','查询使用说明');
+ links.append(help,button('⚙ 设置','link',()=>settings('query')),button('⌕高级查询','link',advanced));
  actions.append(search,reset,links);const error=el('p','form-error');error.id='form-error';error.setAttribute('role','alert');form.append(grid,actions,error);
  form.addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));if(!validate(data,t,error))return;p.filters=data;p.hasSearched=true;p.page=1;p.selected.clear();renderTable();});
  for(const event of ['input','change'])form.addEventListener(event,()=>{if(p.selected.size){p.selected.clear();renderTable();}});
@@ -233,7 +284,10 @@ function settings(kind){
  for(const f of fields){const label=el('label'),cb=el('input');cb.type='checkbox';cb.checked=!hidden.has(f.key);cb.onchange=()=>{
  if(cb.checked)hidden.delete(f.key);else{if(!isQuery&&hidden.size===fields.length-1){cb.checked=true;announce('至少保留一列数据');return;}hidden.add(f.key);if(isQuery){delete p.filters[f.key];delete p.filters[f.key+'_min'];delete p.filters[f.key+'_max'];p.page=1;p.selected.clear();}}
  isQuery?render():renderTable();};label.append(cb,document.createTextNode(f.label));grid.append(label);}
- box.append(notice,grid);dialog(isQuery?'查询条件设置':'表格列设置',box);
+ box.append(notice,grid);
+ const title=isQuery?'查询条件设置':'表格列设置';
+ if(['installation','pipeline'].includes(state.key))V2Help.showSettings(dialog,title,box,'',notice.textContent);
+ else dialog(title,box);
 }
 function advanced(){
  const p=pageState(),box=el('div'),form=el('form');box.append(el('p','notice','补充筛选条件与普通查询条件按“且”组合，针对当前虚构样本生效。'));

@@ -307,16 +307,18 @@ dialog.inspection-record-dialog[open]{display:flex;flex-direction:column;width:m
 .boiler-advanced h2:before,.boiler-advanced h2:after{content:'';height:1px;background:#e7ebf0;flex:1}
 .boiler-page .cq-table-card{margin:0}.boiler-page .cq-table-card table{table-layout:fixed}.boiler-page .record-actions{display:flex;flex-wrap:wrap;gap:7px}
 .boiler-page .boiler-table-settings{margin-left:auto}.boiler-page .tool:disabled{opacity:.4;cursor:not-allowed}
-.boiler-help-wrap{position:relative;display:inline-flex;align-items:center;z-index:4}.boiler-help{cursor:help}
-.boiler-page .boiler-help{background:#343a40;border-radius:50%;height:23px;width:23px;padding:0;color:white}
-.boiler-tooltip{display:none;position:absolute;right:0;bottom:calc(100% + 10px);white-space:pre-line;line-height:1.8;width:min(660px,calc(100vw - 40px));padding:12px 18px;background:#555d6b;color:white;border-radius:5px;box-shadow:0 2px 8px #0003;z-index:10;font-size:14px;text-align:left}
-.boiler-help-wrap:hover>.boiler-tooltip,.boiler-help-wrap:focus-within>.boiler-tooltip{display:block}
+.boiler-help-wrap{display:inline-flex;align-items:center;flex:none;z-index:12}
+.boiler-help-wrap button{cursor:help}
+.boiler-help-wrap .help{display:inline-grid;place-items:center;box-sizing:border-box;flex:none;border-radius:50%;line-height:1}
+.help.equipment-help{background:#343a40;width:23px;height:23px}
+.boiler-tooltip{visibility:hidden;pointer-events:none;position:fixed;left:0;top:0;z-index:20;box-sizing:border-box;width:max-content;max-width:min(420px,var(--help-available-width,calc(100vw - 16px)));padding:10px 14px;background:#555d6b;color:white;border-radius:5px;box-shadow:0 2px 8px #0003;font-size:14px;line-height:1.55;text-align:left;white-space:pre-line;overflow-wrap:anywhere;overflow:auto}
+.boiler-help-wrap:hover>.boiler-tooltip,.boiler-help-wrap:has(>button:focus-visible)>.boiler-tooltip{visibility:visible;pointer-events:auto}
 #dialog.boiler-settings-dialog[open],#dialog.boiler-institution-dialog[open]{display:flex;flex-direction:column;max-height:94vh;overflow:hidden}
 #dialog.boiler-settings-dialog{width:min(570px,96vw)}#dialog.boiler-institution-dialog{width:min(1300px,96vw)}
 .boiler-settings-dialog #dialog-body,.boiler-institution-dialog #dialog-body{min-height:0;flex:1;max-height:none;overflow:auto}
 .boiler-settings-dialog>.dialog-footer,.boiler-institution-dialog>.dialog-footer{display:none}
-.boiler-settings-dialog .dialog-header{gap:12px}.boiler-settings-dialog .dialog-header h2{font-size:15px}.boiler-settings-dialog .dialog-header .boiler-help-wrap{margin-left:auto}
-.boiler-settings-dialog .dialog-header .boiler-tooltip{top:calc(100% + 8px);bottom:auto;background:white;color:#303d50;border:1px solid #dde3eb;width:min(650px,calc(100vw - 36px))}
+.boiler-settings-dialog .dialog-header{gap:12px}.boiler-settings-dialog .dialog-header h2{font-size:15px}.dialog-header .boiler-help-wrap{margin-left:auto}
+.dialog-header .boiler-tooltip{background:white;color:#303d50;border:1px solid #dde3eb}
 .boiler-settings table{width:100%;min-width:440px;border-collapse:collapse}.boiler-settings th,.boiler-settings td{padding:12px 10px;border:1px solid #e9edf2;white-space:normal}
 .boiler-settings th{background:#f7f8fa}.boiler-settings th:first-child,.boiler-settings td:first-child{width:40px;text-align:center}
 .boiler-settings input[type=color]{width:48px;height:31px;border:1px solid #d8e0eb;background:white;padding:4px}
@@ -328,7 +330,6 @@ dialog.inspection-record-dialog[open]{display:flex;flex-direction:column;width:m
 @media(max-width:1100px){.boiler-page .field{grid-template-columns:110px minmax(0,1fr)}.boiler-page .query-grid{gap:12px}.boiler-page .query-links{position:static;width:100%;justify-content:center}}
 @media(max-width:760px){.boiler-page .query-grid{grid-template-columns:1fr}.boiler-page .query-panel{padding:16px 10px}.boiler-page .cq-fixed{position:static!important}.boiler-page .query-links{gap:13px}.boiler-institution dl>div,.boiler-institution-field{grid-template-columns:140px minmax(0,1fr);gap:10px}.boiler-institution-field{font-size:12px}}
 
-@media(max-width:760px){.boiler-page .boiler-tooltip,.boiler-settings-dialog .dialog-header .boiler-tooltip{position:fixed;left:12px;right:12px;top:70px;bottom:auto;width:auto;max-height:60vh;overflow:auto}}
 
 /* Elevator toolbar dialogs keep one vertical body scroller; no duplicate outer overflow. */
 #dialog.elevator-batch-dialog[open]{display:flex;flex-direction:column;overflow:hidden;width:min(920px,96vw);max-height:92vh}
