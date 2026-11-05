@@ -65,8 +65,8 @@ Object.assign(types.vehicle,{
  actions:['更改检验机构','导出']
 });
 Object.assign(types.amusement,{
- implemented:true,categories:['观览车类','滑行车类','旋转木马类'],
- queries:q('search','region','category','status','acceptance','department','pinyin','authority',kind,'important','registration','unit','handled','place','inspected'),
+ implemented:true,categories:['观览车类','滑行车类','转马类'],
+ queries:q('search','region','category','status','acceptance','department','pinyin','authority',{...kind,key:'latestInspectionKind'},'important','registration','unit','handled','place','inspected'),
  columns:[...identity,col('identificationCode','设备识别码',200),...contact,col('registrationCode','设备注册代码',210),col('equipmentCode','设备代码',200),...tail,numeric('passengers','额定乘员（人）'),numeric('height','运行高度（m）'),col('inspectionKind',kind.label,240)],
  actions:['更改检验机构','导出']
 });
@@ -611,7 +611,7 @@ const places={
  boiler:B.enums.place,
  vessel:['学校','车站','商场','场馆','公园','宾馆','医院','工厂','其它'],
  elevator:['住宅小区','机关','机场车站','客运码头','商城','体育场馆','展览馆','公园','电影院','剧院','其他','学校','幼儿园','医疗机构','餐饮场所','宾馆饭店','图书馆','儿童活动中心','公共浴池','养老机构','娱乐'],
- crane:['化工企业','冶金企业','建设工程','其他'],vehicle:['公园','车站','客运码头','工厂','其它'],amusement:[...B.enums.place],ropeway:[...B.enums.place]
+ crane:['化工企业','冶金企业','建设工程','其他'],vehicle:['公园','车站','客运码头','工厂','其它'],amusement:['公园景区','其他'],ropeway:[...B.enums.place]
 };
 const elevatorCategory={'曳引与强制驱动电梯':['曳引驱动乘客电梯','曳引驱动载货电梯','强制驱动载货电梯'],'液压驱动电梯':['液压乘客电梯','液压载货电梯'],'自动扶梯与自动人行道':['自动扶梯','自动人行道'],'其它类型电梯':['防爆电梯','消防员电梯','杂物电梯'],'旧目录电梯':[]};
 const elevatorEnums={
@@ -658,15 +658,21 @@ const craneEnums={
  governorInspection:['已检','未检']
 };
 const inspectionLabels={'最新检验业务检验类别':'latestInspectionKind','最新检验业务 检验类别':'latestInspectionKind','检验性质':'inspectionNature','检验类别':'inspectionKind','限速器是否检验':'governorInspection'};
-const vehicleEnums={
+const vehicleAndAmusementEnums={
  latestInspectionKind:['定期检验','安装监检','进口监检','驻厂监检','新装验收','普查验收','移梯验收','停启验收','改造验收','大修验收','重新验收','型式试验'],
  inspectionNature:B.enums.inspectionNature,
  inspectionKind:['定期检验','监督检验'],
  governorInspection:['是','否']
 };
-const inspectionEnums={crane:craneEnums,vehicle:vehicleEnums};
+const inspectionEnums={crane:craneEnums,vehicle:vehicleAndAmusementEnums,amusement:vehicleAndAmusementEnums};
 const categoryTrees={vessel:vesselCategory,elevator:elevatorCategory,crane:craneCategory,
- vehicle:{'机动工业车辆':['叉车'],'非公路用旅游观光车辆':[],'旧目录厂车':[]}};
+ vehicle:{'机动工业车辆':['叉车'],'非公路用旅游观光车辆':[],'旧目录厂车':[]},
+ amusement:{
+  '观览车类':[],'旧目录游乐设施':[],'滑行车类':[],'架空游览车类':[],'陀螺类':[],'飞行塔类':[],
+  '转马类':[],'自控飞机类':[],'赛车类':[],'小火车类':[],'碰碰车类':[],'滑道类':[],
+  '水上游乐设施':['峡谷漂流系列','水滑梯系列','碰碰船系列'],
+  '无动力游乐设施':['蹦极系列','滑索系列','空中飞人系列','系留式观光气球系列']
+ }};
 const advancedFields=fields=>fields.map(([key,label,type='text'])=>({key,label,type,disabled:key==='inspectionConclusion'}));
 const equipmentInspectionFields=[
  ['registrationOrg','注册登记机构'],['registeredDate','注册登记日期','dateRange'],['name','设备名称'],
@@ -693,7 +699,14 @@ const vehicleAdvanced=advancedFields([
  ['inspector','检验员'],['inspectionProblems','主要问题','select'],['previousInspectionDate','上次检验日期','dateRange'],
  ['ratedSpeed','额载最大运行速度'],['equipmentCode','设备代码'],['safetyDirector','安全总监'],['safetyOfficer','安全员']
 ]);
-const explicitAdvanced={elevator:elevatorAdvanced,crane:craneAdvanced,vehicle:vehicleAdvanced};
+const amusementAdvanced=advancedFields([
+ ...equipmentInspectionFields,
+ ['operatingSpeed','运行速度'],['governorInspection','限速器是否检验','select'],['governorCalibrationDate','限速器校验日期','dateRange'],
+ ['creditCode','社会信用代码'],['inspectionSubjectUnit','检验主体组织单元','select'],['inspector','检验员'],
+ ['inspectionProblems','主要问题','select'],['previousInspectionDate','上次检验日期','dateRange'],['equipmentCode','设备代码'],
+ ['certificate','使用证编号'],['safetyDirector','安全总监'],['safetyOfficer','安全员']
+]);
+const explicitAdvanced={elevator:elevatorAdvanced,crane:craneAdvanced,vehicle:vehicleAdvanced,amusement:amusementAdvanced};
 const flatten=tree=>Object.entries(tree).flatMap(([p,cs])=>[p,...cs.map(c=>p+' / '+c)]);
 function optionsFor(type,f){if(!supported.includes(type))return null;const k=f.key,l=f.label;
  if(categoryTrees[type]&&(['category','_categoryPath'].includes(k)||l==='设备类别'))return flatten(categoryTrees[type]);

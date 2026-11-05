@@ -71,6 +71,19 @@ for(const [i,row] of V2.fixtures.vehicle.entries()){
  row.governorInspection=i%2?'否':'是';
 }
 
+// Fictional examples for both child-category branches and the new filters.
+const amusementSchema=V2EquipmentSchema.get('amusement');
+for(const [i,row] of V2.fixtures.amusement.entries()){
+ if(i===6)row.category='水上游乐设施 / 水滑梯系列';
+ if(i===7)row.category='无动力游乐设施 / 滑索系列';
+ row.place=amusementSchema.enums.place[i%amusementSchema.enums.place.length];
+ row.latestInspectionKind=i%2?'安装监检':'定期检验';
+ row.inspectionKind=i%2?'监督检验':'定期检验';
+ row.inspectionNature='正常检验';
+ row.governorInspection=i%2?'否':'是';
+ row.operatingSpeed=i+1;
+}
+
 V2.fixtures.installation=V2.demoBase('installation','ZZ',8).map((r,i)=>({...r,
  installationName:'云岚虚构工程装置'+String(i+1).padStart(3,'0'),
  creditCode:'DEMO-CREDIT-'+String(i%3+1).padStart(3,'0'),created:'2026-'+String(i+1).padStart(2,'0')+'-02',
@@ -135,7 +148,7 @@ for(const [type,t] of Object.entries(V2.types)){
   }[type]||{};
   const merged={...original,...common,...extras};
   const applicable=new Set([...t.detailFields.map(f=>f.key),...t.queries.map(f=>f.key),'id','source','history','equipmentCode','registrationCode','contact','installationId']);
-  const inspectionSchema={crane:craneSchema,vehicle:vehicleSchema}[type];
+  const inspectionSchema={crane:craneSchema,vehicle:vehicleSchema,amusement:amusementSchema}[type];
   if(inspectionSchema)for(const field of inspectionSchema.advanced)applicable.add(field.key);
   return Object.fromEntries(Object.entries(merged).filter(([key])=>applicable.has(key)));
  });

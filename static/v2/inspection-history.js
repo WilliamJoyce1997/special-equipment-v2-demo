@@ -24,7 +24,7 @@ function render(ctx){
  const {type,row,root,entry}=ctx,listing=el('div','more-inspection-list');listing.append(notice('设备：'+row.equipmentCode+' · 复用设备详情中的虚构检验记录，非真实检验证明。'));
  const rows=V2Dossier.histories(type,row),options={
  queryFirst:true,operationWidth:360,pageSizes:[1,5,10,20],
- strictInspectionKinds:['elevator','crane','vehicle'].includes(type),inspectionKinds:V2EquipmentSchema.optionsFor(type,{key:'inspectionKind',label:'检验类别'})||[...new Set(rows.map(r=>r['检验类别']))],
+ strictInspectionKinds:['elevator','crane','vehicle','amusement'].includes(type),inspectionKinds:V2EquipmentSchema.optionsFor(type,{key:'inspectionKind',label:'检验类别'})||[...new Set(rows.map(r=>r['检验类别']))],
  toolbar:()=>{const tools=el('div','more-table-toolbar');tools.append(disabled('⊕ 新增'),disabled('⊖ 删除'),el('span','','演示模式暂不支持修改'));return tools;},
  renderActions:record=>{const actions=el('div','more-inspection-actions');for(const name of ['详情','报告','报告附件','意见书'])actions.append(button(name,'row-action',()=>recordSubview(ctx,listing,record,name,V2Dossier.inspectionHeaders)));return actions;}
  };
