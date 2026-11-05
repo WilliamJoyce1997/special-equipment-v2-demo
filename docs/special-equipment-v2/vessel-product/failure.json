@@ -1,0 +1,5 @@
+{
+  "checks": [],
+  "errors": [],
+  "error": "locator.innerText: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.table-panel .count-total')\u001b[22m\n\n    at C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\vessel-product.e2e.cjs:8:228"
+}

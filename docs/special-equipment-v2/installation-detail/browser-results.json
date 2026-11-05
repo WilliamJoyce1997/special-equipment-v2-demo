@@ -1,0 +1,19 @@
+{
+  "passed": 11,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "installation title, exactly two tabs and five collapsible groups",
+    "58 reference fields, six required marks, current record values and folding",
+    "change table ten ordered headers, date validation/reset, empty statistics and column settings",
+    "19 pipeline columns, scoped record, sorting, page size, selected count, horizontal scroll and fixed actions",
+    "four existing pipeline actions keep context, independent four-tab detail and parent selection retained on close",
+    "second installation isolation and genuinely unlinked installation empty",
+    "1366 form and linked wide-table usable",
+    "1920 form and linked wide-table usable",
+    "390 form and linked wide-table usable",
+    "old applicable field IDs map and edit correctly; removed fields blocked clearly, original schemes retained",
+    "fixtures and database unchanged, no write requests or blocking JS errors"
+  ],
+  "errors": []
+}

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备台账调试页面</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <style>
+        .debug-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .debug-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background: #28a745; }
+        .status-error { background: #dc3545; }
+        .status-warning { background: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>设备台账功能调试</h1>
+        
+        <!-- 系统状态检查 -->
+        <div class="debug-section">
+            <h3>系统状态检查</h3>
+            <div id="systemStatus">
+                <p><span class="status-indicator" id="apiStatus"></span>API连接状态: <span id="apiStatusText">检查中...</span></p>
+                <p><span class="status-indicator" id="authStatus"></span>认证状态: <span id="authStatusText">检查中...</span></p>
+                <p><span class="status-indicator" id="jsStatus"></span>JavaScript加载: <span id="jsStatusText">检查中...</span></p>
+            </div>
+        </div>
+        
+        <!-- 批量导入测试 -->
+        <div class="debug-section">
+            <h3>批量导入功能测试</h3>
+            <div style="margin-bottom: 15px;">
+                <button class="btn btn-secondary" onclick="testDownloadTemplate()">测试模板下载</button>
+                <button class="btn btn-primary" onclick="document.getElementById('testFile').click()">测试文件导入</button>
+                <input type="file" id="testFile" accept=".xlsx,.xls,.csv" style="display: none;" onchange="testImport(this)">
+                <button class="btn btn-info" onclick="testExport()">测试数据导出</button>
+            </div>
+            <div class="debug-log" id="importLog">等待测试...</div>
+        </div>
+        
+        <!-- 设备数据测试 -->
+        <div class="debug-section">
+            <h3>设备数据加载测试</h3>
+            <div style="margin-bottom: 15px;">
+                <button class="btn btn-primary" onclick="testLoadAssets()">加载设备数据</button>
+                <button class="btn btn-secondary" onclick="clearLog()">清空日志</button>
+            </div>
+            <div class="debug-log" id="dataLog">等待测试...</div>
+        </div>
+        
+        <!-- 简化的设备列表 -->
+        <div class="debug-section">
+            <h3>设备列表预览</h3>
+            <div id="assetPreview">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="padding: 8px; border: 1px solid #dee2e6;">编码</th>
+                            <th style="padding: 8px; border: 1px solid #dee2e6;">名称</th>
+                            <th style="padding: 8px; border: 1px solid #dee2e6;">状态</th>
+                            <th style="padding: 8px; border: 1px solid #dee2e6;">位置</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assetList">
+                        <tr><td colspan="4" style="padding: 20px; text-align: center;">暂无数据</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        
+        // 日志函数
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('importLog');
+            const color = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#6c757d';
+            logElement.innerHTML += `<div style="color: ${color};">[${timestamp}] ${message}</div>`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function dataLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('dataLog');
+            const color = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#6c757d';
+            logElement.innerHTML += `<div style="color: ${color};">[${timestamp}] ${message}</div>`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('importLog').innerHTML = '';
+            document.getElementById('dataLog').innerHTML = '';
+        }
+        
+        // 获取认证头
+        function getAuthHeaders() {
+            const token = localStorage.getItem('access_token');
+            return {
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            };
+        }
+        
+        // 系统状态检查
+        async function checkSystemStatus() {
+            // 检查API连接
+            try {
+                const response = await fetch(`${API_BASE}/assets/`, {
+                    method: 'HEAD',
+                    headers: getAuthHeaders()
+                });
+                
+                if (response.ok) {
+                    document.getElementById('apiStatus').className = 'status-indicator status-success';
+                    document.getElementById('apiStatusText').textContent = '连接正常';
+                } else {
+                    document.getElementById('apiStatus').className = 'status-indicator status-warning';
+                    document.getElementById('apiStatusText').textContent = `HTTP ${response.status}`;
+                }
+            } catch (error) {
+                document.getElementById('apiStatus').className = 'status-indicator status-error';
+                document.getElementById('apiStatusText').textContent = '连接失败';
+            }
+            
+            // 检查认证状态
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                document.getElementById('authStatus').className = 'status-indicator status-success';
+                document.getElementById('authStatusText').textContent = '已认证';
+            } else {
+                document.getElementById('authStatus').className = 'status-indicator status-warning';
+                document.getElementById('authStatusText').textContent = '未认证';
+            }
+            
+            // 检查JavaScript加载
+            document.getElementById('jsStatus').className = 'status-indicator status-success';
+            document.getElementById('jsStatusText').textContent = '加载正常';
+        }
+        
+        // 测试模板下载
+        function testDownloadTemplate() {
+            log('开始测试模板下载...');
+            const link = document.createElement('a');
+            link.href = '/api/assets/download_template/';
+            link.target = '_blank';
+            link.click();
+            log('模板下载链接已触发', 'success');
+        }
+        
+        // 测试文件导入
+        async function testImport(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            log(`开始导入文件: ${file.name} (${(file.size/1024).toFixed(1)}KB)`);
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await fetch(`${API_BASE}/assets/import_excel/`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: formData
+                });
+                
+                log(`服务器响应: HTTP ${response.status}`);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log(`导入失败: ${errorText}`, 'error');
+                    return;
+                }
+                
+                const result = await response.json();
+                log(`导入结果: 成功 ${result.success_count || 0} 条, 失败 ${result.error_count || 0} 条`, 'success');
+                
+                if (result.errors && result.errors.length > 0) {
+                    result.errors.slice(0, 5).forEach(error => {
+                        log(`错误: ${error}`, 'error');
+                    });
+                }
+                
+                // 重新加载数据
+                testLoadAssets();
+                
+            } catch (error) {
+                log(`导入异常: ${error.message}`, 'error');
+            }
+            
+            input.value = '';
+        }
+        
+        // 测试数据导出
+        function testExport() {
+            log('开始测试数据导出...');
+            const link = document.createElement('a');
+            link.href = '/api/assets/export_csv/';
+            link.target = '_blank';
+            link.click();
+            log('导出链接已触发', 'success');
+        }
+        
+        // 测试加载设备数据
+        async function testLoadAssets() {
+            dataLog('开始加载设备数据...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/assets/`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    }
+                });
+                
+                dataLog(`API响应: HTTP ${response.status}`);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    dataLog(`加载失败: ${errorText}`, 'error');
+                    return;
+                }
+                
+                const data = await response.json();
+                const assets = data.results || [];
+                
+                dataLog(`成功加载 ${assets.length} 条设备记录`, 'success');
+                
+                // 更新设备列表预览
+                updateAssetPreview(assets);
+                
+            } catch (error) {
+                dataLog(`加载异常: ${error.message}`, 'error');
+            }
+        }
+        
+        // 更新设备预览
+        function updateAssetPreview(assets) {
+            const tbody = document.getElementById('assetList');
+            
+            if (!assets || assets.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center;">暂无数据</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = assets.slice(0, 10).map(asset => `
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #dee2e6;">${asset.code || '-'}</td>
+                    <td style="padding: 8px; border: 1px solid #dee2e6;">${asset.name || '-'}</td>
+                    <td style="padding: 8px; border: 1px solid #dee2e6;">${asset.status || '-'}</td>
+                    <td style="padding: 8px; border: 1px solid #dee2e6;">${getLocation(asset)}</td>
+                </tr>
+            `).join('') + (assets.length > 10 ? `<tr><td colspan="4" style="padding: 8px; text-align: center; color: #6c757d;">... 还有 ${assets.length - 10} 条记录</td></tr>` : '');
+        }
+        
+        function getLocation(asset) {
+            const parts = [asset.factory, asset.workshop, asset.line, asset.station].filter(p => p);
+            return parts.length > 0 ? parts.join(' / ') : '-';
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSystemStatus();
+            log('调试页面已加载');
+            dataLog('调试页面已加载');
+        });
+    </script>
+</body>
+</html>

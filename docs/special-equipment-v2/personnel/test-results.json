@@ -1,0 +1,25 @@
+{
+  "passed": 17,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "menu/tab, initial empty, four records, exact 11 headers",
+    "four stable person IDs link existing organization names; identities explicitly non-real",
+    "search matches name, identity and linked organization",
+    "combined region/certificate/source filters and reset",
+    "sorting, paging, persistent selection and complete queried CSV; import disabled",
+    "DEMO-PERSON-004 25 edit fields / 5 stars / linked unit / read-only and close preserves state",
+    "DEMO-PERSON-004 personal qualification context, exact fields/headers, query/reset and empty state",
+    "DEMO-PERSON-004 shared person audit context / no organization or equipment logs / invalid date and reset",
+    "DEMO-PERSON-003 25 edit fields / 5 stars / linked unit / read-only and close preserves state",
+    "DEMO-PERSON-003 personal qualification context, exact fields/headers, query/reset and empty state",
+    "DEMO-PERSON-003 shared person audit context / no organization or equipment logs / invalid date and reset",
+    "1366 responsive list + three dialogs, single vertical owner and horizontal table access",
+    "1920 responsive list + three dialogs, single vertical owner and horizontal table access",
+    "768 responsive list + three dialogs, single vertical owner and horizontal table access",
+    "390 responsive list + three dialogs, single vertical owner and horizontal table access",
+    "person qualifications and shared audit source isolated from organization data",
+    "no blocking browser errors or write requests"
+  ],
+  "errors": []
+}

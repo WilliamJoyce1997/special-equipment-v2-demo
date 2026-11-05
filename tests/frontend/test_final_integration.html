@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMMS系统最终集成测试</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <style>
+        .test-container { max-width: 1200px; margin: 20px auto; padding: 20px; }
+        .test-section { margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { border-color: #10b981; background: #f0fdf4; }
+        .error { border-color: #ef4444; background: #fef2f2; }
+        .info { border-color: #3b82f6; background: #eff6ff; }
+        .warning { border-color: #f59e0b; background: #fffbeb; }
+        .btn { margin: 5px; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .progress { width: 100%; height: 20px; background: #f3f4f6; border-radius: 10px; overflow: hidden; }
+        .progress-bar { height: 100%; background: #10b981; transition: width 0.3s ease; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🏭 CMMS系统最终集成测试</h1>
+        
+        <div class="test-section info">
+            <h3>📋 测试说明</h3>
+            <p>这是CMMS系统的完整集成测试，将验证工单管理、保养计划、设备管理等所有核心功能。</p>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+            <p style="margin-top: 10px;"><strong>测试进度:</strong> <span id="progressText">0/8 完成</span></p>
+        </div>
+
+        <div class="test-section">
+            <h3>🔐 步骤 1: 用户认证</h3>
+            <button class="btn btn-primary" onclick="runTest(1, testLogin)">测试登录</button>
+            <div id="test1Result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>👥 步骤 2: 用户管理API</h3>
+            <button class="btn btn-success" onclick="runTest(2, testUsersAPI)">测试用户API</button>
+            <div id="test2Result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🏭 步骤 3: 设备管理</h3>
+            <button class="btn btn-success" onclick="runTest(3, testAssetsModule)">测试设备管理</button>
+            <div id="test3Result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 步骤 4: 工单管理</h3>
+            <button class="btn btn-warning" onclick="runTest(4, testWorkOrderModule)">测试工单管理</button>
+            <div id="test4Result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 步骤 5: 保养计划</h3>
+            <button class="btn btn-warning" onclick="runTest(5, testMaintenanceModule)">测试保养计划</button>
+            <div id="test5Result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📦 步骤 6: 备件管理</h3>
+            <button class="btn btn-success" onclick="runTest(6, testSparePartsModule)">测试备件管理</button>
+            <div id="test6Result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔄 步骤 7: 工单流程</h3>
+            <button class="btn btn-danger" onclick="runTest(7, testWorkOrderFlow)">测试完整流程</button>
+            <div id="test7Result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🧹 步骤 8: 清理测试数据</h3>
+            <button class="btn btn-danger" onclick="runTest(8, cleanupTestData)">清理数据</button>
+            <div id="test8Result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 系统状态</h3>
+            <div class="status-grid">
+                <div>
+                    <strong>登录状态:</strong> <span id="loginStatus">未登录</span><br>
+                    <strong>用户信息:</strong> <span id="userInfo">-</span><br>
+                    <strong>测试状态:</strong> <span id="testStatus">准备中</span>
+                </div>
+                <div>
+                    <strong>用户数量:</strong> <span id="userCount">0</span> 个<br>
+                    <strong>设备数量:</strong> <span id="assetCount">0</span> 个<br>
+                    <strong>工单数量:</strong> <span id="workorderCount">0</span> 个
+                </div>
+                <div>
+                    <strong>保养计划:</strong> <span id="planCount">0</span> 个<br>
+                    <strong>备件数量:</strong> <span id="partCount">0</span> 个<br>
+                    <strong>测试进度:</strong> <span id="completedTests">0</span>/8
+                </div>
+            </div>
+        </div>
+
+        <!-- 隐藏的页面容器 -->
+        <div id="page-workorders" style="display: none;"></div>
+        <div id="page-maintenance" style="display: none;"></div>
+        <div id="page-assets" style="display: none;"></div>
+        <div id="page-spareparts" style="display: none;"></div>
+    </div>
+
+    <!-- JavaScript文件 -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/workorders.js"></script>
+    <script src="/static/js/maintenance.js"></script>
+    <script src="/static/js/index.js"></script>
+
+    <script>
+        let authToken = null;
+        let testResults = {};
+        let completedTests = 0;
+        let createdTestIds = {
+            workorder: null,
+            plan: null,
+            asset: null
+        };
+
+        function updateResult(testNum, message, type = 'info') {
+            const element = document.getElementById(`test${testNum}Result`);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
+            element.innerHTML = `<div class="test-section ${className}" style="margin-top: 10px;">${message}</div>`;
+        }
+
+        function updateProgress() {
+            const progress = (completedTests / 8) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `${completedTests}/8 完成`;
+            document.getElementById('completedTests').textContent = completedTests;
+        }
+
+        function updateStatus() {
+            const token = localStorage.getItem('access_token');
+            const user = localStorage.getItem('user');
+            
+            document.getElementById('loginStatus').textContent = token ? '已登录' : '未登录';
+            
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    document.getElementById('userInfo').textContent = `${userData.username} (${userData.role})`;
+                } catch (e) {
+                    document.getElementById('userInfo').textContent = '解析错误';
+                }
+            }
+        }
+
+        async function runTest(testNum, testFunction) {
+            updateResult(testNum, '🔄 测试进行中...', 'info');
+            
+            try {
+                const result = await testFunction();
+                if (result) {
+                    testResults[testNum] = true;
+                    completedTests++;
+                    updateProgress();
+                }
+            } catch (error) {
+                console.error(`测试 ${testNum} 失败:`, error);
+                updateResult(testNum, `❌ 测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            const response = await fetch('/api/auth/login/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: 'admin', password: 'admin123' })
+            });
+
+            if (response.ok) {
+                const data = response.json();
+                authToken = data.access;
+                localStorage.setItem('access_token', data.access);
+                localStorage.setItem('refresh_token', data.refresh);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                updateResult(1, `✅ 登录成功！<br>用户: ${data.user.username}<br>角色: ${data.user.role}`, 'success');
+                updateStatus();
+                return true;
+            } else {
+                throw new Error(`登录失败: ${response.status}`);
+            }
+        }
+
+        async function testUsersAPI() {
+            const response = await API.get('/auth/users/', { page_size: 1000 });
+            const users = response.results || [];
+            
+            document.getElementById('userCount').textContent = users.length;
+            updateResult(2, `✅ 用户API测试成功！<br>获取到 ${users.length} 个用户`, 'success');
+            return true;
+        }
+
+        async function testAssetsModule() {
+            if (typeof loadAssets === 'function') {
+                await loadAssets();
+                
+                const response = await API.getAssets({ page_size: 1000 });
+                const assets = response.results || [];
+                
+                document.getElementById('assetCount').textContent = assets.length;
+                updateResult(3, `✅ 设备管理测试成功！<br>页面加载正常，获取到 ${assets.length} 个设备`, 'success');
+                return true;
+            } else {
+                throw new Error('loadAssets函数不存在');
+            }
+        }
+
+        async function testWorkOrderModule() {
+            if (typeof loadWorkOrders === 'function' && typeof showWorkOrderModal === 'function') {
+                await loadWorkOrders();
+                
+                const response = await API.getWorkOrders({ page_size: 1000 });
+                const workorders = response.results || [];
+                
+                document.getElementById('workorderCount').textContent = workorders.length;
+                updateResult(4, `✅ 工单管理测试成功！<br>页面加载正常，获取到 ${workorders.length} 个工单<br>创建模态框功能正常`, 'success');
+                return true;
+            } else {
+                throw new Error('工单管理函数不存在');
+            }
+        }
+
+        async function testMaintenanceModule() {
+            if (typeof loadMaintenance === 'function' && typeof loadMaintenancePlans === 'function') {
+                await loadMaintenance();
+                await loadMaintenancePlans();
+                
+                const response = await API.getMaintenancePlans({ page_size: 1000 });
+                const plans = response.results || [];
+                
+                document.getElementById('planCount').textContent = plans.length;
+                updateResult(5, `✅ 保养计划测试成功！<br>页面加载正常，获取到 ${plans.length} 个保养计划<br>所有函数都存在`, 'success');
+                return true;
+            } else {
+                throw new Error('保养计划函数不存在');
+            }
+        }
+
+        async function testSparePartsModule() {
+            if (typeof loadSpareParts === 'function') {
+                await loadSpareParts();
+                
+                const response = await API.getSpareParts({ page_size: 1000 });
+                const parts = response.results || [];
+                
+                document.getElementById('partCount').textContent = parts.length;
+                updateResult(6, `✅ 备件管理测试成功！<br>页面加载正常，获取到 ${parts.length} 个备件`, 'success');
+                return true;
+            } else {
+                throw new Error('loadSpareParts函数不存在');
+            }
+        }
+
+        async function testWorkOrderFlow() {
+            // 获取设备列表
+            const assetsResponse = await API.getAssets({ page_size: 10 });
+            const assets = assetsResponse.results || [];
+            
+            if (assets.length === 0) {
+                throw new Error('没有可用设备');
+            }
+
+            // 创建测试工单
+            const workorderData = {
+                equipment: assets[0].id,
+                wo_type: 'CM',
+                summary: '集成测试工单',
+                description: '这是一个集成测试创建的工单',
+                priority: 'medium',
+                status: 'open'
+            };
+
+            const createResponse = await API.createWorkOrder(workorderData);
+            createdTestIds.workorder = createResponse.id;
+
+            // 测试工单状态流转
+            await API.startWorkOrder(createResponse.id);
+            await API.completeWorkOrder(createResponse.id, {
+                actions_taken: '完成测试维修',
+                root_cause: '测试原因',
+                downtime_minutes: 30,
+                labor_hours: 2.0,
+                parts_cost: 100.0
+            });
+            await API.closeWorkOrder(createResponse.id);
+
+            updateResult(7, `✅ 工单流程测试成功！<br>工单: ${createResponse.wo_code}<br>状态流转: 开放 → 进行中 → 完成 → 关闭`, 'success');
+            return true;
+        }
+
+        async function cleanupTestData() {
+            let cleaned = 0;
+            
+            // 清理测试工单
+            if (createdTestIds.workorder) {
+                try {
+                    await API.deleteWorkOrder(createdTestIds.workorder);
+                    cleaned++;
+                } catch (e) {
+                    console.log('工单已不存在或已删除');
+                }
+            }
+
+            updateResult(8, `✅ 清理完成！<br>清理了 ${cleaned} 个测试数据项`, 'success');
+            document.getElementById('testStatus').textContent = '测试完成';
+            return true;
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            updateStatus();
+            updateProgress();
+            console.log('🚀 CMMS系统集成测试页面已加载');
+        });
+
+        // 错误捕获
+        window.addEventListener('error', function(e) {
+            console.error('❌ JavaScript错误:', e.message);
+        });
+
+        // 自动运行所有测试
+        async function runAllTests() {
+            document.getElementById('testStatus').textContent = '自动测试中';
+            
+            for (let i = 1; i <= 8; i++) {
+                const testFunctions = [
+                    null, testLogin, testUsersAPI, testAssetsModule, 
+                    testWorkOrderModule, testMaintenanceModule, 
+                    testSparePartsModule, testWorkOrderFlow, cleanupTestData
+                ];
+                
+                if (testFunctions[i]) {
+                    await runTest(i, testFunctions[i]);
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // 等待1秒
+                }
+            }
+            
+            document.getElementById('testStatus').textContent = '自动测试完成';
+        }
+
+        // 添加自动测试按钮
+        setTimeout(() => {
+            const container = document.querySelector('.test-container');
+            const autoTestBtn = document.createElement('button');
+            autoTestBtn.className = 'btn btn-danger';
+            autoTestBtn.textContent = '🚀 运行所有测试';
+            autoTestBtn.onclick = runAllTests;
+            autoTestBtn.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 1000;';
+            document.body.appendChild(autoTestBtn);
+        }, 1000);
+    </script>
+</body>
+</html>

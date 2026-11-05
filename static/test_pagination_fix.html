@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备台账分页修复测试</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>设备台账分页修复测试</h1>
+        
+        <div class="test-section">
+            <h3>修复内容</h3>
+            <ul>
+                <li>✅ 默认每页显示数量从20条改为50条</li>
+                <li>✅ 添加"显示全部"选项</li>
+                <li>✅ 在标题旁显示设备总数</li>
+                <li>✅ 多页数据时显示明显提示</li>
+                <li>✅ 筛选时显示筛选结果数量</li>
+                <li>✅ 完善高级筛选功能</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>测试步骤</h3>
+            <ol>
+                <li>点击下面的按钮打开修复后的主页面</li>
+                <li>登录系统（如果还未登录）</li>
+                <li>点击左侧菜单的"设备台账"</li>
+                <li>观察页面标题旁的设备总数显示</li>
+                <li>查看页面底部的分页控件</li>
+                <li>测试不同的每页显示数量选项</li>
+                <li>测试"显示全部"功能</li>
+                <li>测试搜索和筛选功能</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>快速测试</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="/static/index.html" target="_blank" class="btn btn-primary">打开主页面</a>
+                <a href="/static/login.html" target="_blank" class="btn btn-secondary">登录页面</a>
+                <button class="btn btn-info" onclick="checkModifications()">检查修改</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>检查结果</h3>
+            <div id="checkResults">
+                <p>点击"检查修改"按钮来验证修改是否正确应用</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>预期效果</h3>
+            <ul>
+                <li><strong>设备总数显示：</strong>在"设备台账"标题旁会显示蓝色徽章，如"共50台"</li>
+                <li><strong>分页选项：</strong>每页显示选项包含20、50、100、500、显示全部</li>
+                <li><strong>默认显示：</strong>默认每页显示50条记录</li>
+                <li><strong>多页提示：</strong>当有多页数据时，分页区域会有蓝色边框和提示文字</li>
+                <li><strong>筛选反馈：</strong>搜索或筛选后，徽章会显示"筛选出X台/共Y台"</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function checkModifications() {
+            const results = document.getElementById('checkResults');
+            let html = '<h4>修改检查结果：</h4>';
+            
+            // 检查assets.js文件的修改
+            fetch('/static/js/assets.js')
+                .then(response => response.text())
+                .then(content => {
+                    const checks = [
+                        {
+                            name: '默认分页大小修改',
+                            test: content.includes('pageSize = 50'),
+                            expected: 'pageSize = 50'
+                        },
+                        {
+                            name: '显示全部功能',
+                            test: content.includes('value="all"') || content.includes("newPageSize === 'all'"),
+                            expected: '包含显示全部逻辑'
+                        },
+                        {
+                            name: '设备总数显示',
+                            test: content.includes('assetCountBadge'),
+                            expected: '包含设备总数显示逻辑'
+                        },
+                        {
+                            name: '高级筛选功能',
+                            test: content.includes('applyAdvancedFilter'),
+                            expected: '包含高级筛选函数'
+                        },
+                        {
+                            name: '分页提示功能',
+                            test: content.includes('paginationTip'),
+                            expected: '包含分页提示逻辑'
+                        }
+                    ];
+                    
+                    checks.forEach(check => {
+                        const status = check.test ? '✅' : '❌';
+                        const className = check.test ? 'success' : 'error';
+                        html += `<p class="${className}">${status} ${check.name}: ${check.expected}</p>`;
+                    });
+                    
+                    results.innerHTML = html;
+                })
+                .catch(error => {
+                    results.innerHTML = '<p class="error">❌ 无法检查文件修改: ' + error.message + '</p>';
+                });
+        }
+    </script>
+</body>
+</html>

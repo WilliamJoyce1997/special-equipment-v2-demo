@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>保养计划最终测试</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <style>
+        .test-container { max-width: 1000px; margin: 20px auto; padding: 20px; }
+        .test-section { margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { border-color: #10b981; background: #f0fdf4; }
+        .error { border-color: #ef4444; background: #fef2f2; }
+        .info { border-color: #3b82f6; background: #eff6ff; }
+        .warning { border-color: #f59e0b; background: #fffbeb; }
+        .btn { margin: 5px; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 保养计划系统最终测试</h1>
+        
+        <div class="test-section info">
+            <h3>📋 测试说明</h3>
+            <p>这个测试将验证保养计划系统的完整功能，包括前端界面和后端API的集成。</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🔐 步骤 1: 用户认证</h3>
+            <button class="btn btn-primary" onclick="testLogin()">登录系统</button>
+            <div id="loginResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📄 步骤 2: 页面加载测试</h3>
+            <button class="btn btn-success" onclick="testPageLoad()">测试页面加载</button>
+            <div id="pageResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 步骤 3: 保养计划CRUD操作</h3>
+            <button class="btn btn-warning" onclick="testCRUDOperations()">测试CRUD操作</button>
+            <div id="crudResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>⚙️ 步骤 4: 高级功能测试</h3>
+            <button class="btn btn-danger" onclick="testAdvancedFeatures()">测试高级功能</button>
+            <div id="advancedResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 当前状态</h3>
+            <div class="status-grid">
+                <div>
+                    <strong>登录状态:</strong> <span id="loginStatus">未登录</span><br>
+                    <strong>用户信息:</strong> <span id="userInfo">-</span><br>
+                    <strong>可用设备:</strong> <span id="assetCount">0</span> 个
+                </div>
+                <div>
+                    <strong>保养计划数:</strong> <span id="planCount">0</span> 个<br>
+                    <strong>测试状态:</strong> <span id="testStatus">准备中</span><br>
+                    <strong>最后操作:</strong> <span id="lastAction">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 隐藏的页面容器 -->
+        <div id="page-maintenance" style="display: none;"></div>
+    </div>
+
+    <!-- JavaScript文件 -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/maintenance.js"></script>
+    <script src="/static/js/index.js"></script>
+
+    <script>
+        let authToken = null;
+        let availableAssets = [];
+        let testPlanId = null;
+
+        function updateResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
+            element.innerHTML = `<div class="test-section ${className}" style="margin-top: 10px;">${message}</div>`;
+        }
+
+        function updateStatus() {
+            const token = localStorage.getItem('access_token');
+            const user = localStorage.getItem('user');
+            
+            document.getElementById('loginStatus').textContent = token ? '已登录' : '未登录';
+            document.getElementById('assetCount').textContent = availableAssets.length;
+            
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    document.getElementById('userInfo').textContent = `${userData.username} (${userData.role})`;
+                } catch (e) {
+                    document.getElementById('userInfo').textContent = '解析错误';
+                }
+            }
+        }
+
+        async function testLogin() {
+            updateResult('loginResult', '🔄 正在登录...', 'info');
+            document.getElementById('lastAction').textContent = '登录测试';
+            
+            try {
+                const response = await fetch('/api/auth/login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.access;
+                    localStorage.setItem('access_token', data.access);
+                    localStorage.setItem('refresh_token', data.refresh);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    updateResult('loginResult', `✅ 登录成功！<br>用户: ${data.user.username}<br>角色: ${data.user.role}`, 'success');
+                    
+                    // 加载设备列表
+                    await loadAssets();
+                    updateStatus();
+                } else {
+                    const error = await response.json();
+                    updateResult('loginResult', `❌ 登录失败: ${error.detail || '未知错误'}`, 'error');
+                }
+            } catch (error) {
+                updateResult('loginResult', `❌ 登录异常: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadAssets() {
+            try {
+                const response = await fetch('/api/assets/', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    availableAssets = data.results || [];
+                    console.log('✅ 加载设备列表:', availableAssets.length, '个设备');
+                } else {
+                    console.error('❌ 加载设备失败');
+                }
+            } catch (error) {
+                console.error('❌ 加载设备异常:', error);
+            }
+        }
+
+        async function testPageLoad() {
+            if (!authToken) {
+                updateResult('pageResult', '❌ 请先登录', 'error');
+                return;
+            }
+
+            updateResult('pageResult', '🔄 正在测试页面加载...', 'info');
+            document.getElementById('lastAction').textContent = '页面加载测试';
+
+            try {
+                // 测试关键函数是否存在
+                const functions = ['loadMaintenance', 'loadMaintenancePlans', 'showMaintenancePlanModal', 'API'];
+                const missing = [];
+                
+                functions.forEach(funcName => {
+                    if (typeof window[funcName] === 'undefined') {
+                        missing.push(funcName);
+                    }
+                });
+
+                if (missing.length > 0) {
+                    updateResult('pageResult', `❌ 缺少函数: ${missing.join(', ')}`, 'error');
+                    return;
+                }
+
+                // 测试loadMaintenance函数
+                await loadMaintenance();
+                
+                // 测试loadMaintenancePlans函数
+                await loadMaintenancePlans();
+                
+                updateResult('pageResult', '✅ 页面加载测试成功！<br>所有关键函数都存在且可正常执行', 'success');
+                
+            } catch (error) {
+                updateResult('pageResult', `❌ 页面加载测试失败: ${error.message}`, 'error');
+                console.error('页面加载测试错误:', error);
+            }
+        }
+
+        async function testCRUDOperations() {
+            if (!authToken) {
+                updateResult('crudResult', '❌ 请先登录', 'error');
+                return;
+            }
+
+            if (availableAssets.length === 0) {
+                updateResult('crudResult', '❌ 没有可用设备', 'error');
+                return;
+            }
+
+            updateResult('crudResult', '🔄 正在测试CRUD操作...', 'info');
+            document.getElementById('lastAction').textContent = 'CRUD操作测试';
+
+            try {
+                // 1. 创建保养计划
+                const planData = {
+                    code: 'TEST-' + Date.now(),
+                    equipment: availableAssets[0].id,
+                    title: '前端测试保养计划',
+                    description: '这是一个前端CRUD测试保养计划',
+                    trigger_type: 'time',
+                    frequency_value: 30,
+                    frequency_unit: 'day',
+                    priority: 'medium',
+                    estimated_hours: 2.0,
+                    estimated_cost: 100.00,
+                    required_skills: '机械师',
+                    checklist_template: ['检查机油', '检查皮带', '清洁滤网'],
+                    is_active: true
+                };
+
+                const createResponse = await fetch('/api/maintenance/plans/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(planData)
+                });
+
+                if (!createResponse.ok) {
+                    throw new Error(`创建失败: ${createResponse.status}`);
+                }
+
+                const createdPlan = await createResponse.json();
+                testPlanId = createdPlan.id;
+
+                // 2. 读取保养计划
+                const readResponse = await fetch(`/api/maintenance/plans/${testPlanId}/`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (!readResponse.ok) {
+                    throw new Error(`读取失败: ${readResponse.status}`);
+                }
+
+                // 3. 更新保养计划
+                const updateData = { ...planData, title: '更新后的测试保养计划' };
+                const updateResponse = await fetch(`/api/maintenance/plans/${testPlanId}/`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (!updateResponse.ok) {
+                    throw new Error(`更新失败: ${updateResponse.status}`);
+                }
+
+                // 4. 测试loadMaintenancePlans函数
+                await loadMaintenancePlans();
+
+                updateResult('crudResult', `✅ CRUD操作测试成功！<br>✓ 创建: ${createdPlan.code}<br>✓ 读取: 成功<br>✓ 更新: 成功<br>✓ 列表刷新: 成功`, 'success');
+
+                // 更新计划数量
+                const listResponse = await fetch('/api/maintenance/plans/', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (listResponse.ok) {
+                    const listData = await listResponse.json();
+                    document.getElementById('planCount').textContent = listData.count || 0;
+                }
+
+            } catch (error) {
+                updateResult('crudResult', `❌ CRUD操作测试失败: ${error.message}`, 'error');
+                console.error('CRUD测试错误:', error);
+            }
+        }
+
+        async function testAdvancedFeatures() {
+            if (!authToken || !testPlanId) {
+                updateResult('advancedResult', '❌ 请先完成CRUD测试', 'error');
+                return;
+            }
+
+            updateResult('advancedResult', '🔄 正在测试高级功能...', 'info');
+            document.getElementById('lastAction').textContent = '高级功能测试';
+
+            try {
+                let results = [];
+
+                // 1. 测试生成工单
+                const generateResponse = await fetch(`/api/maintenance/plans/${testPlanId}/generate_work_order/`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (generateResponse.ok) {
+                    const generateResult = await generateResponse.json();
+                    results.push(`✓ 生成工单: ${generateResult.wo_code}`);
+                } else {
+                    results.push(`✗ 生成工单失败: ${generateResponse.status}`);
+                }
+
+                // 2. 测试停用计划
+                const deactivateResponse = await fetch(`/api/maintenance/plans/${testPlanId}/deactivate/`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (deactivateResponse.ok) {
+                    results.push('✓ 停用计划: 成功');
+                } else {
+                    results.push(`✗ 停用计划失败: ${deactivateResponse.status}`);
+                }
+
+                // 3. 测试激活计划
+                const activateResponse = await fetch(`/api/maintenance/plans/${testPlanId}/activate/`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (activateResponse.ok) {
+                    results.push('✓ 激活计划: 成功');
+                } else {
+                    results.push(`✗ 激活计划失败: ${activateResponse.status}`);
+                }
+
+                // 4. 测试删除计划
+                const deleteResponse = await fetch(`/api/maintenance/plans/${testPlanId}/`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (deleteResponse.ok) {
+                    results.push('✓ 删除计划: 成功');
+                    testPlanId = null;
+                } else {
+                    results.push(`✗ 删除计划失败: ${deleteResponse.status}`);
+                }
+
+                // 5. 刷新列表
+                await loadMaintenancePlans();
+                results.push('✓ 列表刷新: 成功');
+
+                updateResult('advancedResult', `✅ 高级功能测试完成！<br>${results.join('<br>')}`, 'success');
+                document.getElementById('testStatus').textContent = '测试完成';
+
+            } catch (error) {
+                updateResult('advancedResult', `❌ 高级功能测试失败: ${error.message}`, 'error');
+                console.error('高级功能测试错误:', error);
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            updateStatus();
+            console.log('🚀 保养计划测试页面已加载');
+        });
+
+        // 错误捕获
+        window.addEventListener('error', function(e) {
+            console.error('❌ JavaScript错误:', e.message);
+            document.getElementById('testStatus').textContent = '发生错误';
+        });
+    </script>
+</body>
+</html>

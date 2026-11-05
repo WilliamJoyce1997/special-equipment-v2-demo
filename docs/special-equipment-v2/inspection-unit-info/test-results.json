@@ -1,0 +1,17 @@
+{
+  "passed": 9,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "record DEMO-ORG-003 41 ordered fields / 3 required marks / exact data / missing blank / read-only",
+    "1366 layout / single body scroll / accessible footer",
+    "1920 layout / single body scroll / accessible footer",
+    "768 layout / single body scroll / accessible footer",
+    "390 layout / single body scroll / accessible footer",
+    "close preserves filters/page/selection",
+    "record DEMO-ORG-004 41 ordered fields / 3 required marks / exact data / missing blank / read-only",
+    "close preserves filters/page/selection",
+    "no blocking console or JavaScript errors"
+  ],
+  "errors": []
+}

@@ -1,0 +1,6491 @@
+{
+  "types": {
+    "boiler": {
+      "title": "锅炉",
+      "reference": 8,
+      "categories": [
+        "承压蒸汽锅炉",
+        "承压热水锅炉",
+        "有机热载体锅炉"
+      ],
+      "queries": [
+        {
+          "key": "search",
+          "label": "综合查询",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入设备代码、注册代码、使用证编号"
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "type": "select",
+          "options": [
+            "演示省 / 云岚市",
+            "演示省 / 星河市"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "type": "select",
+          "options": [
+            "承压蒸汽锅炉",
+            "承压热水锅炉",
+            "有机热载体锅炉"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "type": "select",
+          "options": [
+            "在用",
+            "停用",
+            "报废"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "fuel",
+          "label": "使用燃料种类",
+          "type": "select",
+          "options": [
+            "天然气",
+            "电",
+            "生物质"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "designFuel",
+          "label": "设计燃料种类",
+          "type": "select",
+          "options": [
+            "天然气",
+            "电",
+            "生物质"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "evaporation",
+          "label": "额定蒸发量（t/h）",
+          "type": "numberRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "power",
+          "label": "额定热功率（mw）",
+          "type": "numberRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "internalCode",
+          "label": "设备单位内编号",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "type": "select",
+          "options": [
+            "已登记",
+            "未登记"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "type": "select",
+          "options": [
+            "工厂",
+            "公共场所",
+            "住宅",
+            "园区"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "columns": [
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "certificate",
+          "label": "使用证编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "model",
+          "label": "设备型号",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "internalCode",
+          "label": "设备内部编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "internalInspectionDate",
+          "label": "内部检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextInternalInspectionDate",
+          "label": "内检下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "externalInspectionDate",
+          "label": "外部检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextExternalInspectionDate",
+          "label": "外检下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "internalLocation",
+          "label": "设备使用（内部）地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "evaporation",
+          "label": "额定蒸发量（t/h）",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "power",
+          "label": "额定热功率（MW）",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "drumPressure",
+          "label": "锅筒工作压力",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "ratedPressure",
+          "label": "额定压力",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "heatingMethod",
+          "label": "加热方式",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "fuel",
+          "label": "燃料种类",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "powerStationBoiler",
+          "label": "是否电站锅炉",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        }
+      ],
+      "actions": [
+        "更改检验机构",
+        "导出"
+      ],
+      "inlineSelection": false,
+      "sequenceWidth": 64,
+      "exportAllColumns": true,
+      "operationWidth": 350,
+      "rowActions": [
+        [
+          "精简档案",
+          "brief"
+        ],
+        [
+          "详情",
+          "info"
+        ],
+        [
+          "更多>>",
+          "menu"
+        ]
+      ],
+      "implemented": true,
+      "dataSource": "fictional-browser-fixtures",
+      "api": null,
+      "detailFields": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "certificate",
+          "label": "使用证编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "model",
+          "label": "设备型号",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "internalCode",
+          "label": "设备内部编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "internalInspectionDate",
+          "label": "内部检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextInternalInspectionDate",
+          "label": "内检下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "externalInspectionDate",
+          "label": "外部检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextExternalInspectionDate",
+          "label": "外检下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "internalLocation",
+          "label": "设备使用（内部）地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "evaporation",
+          "label": "额定蒸发量（t/h）",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "power",
+          "label": "额定热功率（MW）",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "drumPressure",
+          "label": "锅筒工作压力",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "ratedPressure",
+          "label": "额定压力",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "heatingMethod",
+          "label": "加热方式",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "fuel",
+          "label": "燃料种类",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "powerStationBoiler",
+          "label": "是否电站锅炉",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "designFuel",
+          "label": "设计燃料种类",
+          "type": "select",
+          "options": [
+            "天然气",
+            "电",
+            "生物质"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "fixedColumns": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "fixed": "left"
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "fixed": "left"
+        }
+      ]
+    },
+    "vessel": {
+      "title": "压力容器",
+      "reference": 9,
+      "categories": [
+        "固定式压力容器",
+        "移动式压力容器"
+      ],
+      "queries": [
+        {
+          "key": "search",
+          "label": "综合查询",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入设备代码、注册代码、使用证编号"
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "type": "select",
+          "options": [
+            "演示省 / 云岚市",
+            "演示省 / 星河市"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "type": "select",
+          "options": [
+            "固定式压力容器",
+            "移动式压力容器"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "type": "select",
+          "options": [
+            "在用",
+            "停用",
+            "报废"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "purpose",
+          "label": "设备用途",
+          "type": "select",
+          "options": [
+            "储存",
+            "换热",
+            "反应"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "internalCode",
+          "label": "设备单位内编号",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "quickDoor",
+          "label": "是否快开门",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "type": "select",
+          "options": [
+            "已登记",
+            "未登记"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "type": "select",
+          "options": [
+            "工厂",
+            "公共场所",
+            "住宅",
+            "园区"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "columns": [
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "model",
+          "label": "设备型号",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCertificate",
+          "label": "使用登记证编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "internalCode",
+          "label": "设备内部编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "fullInspectionDate",
+          "label": "全面检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextFullInspectionDate",
+          "label": "全面检验下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "annualInspectionDate",
+          "label": "年度检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextAnnualInspectionDate",
+          "label": "年度检验下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "internalLocation",
+          "label": "设备使用（内部）地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "vesselVolume",
+          "label": "容器容积M3",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        }
+      ],
+      "actions": [
+        "更改检验机构",
+        "导出"
+      ],
+      "inlineSelection": false,
+      "sequenceWidth": 64,
+      "exportAllColumns": true,
+      "operationWidth": 350,
+      "rowActions": [
+        [
+          "精简档案",
+          "brief"
+        ],
+        [
+          "详情",
+          "info"
+        ],
+        [
+          "更多>>",
+          "menu"
+        ]
+      ],
+      "implemented": true,
+      "dataSource": "fictional-browser-fixtures",
+      "api": null,
+      "detailFields": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "model",
+          "label": "设备型号",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCertificate",
+          "label": "使用登记证编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "internalCode",
+          "label": "设备内部编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "fullInspectionDate",
+          "label": "全面检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextFullInspectionDate",
+          "label": "全面检验下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "annualInspectionDate",
+          "label": "年度检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextAnnualInspectionDate",
+          "label": "年度检验下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "internalLocation",
+          "label": "设备使用（内部）地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "vesselVolume",
+          "label": "容器容积M3",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "purpose",
+          "label": "设备用途",
+          "type": "select",
+          "options": [
+            "储存",
+            "换热",
+            "反应"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "quickDoor",
+          "label": "是否快开门",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "fixedColumns": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "fixed": "left"
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "fixed": "left"
+        }
+      ]
+    },
+    "elevator": {
+      "title": "电梯",
+      "reference": 10,
+      "categories": [
+        "曳引驱动乘客电梯",
+        "自动扶梯与自动人行道",
+        "曳引驱动载货电梯"
+      ],
+      "queries": [
+        {
+          "key": "search",
+          "label": "综合查询",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入设备代码、注册代码、使用证编号"
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "type": "select",
+          "options": [
+            "演示省 / 云岚市",
+            "演示省 / 星河市"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "type": "select",
+          "options": [
+            "曳引驱动乘客电梯",
+            "自动扶梯与自动人行道",
+            "曳引驱动载货电梯"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "type": "select",
+          "options": [
+            "在用",
+            "停用",
+            "报废"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "internalCode",
+          "label": "设备单位内编号",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "type": "select",
+          "options": [
+            "已登记",
+            "未登记"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "insured",
+          "label": "购买保险",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "pilot",
+          "label": "参与改革试点",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "onDemand",
+          "label": "按需维保",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "testingOrg",
+          "label": "检测机构",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "type": "select",
+          "options": [
+            "工厂",
+            "公共场所",
+            "住宅",
+            "园区"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "age",
+          "label": "梯龄",
+          "type": "numberRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "baseMonth",
+          "label": "基准月",
+          "type": "select",
+          "options": [
+            "1月",
+            "2月",
+            "3月",
+            "4月",
+            "5月",
+            "6月",
+            "7月",
+            "8月",
+            "9月",
+            "10月",
+            "11月",
+            "12月"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "inspectionOrg",
+          "label": "检验机构",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "columns": [
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "onDemand",
+          "label": "按需维保",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "testingOrg",
+          "label": "检测机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "currentReportingOrg",
+          "label": "当前报检机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "testingDate",
+          "label": "检测日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "model",
+          "label": "设备型号",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "internalCode",
+          "label": "设备内部编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextInspection",
+          "label": "下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "residentialElevator",
+          "label": "住宅电梯",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "carDecoration",
+          "label": "轿廂装璜",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "maintenanceOrg",
+          "label": "维保单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "internalLocation",
+          "label": "设备使用（内部）地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationCertificate",
+          "label": "使用登记证编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "inspectionTestingNature",
+          "label": "检验检测性质",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "nextTestingDate",
+          "label": "下次检测日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "insuranceMode",
+          "label": "投保方式",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "insurer",
+          "label": "承保单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "policyValidUntil",
+          "label": "保单有效期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "maintenancePhone",
+          "label": "维保联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "maintenanceContact",
+          "label": "维保负责人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "commissionedDate",
+          "label": "设备投用日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "supervisorName",
+          "label": "监管人员姓名",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "supervisorPhone",
+          "label": "监管人员电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspectionNature",
+          "label": "检验性质",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationFormNumber",
+          "label": "登记表编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "acceptedTestingOrg",
+          "label": "受理检测机构名称",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "testingHandledDate",
+          "label": "检测办理日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "age",
+          "label": "梯龄",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "baseMonth",
+          "label": "基准月",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspectionOrg",
+          "label": "检验机构名称",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        }
+      ],
+      "actions": [
+        "更改检验机构",
+        "使用标志",
+        "更多 >>"
+      ],
+      "inlineSelection": false,
+      "sequenceWidth": 64,
+      "exportAllColumns": true,
+      "operationWidth": 350,
+      "rowActions": [
+        [
+          "精简档案",
+          "brief"
+        ],
+        [
+          "详情",
+          "info"
+        ],
+        [
+          "更多>>",
+          "menu"
+        ]
+      ],
+      "implemented": true,
+      "dataSource": "fictional-browser-fixtures",
+      "api": null,
+      "detailFields": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "onDemand",
+          "label": "按需维保",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "testingOrg",
+          "label": "检测机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "currentReportingOrg",
+          "label": "当前报检机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "testingDate",
+          "label": "检测日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "model",
+          "label": "设备型号",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "internalCode",
+          "label": "设备内部编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextInspection",
+          "label": "下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "residentialElevator",
+          "label": "住宅电梯",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "carDecoration",
+          "label": "轿廂装璜",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "maintenanceOrg",
+          "label": "维保单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "internalLocation",
+          "label": "设备使用（内部）地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationCertificate",
+          "label": "使用登记证编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "inspectionTestingNature",
+          "label": "检验检测性质",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "nextTestingDate",
+          "label": "下次检测日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "insuranceMode",
+          "label": "投保方式",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "insurer",
+          "label": "承保单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "policyValidUntil",
+          "label": "保单有效期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "maintenancePhone",
+          "label": "维保联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "maintenanceContact",
+          "label": "维保负责人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "commissionedDate",
+          "label": "设备投用日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "supervisorName",
+          "label": "监管人员姓名",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "supervisorPhone",
+          "label": "监管人员电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspectionNature",
+          "label": "检验性质",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationFormNumber",
+          "label": "登记表编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "acceptedTestingOrg",
+          "label": "受理检测机构名称",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "testingHandledDate",
+          "label": "检测办理日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "age",
+          "label": "梯龄",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "baseMonth",
+          "label": "基准月",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspectionOrg",
+          "label": "检验机构名称",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "insured",
+          "label": "购买保险",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "pilot",
+          "label": "参与改革试点",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        }
+      ],
+      "fixedColumns": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "fixed": "left"
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "fixed": "left"
+        }
+      ]
+    },
+    "crane": {
+      "title": "起重机械",
+      "reference": 11,
+      "implemented": true,
+      "queryPlan": [
+        "综合查询",
+        "所在地区",
+        "设备类别",
+        "使用状态",
+        "受理状态",
+        "部门名称",
+        "拼音简称",
+        "主管部门",
+        "是否在重要场所",
+        "注册状态",
+        "使用单位",
+        "最新检验业务 检验类别",
+        "办理日期",
+        "设备使用场所",
+        "检验日期"
+      ],
+      "columns": [
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "model",
+          "label": "设备型号",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCertificate",
+          "label": "使用登记证编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "internalCode",
+          "label": "设备内部编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextInspection",
+          "label": "下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "internalLocation",
+          "label": "设备使用（内部）地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        }
+      ],
+      "categories": [
+        "桥式起重机",
+        "门式起重机",
+        "塔式起重机"
+      ],
+      "queries": [
+        {
+          "key": "search",
+          "label": "综合查询",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入设备代码、注册代码、使用证编号"
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "type": "select",
+          "options": [
+            "演示省 / 云岚市",
+            "演示省 / 星河市"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "type": "select",
+          "options": [
+            "桥式起重机",
+            "门式起重机",
+            "塔式起重机"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "type": "select",
+          "options": [
+            "在用",
+            "停用",
+            "报废"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "type": "select",
+          "options": [
+            "已登记",
+            "未登记"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "inspectionKind",
+          "label": "最新检验业务 检验类别",
+          "type": "select",
+          "options": [
+            "定期检验（模拟）",
+            "监督检验（模拟）"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "type": "select",
+          "options": [
+            "工厂",
+            "公共场所",
+            "住宅",
+            "园区"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "actions": [
+        "更改检验机构",
+        "导出"
+      ],
+      "operationWidth": 350,
+      "rowActions": [
+        [
+          "精简档案",
+          "brief"
+        ],
+        [
+          "详情",
+          "info"
+        ],
+        [
+          "更多>>",
+          "menu"
+        ]
+      ],
+      "inlineSelection": false,
+      "sequenceWidth": 64,
+      "exportAllColumns": true,
+      "dataSource": "fictional-browser-fixtures",
+      "api": null,
+      "detailFields": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "model",
+          "label": "设备型号",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCertificate",
+          "label": "使用登记证编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "internalCode",
+          "label": "设备内部编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextInspection",
+          "label": "下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "internalLocation",
+          "label": "设备使用（内部）地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "inspectionKind",
+          "label": "最新检验业务 检验类别",
+          "type": "select",
+          "options": [
+            "定期检验（模拟）",
+            "监督检验（模拟）"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "fixedColumns": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "fixed": "left"
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "fixed": "left"
+        }
+      ]
+    },
+    "vehicle": {
+      "title": "场（厂）内机动车辆",
+      "reference": 12,
+      "implemented": true,
+      "queryPlan": [
+        "综合查询",
+        "所在地区",
+        "设备类别",
+        "使用状态",
+        "受理状态",
+        "部门名称",
+        "厂牌编号",
+        "拼音简称",
+        "最新检验业务 检验类别",
+        "主管部门",
+        "是否在重要场所",
+        "注册状态",
+        "使用单位",
+        "办理日期",
+        "设备使用场所",
+        "检验日期"
+      ],
+      "columns": [
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "plate",
+          "label": "厂牌编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "vehicleRegistrationCertificate",
+          "label": "使用证登记编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextInspection",
+          "label": "下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "internalLocation",
+          "label": "设备使用（内部）地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        }
+      ],
+      "categories": [
+        "叉车",
+        "非公路用旅游观光车辆"
+      ],
+      "queries": [
+        {
+          "key": "search",
+          "label": "综合查询",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入设备代码、注册代码、使用证编号"
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "type": "select",
+          "options": [
+            "演示省 / 云岚市",
+            "演示省 / 星河市"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "type": "select",
+          "options": [
+            "叉车",
+            "非公路用旅游观光车辆"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "type": "select",
+          "options": [
+            "在用",
+            "停用",
+            "报废"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "plate",
+          "label": "厂牌编号",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "inspectionKind",
+          "label": "最新检验业务 检验类别",
+          "type": "select",
+          "options": [
+            "定期检验（模拟）",
+            "监督检验（模拟）"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "type": "select",
+          "options": [
+            "已登记",
+            "未登记"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "type": "select",
+          "options": [
+            "工厂",
+            "公共场所",
+            "住宅",
+            "园区"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "actions": [
+        "更改检验机构",
+        "导出"
+      ],
+      "operationWidth": 350,
+      "rowActions": [
+        [
+          "精简档案",
+          "brief"
+        ],
+        [
+          "详情",
+          "info"
+        ],
+        [
+          "更多>>",
+          "menu"
+        ]
+      ],
+      "inlineSelection": false,
+      "sequenceWidth": 64,
+      "exportAllColumns": true,
+      "dataSource": "fictional-browser-fixtures",
+      "api": null,
+      "detailFields": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "plate",
+          "label": "厂牌编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "vehicleRegistrationCertificate",
+          "label": "使用证登记编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextInspection",
+          "label": "下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "internalLocation",
+          "label": "设备使用（内部）地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "inspectionKind",
+          "label": "最新检验业务 检验类别",
+          "type": "select",
+          "options": [
+            "定期检验（模拟）",
+            "监督检验（模拟）"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "fixedColumns": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "fixed": "left"
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "fixed": "left"
+        }
+      ]
+    },
+    "amusement": {
+      "title": "大型游乐设施",
+      "reference": 13,
+      "implemented": true,
+      "queryPlan": [
+        "综合查询",
+        "所在地区",
+        "设备类别",
+        "使用状态",
+        "受理状态",
+        "部门名称",
+        "拼音简称",
+        "主管部门",
+        "最新检验业务 检验类别",
+        "是否在重要场所",
+        "注册状态",
+        "使用单位",
+        "办理日期",
+        "设备使用场所",
+        "检验日期"
+      ],
+      "columns": [
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "identificationCode",
+          "label": "设备识别码",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "model",
+          "label": "设备型号",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCertificate",
+          "label": "使用登记证编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextInspection",
+          "label": "下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "internalLocation",
+          "label": "设备使用（内部）地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        }
+      ],
+      "categories": [
+        "观览车类",
+        "滑行车类",
+        "旋转木马类"
+      ],
+      "queries": [
+        {
+          "key": "search",
+          "label": "综合查询",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入设备代码、注册代码、使用证编号"
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "type": "select",
+          "options": [
+            "演示省 / 云岚市",
+            "演示省 / 星河市"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "type": "select",
+          "options": [
+            "观览车类",
+            "滑行车类",
+            "旋转木马类"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "type": "select",
+          "options": [
+            "在用",
+            "停用",
+            "报废"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "inspectionKind",
+          "label": "最新检验业务 检验类别",
+          "type": "select",
+          "options": [
+            "定期检验（模拟）",
+            "监督检验（模拟）"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "type": "select",
+          "options": [
+            "已登记",
+            "未登记"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "type": "select",
+          "options": [
+            "工厂",
+            "公共场所",
+            "住宅",
+            "园区"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "actions": [
+        "更改检验机构",
+        "导出"
+      ],
+      "operationWidth": 350,
+      "rowActions": [
+        [
+          "精简档案",
+          "brief"
+        ],
+        [
+          "详情",
+          "info"
+        ],
+        [
+          "更多>>",
+          "menu"
+        ]
+      ],
+      "inlineSelection": false,
+      "sequenceWidth": 64,
+      "exportAllColumns": true,
+      "dataSource": "fictional-browser-fixtures",
+      "api": null,
+      "detailFields": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "identificationCode",
+          "label": "设备识别码",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "model",
+          "label": "设备型号",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCertificate",
+          "label": "使用登记证编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextInspection",
+          "label": "下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "internalLocation",
+          "label": "设备使用（内部）地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "inspectionKind",
+          "label": "最新检验业务 检验类别",
+          "type": "select",
+          "options": [
+            "定期检验（模拟）",
+            "监督检验（模拟）"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "fixedColumns": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "fixed": "left"
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "fixed": "left"
+        }
+      ]
+    },
+    "ropeway": {
+      "title": "客运索道",
+      "reference": 14,
+      "implemented": true,
+      "queryPlan": [
+        "综合查询",
+        "所在地区",
+        "设备类别",
+        "使用状态",
+        "受理状态",
+        "部门名称",
+        "拼音简称",
+        "主管部门",
+        "是否在重要场所",
+        "注册状态",
+        "使用单位",
+        "最新检验业务 检验类别",
+        "办理日期",
+        "设备使用场所",
+        "检验日期"
+      ],
+      "columns": [
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "model",
+          "label": "设备型号",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCertificate",
+          "label": "使用登记证编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextInspection",
+          "label": "下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        }
+      ],
+      "categories": [
+        "客运架空索道",
+        "客运缆车",
+        "客运拖牵索道"
+      ],
+      "queries": [
+        {
+          "key": "search",
+          "label": "综合查询",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入设备代码、注册代码、使用证编号"
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "type": "select",
+          "options": [
+            "演示省 / 云岚市",
+            "演示省 / 星河市"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "type": "select",
+          "options": [
+            "客运架空索道",
+            "客运缆车",
+            "客运拖牵索道"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "type": "select",
+          "options": [
+            "在用",
+            "停用",
+            "报废"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "type": "select",
+          "options": [
+            "已登记",
+            "未登记"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "inspectionKind",
+          "label": "最新检验业务 检验类别",
+          "type": "select",
+          "options": [
+            "定期检验（模拟）",
+            "监督检验（模拟）"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "type": "select",
+          "options": [
+            "工厂",
+            "公共场所",
+            "住宅",
+            "园区"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "actions": [
+        "更改检验机构",
+        "导出"
+      ],
+      "operationWidth": 350,
+      "rowActions": [
+        [
+          "精简档案",
+          "brief"
+        ],
+        [
+          "详情",
+          "info"
+        ],
+        [
+          "更多>>",
+          "menu"
+        ]
+      ],
+      "inlineSelection": false,
+      "sequenceWidth": 64,
+      "exportAllColumns": true,
+      "dataSource": "fictional-browser-fixtures",
+      "api": null,
+      "detailFields": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "contact",
+          "label": "联系人",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "phone",
+          "label": "联系电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCode",
+          "label": "设备注册代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "model",
+          "label": "设备型号",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "factoryNumber",
+          "label": "出厂编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registrationCertificate",
+          "label": "使用登记证编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "usageLocation",
+          "label": "使用地点",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "place",
+          "label": "设备使用场所",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "name",
+          "label": "设备名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "reportNumber",
+          "label": "检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "nextInspection",
+          "label": "下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "registrationOrg",
+          "label": "注册登记机构",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "manufacturer",
+          "label": "制造单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "manufactured",
+          "label": "制造日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "department",
+          "label": "部门名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pinyin",
+          "label": "拼音简称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "authority",
+          "label": "主管部门",
+          "type": "select",
+          "options": [
+            "演示监管一处",
+            "演示监管二处"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "important",
+          "label": "是否在重要场所",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "inspectionKind",
+          "label": "最新检验业务 检验类别",
+          "type": "select",
+          "options": [
+            "定期检验（模拟）",
+            "监督检验（模拟）"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "fixedColumns": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "fixed": "left"
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "fixed": "left"
+        }
+      ]
+    },
+    "installation": {
+      "title": "压力管道装置",
+      "reference": 15,
+      "implemented": true,
+      "queryPlan": [
+        "综合查询",
+        "所在地区",
+        "设备类别",
+        "使用状态",
+        "社会信用代码",
+        "创建时间",
+        "注册状态",
+        "使用单位",
+        "最新检验业务 检验类别",
+        "办理日期",
+        "告知单编号"
+      ],
+      "columns": [
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "installationName",
+          "label": "工程装置名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "installationCertificate",
+          "label": "使用证编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "pipelineCount",
+          "label": "管道管线数",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "pipelineTotalLength",
+          "label": "管道总长度（m）",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        }
+      ],
+      "categories": [
+        "工业管道装置",
+        "公用管道装置"
+      ],
+      "queries": [
+        {
+          "key": "search",
+          "label": "综合查询",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入设备代码、注册代码、使用证编号"
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "type": "select",
+          "options": [
+            "演示省 / 云岚市",
+            "演示省 / 星河市"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "type": "select",
+          "options": [
+            "工业管道装置",
+            "公用管道装置"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "type": "select",
+          "options": [
+            "在用",
+            "停用",
+            "报废"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "creditCode",
+          "label": "社会信用代码",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "created",
+          "label": "创建时间",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "type": "select",
+          "options": [
+            "已登记",
+            "未登记"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "inspectionKind",
+          "label": "最新检验业务 检验类别",
+          "type": "select",
+          "options": [
+            "定期检验（模拟）",
+            "监督检验（模拟）"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "noticeNumber",
+          "label": "告知单编号",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "actions": [
+        "新增",
+        "导出",
+        "管道汇总表"
+      ],
+      "summary": true,
+      "operationWidth": 350,
+      "rowActions": [
+        [
+          "精简档案",
+          "brief"
+        ],
+        [
+          "详情",
+          "info"
+        ],
+        [
+          "更多>>",
+          "menu"
+        ]
+      ],
+      "inlineSelection": false,
+      "sequenceWidth": 64,
+      "exportAllColumns": true,
+      "dataSource": "fictional-browser-fixtures",
+      "api": null,
+      "detailFields": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "installationName",
+          "label": "工程装置名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "registeredDate",
+          "label": "注册登记日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "installationCertificate",
+          "label": "使用证编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "pipelineCount",
+          "label": "管道管线数",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "pipelineTotalLength",
+          "label": "管道总长度（m）",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyDirector",
+          "label": "安全总监",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyOfficer",
+          "label": "安全员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "type": "select",
+          "options": [
+            "在用",
+            "停用",
+            "报废"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "creditCode",
+          "label": "社会信用代码",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "created",
+          "label": "创建时间",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "inspectionKind",
+          "label": "最新检验业务 检验类别",
+          "type": "select",
+          "options": [
+            "定期检验（模拟）",
+            "监督检验（模拟）"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "noticeNumber",
+          "label": "告知单编号",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "fixedColumns": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "fixed": "left"
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "fixed": "left"
+        }
+      ]
+    },
+    "pipeline": {
+      "title": "压力管道管线",
+      "reference": 16,
+      "implemented": true,
+      "queryPlan": [
+        "综合查询",
+        "所在地区",
+        "设备类别",
+        "使用状态",
+        "受理状态",
+        "社会信用代码",
+        "管道名称",
+        "管道级别",
+        "是否为重要压力管道",
+        "工程装置名称",
+        "创建时间",
+        "管道长度",
+        "注册状态",
+        "使用单位",
+        "最新检验业务 检验类别",
+        "办理日期"
+      ],
+      "columns": [
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspectionStatus",
+          "label": "检验状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "nextInspection",
+          "label": "下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "installationName",
+          "label": "装置名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "pipeName",
+          "label": "管道名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "street",
+          "label": "所在街道",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "pipelineNumber",
+          "label": "管道编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "pipeLevel",
+          "label": "管道级别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "specification",
+          "label": "管道规格",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "maxPressure",
+          "label": "最高工作压力",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "maxTemperature",
+          "label": "最高工作温度",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "length",
+          "label": "管道长度（m）",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "designOrg",
+          "label": "设计单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "installOrg",
+          "label": "安装单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "medium",
+          "label": "工作介质",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "管道类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyGrade",
+          "label": "安全等级",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspectionOrg",
+          "label": "检验责任主体机构名称",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "fullInspectionReport",
+          "label": "全面检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "fullInspectionDate",
+          "label": "全面检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "safetyManager",
+          "label": "安管人员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyPhone",
+          "label": "安管人员电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "startPoint",
+          "label": "管道起点",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "endPoint",
+          "label": "管道止点",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        }
+      ],
+      "categories": [
+        "工业管道",
+        "公用管道"
+      ],
+      "queries": [
+        {
+          "key": "search",
+          "label": "综合查询",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入设备代码、注册代码、使用证编号"
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "type": "select",
+          "options": [
+            "演示省 / 云岚市",
+            "演示省 / 星河市"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "category",
+          "label": "设备类别",
+          "type": "select",
+          "options": [
+            "工业管道",
+            "公用管道"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "type": "select",
+          "options": [
+            "在用",
+            "停用",
+            "报废"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "creditCode",
+          "label": "社会信用代码",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pipeName",
+          "label": "管道名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "pipeLevel",
+          "label": "管道级别",
+          "type": "select",
+          "options": [
+            "GC2",
+            "GB1"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "importantPipeline",
+          "label": "是否为重要压力管道",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "installationName",
+          "label": "工程装置名称",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "created",
+          "label": "创建时间",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "length",
+          "label": "管道长度",
+          "type": "numberRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "type": "select",
+          "options": [
+            "已登记",
+            "未登记"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "inspectionKind",
+          "label": "最新检验业务 检验类别",
+          "type": "select",
+          "options": [
+            "定期检验（模拟）",
+            "监督检验（模拟）"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "actions": [
+        "导出"
+      ],
+      "inlineSelection": false,
+      "operationWidth": 350,
+      "sequenceWidth": 64,
+      "exportAllColumns": true,
+      "rowActions": [
+        [
+          "精简档案",
+          "brief"
+        ],
+        [
+          "详情",
+          "info"
+        ],
+        [
+          "更多>>",
+          "menu"
+        ]
+      ],
+      "dataSource": "fictional-browser-fixtures",
+      "api": null,
+      "detailFields": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "regulatoryCode",
+          "label": "智慧监管编码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspectionStatus",
+          "label": "检验状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "nextInspection",
+          "label": "下检日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "installationName",
+          "label": "装置名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "pipeName",
+          "label": "管道名称",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "unit",
+          "label": "使用单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "equipmentCode",
+          "label": "设备代码",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "region",
+          "label": "所在地区",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "street",
+          "label": "所在街道",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "pipelineNumber",
+          "label": "管道编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "pipeLevel",
+          "label": "管道级别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "specification",
+          "label": "管道规格",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "maxPressure",
+          "label": "最高工作压力",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "maxTemperature",
+          "label": "最高工作温度",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "length",
+          "label": "管道长度（m）",
+          "width": 170,
+          "type": "number",
+          "sortable": true
+        },
+        {
+          "key": "designOrg",
+          "label": "设计单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "installOrg",
+          "label": "安装单位",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "medium",
+          "label": "工作介质",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "category",
+          "label": "管道类别",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyGrade",
+          "label": "安全等级",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "status",
+          "label": "使用状态",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspectionOrg",
+          "label": "检验责任主体机构名称",
+          "width": 240,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "fullInspectionReport",
+          "label": "全面检验报告编号",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "fullInspectionDate",
+          "label": "全面检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "safetyManager",
+          "label": "安管人员",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "safetyPhone",
+          "label": "安管人员电话",
+          "width": 210,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "inspected",
+          "label": "检验日期",
+          "width": 170,
+          "type": "date",
+          "sortable": true
+        },
+        {
+          "key": "startPoint",
+          "label": "管道起点",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "endPoint",
+          "label": "管道止点",
+          "width": 170,
+          "type": "text",
+          "sortable": true
+        },
+        {
+          "key": "acceptance",
+          "label": "受理状态",
+          "type": "select",
+          "options": [
+            "已受理",
+            "未受理"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "creditCode",
+          "label": "社会信用代码",
+          "type": "text",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "importantPipeline",
+          "label": "是否为重要压力管道",
+          "type": "select",
+          "options": [
+            "是",
+            "否"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "created",
+          "label": "创建时间",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        },
+        {
+          "key": "registration",
+          "label": "注册状态",
+          "type": "select",
+          "options": [
+            "已登记",
+            "未登记"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "inspectionKind",
+          "label": "最新检验业务 检验类别",
+          "type": "select",
+          "options": [
+            "定期检验（模拟）",
+            "监督检验（模拟）"
+          ],
+          "placeholder": "请选择"
+        },
+        {
+          "key": "handled",
+          "label": "办理日期",
+          "type": "dateRange",
+          "options": [],
+          "placeholder": "请输入"
+        }
+      ],
+      "fixedColumns": [
+        {
+          "key": "sequence",
+          "label": "序号",
+          "width": 64,
+          "fixed": "left"
+        },
+        {
+          "key": "actions",
+          "label": "操作",
+          "width": 350,
+          "fixed": "left"
+        }
+      ]
+    }
+  },
+  "groups": [
+    [
+      "设备管理",
+      [
+        [
+          "boiler",
+          "锅炉"
+        ],
+        [
+          "vessel",
+          "压力容器"
+        ],
+        [
+          "elevator",
+          "电梯"
+        ],
+        [
+          "crane",
+          "起重机械"
+        ],
+        [
+          "vehicle",
+          "场（厂）内机动车辆"
+        ],
+        [
+          "amusement",
+          "大型游乐设施"
+        ],
+        [
+          "ropeway",
+          "客运索道"
+        ],
+        [
+          "installation",
+          "压力管道装置"
+        ],
+        [
+          "pipeline",
+          "压力管道管线"
+        ]
+      ]
+    ],
+    [
+      "单位管理",
+      [
+        [
+          "inspection-unit",
+          "检验单位"
+        ]
+      ]
+    ],
+    [
+      "人员管理",
+      [
+        [
+          "personnel",
+          "人员信息管理"
+        ]
+      ]
+    ],
+    [
+      "产品管理",
+      [
+        [
+          "boiler-product",
+          "锅炉产品管理"
+        ],
+        [
+          "vessel-product",
+          "压力容器产品管理"
+        ],
+        [
+          "elevator-product",
+          "电梯产品管理"
+        ],
+        [
+          "crane-product",
+          "起重机械产品管理"
+        ],
+        [
+          "pipe-component",
+          "管道元件产品管理"
+        ],
+        [
+          "pipe-project",
+          "管道工程产品管理"
+        ]
+      ]
+    ],
+    [
+      "安全附件",
+      [
+        [
+          "safety-valve",
+          "安全阀管理"
+        ]
+      ]
+    ],
+    [
+      "查询统计",
+      [
+        [
+          "person-query",
+          "人员综合查询"
+        ],
+        [
+          "unit-query",
+          "单位综合查询"
+        ],
+        [
+          "equipment-query",
+          "设备综合查询"
+        ]
+      ]
+    ]
+  ],
+  "options": {
+    "region": [
+      "演示省 / 云岚市",
+      "演示省 / 星河市"
+    ],
+    "category": [],
+    "status": [
+      "在用",
+      "停用",
+      "报废"
+    ],
+    "acceptance": [
+      "已受理",
+      "未受理"
+    ],
+    "department": [
+      "演示一部",
+      "演示二部"
+    ],
+    "authority": [
+      "演示监管一处",
+      "演示监管二处"
+    ],
+    "important": [
+      "是",
+      "否"
+    ],
+    "registration": [
+      "已登记",
+      "未登记"
+    ],
+    "place": [
+      "工厂",
+      "公共场所",
+      "住宅",
+      "园区"
+    ],
+    "fuel": [
+      "天然气",
+      "电",
+      "生物质"
+    ],
+    "purpose": [
+      "储存",
+      "换热",
+      "反应"
+    ],
+    "yesno": [
+      "是",
+      "否"
+    ],
+    "month": [
+      "1月",
+      "2月",
+      "3月",
+      "4月",
+      "5月",
+      "6月",
+      "7月",
+      "8月",
+      "9月",
+      "10月",
+      "11月",
+      "12月"
+    ]
+  },
+  "pipelineLabels": [
+    "序号",
+    "操作",
+    "智慧监管编码",
+    "检验状态",
+    "下检日期",
+    "装置名称",
+    "管道名称",
+    "使用单位",
+    "设备代码",
+    "所在地区",
+    "所在街道",
+    "管道编号",
+    "管道级别",
+    "管道规格",
+    "最高工作压力",
+    "最高工作温度",
+    "管道长度（m）",
+    "设计单位",
+    "安装单位",
+    "工作介质",
+    "管道类别",
+    "安全等级",
+    "使用状态",
+    "检验责任主体机构名称",
+    "全面检验报告编号",
+    "全面检验日期",
+    "安管人员",
+    "安管人员电话",
+    "检验日期",
+    "管道起点",
+    "管道止点"
+  ],
+  "version": "V2 九类设备 UI Demo"
+}

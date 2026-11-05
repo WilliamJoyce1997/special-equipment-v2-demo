@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导航测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .nav-test { margin: 20px 0; }
+        .btn { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .btn:hover { background: #0056b3; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>主页面导航测试</h1>
+    
+    <div class="nav-test">
+        <h3>测试步骤</h3>
+        <ol>
+            <li>打开主页面: <a href="/static/index.html" target="_blank">http://192.168.1.11:8000/static/index.html</a></li>
+            <li>点击左侧菜单栏的"设备台账"</li>
+            <li>查看是否显示批量导入按钮</li>
+        </ol>
+    </div>
+    
+    <div class="nav-test">
+        <h3>快速测试</h3>
+        <button class="btn" onclick="testMainPage()">测试主页面导航</button>
+        <button class="btn" onclick="openAssetsPage()">直接打开设备台账</button>
+        <button class="btn" onclick="checkConsoleErrors()">检查控制台错误</button>
+    </div>
+    
+    <div id="testResults"></div>
+    
+    <div class="nav-test">
+        <h3>问题排查指南</h3>
+        <div class="info">
+            <strong>如果主页面的设备台账不显示批量导入功能：</strong>
+            <ul>
+                <li>1. 确保点击了左侧菜单的"设备台账"</li>
+                <li>2. 检查浏览器控制台是否有JavaScript错误</li>
+                <li>3. 确保所有JavaScript文件都正确加载</li>
+                <li>4. 尝试刷新页面</li>
+            </ul>
+        </div>
+        
+        <div class="success">
+            <strong>替代方案：</strong>
+            <ul>
+                <li>使用调试页面: <a href="/static/debug_assets.html" target="_blank">debug_assets.html</a></li>
+                <li>使用修复版本: <a href="/static/assets_fixed.html" target="_blank">assets_fixed.html</a></li>
+                <li>使用简单导入页面: <a href="/static/test_import.html" target="_blank">test_import.html</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function showResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            document.getElementById('testResults').appendChild(div);
+        }
+        
+        function testMainPage() {
+            showResult('正在测试主页面...', 'info');
+            
+            // 打开主页面并尝试导航到设备台账
+            const mainWindow = window.open('/static/index.html', '_blank');
+            
+            setTimeout(() => {
+                try {
+                    // 尝试在新窗口中执行导航
+                    if (mainWindow && !mainWindow.closed) {
+                        mainWindow.postMessage({
+                            action: 'navigateToAssets'
+                        }, '*');
+                        showResult('已发送导航指令到主页面', 'success');
+                    } else {
+                        showResult('无法访问主页面窗口，请手动点击"设备台账"菜单', 'error');
+                    }
+                } catch (e) {
+                    showResult('跨窗口通信失败，请手动测试', 'error');
+                }
+            }, 2000);
+        }
+        
+        function openAssetsPage() {
+            showResult('打开修复版设备台账页面...', 'info');
+            window.open('/static/assets_fixed.html', '_blank');
+        }
+        
+        function checkConsoleErrors() {
+            showResult(`
+                <strong>检查控制台错误的步骤：</strong><br>
+                1. 打开主页面<br>
+                2. 按F12打开开发者工具<br>
+                3. 切换到Console标签<br>
+                4. 查看是否有红色错误信息<br>
+                5. 点击"设备台账"菜单<br>
+                6. 再次检查是否有新的错误
+            `, 'info');
+        }
+        
+        // 监听来自主页面的消息
+        window.addEventListener('message', (event) => {
+            if (event.data.action === 'navigationResult') {
+                showResult(`主页面导航结果: ${event.data.success ? '成功' : '失败'}`, 
+                          event.data.success ? 'success' : 'error');
+            }
+        });
+    </script>
+</body>
+</html>

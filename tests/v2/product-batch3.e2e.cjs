@@ -1,0 +1,39 @@
+const fs=require('fs'),path=require('path'),assert=require('node:assert/strict');
+const {chromium}=require(path.join(process.env.APPDATA,'npm/node_modules/@playwright/cli/node_modules/playwright'));
+const expected=require('./product-category-dictionaries.json'),out='docs/special-equipment-v2/product-batch3';fs.mkdirSync(out+'/screenshots',{recursive:true});
+(async()=>{const b=await chromium.launch({channel:'chrome',headless:true}),p=await b.newPage({viewport:{width:1366,height:900},acceptDownloads:true}),checks=[],errors=[],writes=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text())});p.on('request',r=>{if(r.method()!=='GET')writes.push(r.url())});
+const ok=s=>{checks.push(s);console.log('PASS '+s)},query=()=>p.locator('#query-form button[type=submit]').click(),close=()=>p.locator('#dialog-close').click(),row=id=>p.locator('tbody tr[data-id="'+id+'"]'),save=()=>p.locator('#dialog .dialog-footer').getByRole('button',{name:'保存',exact:true}).click();
+try{
+for(const type of ['elevator-product','crane-product','boiler-product','vessel-product']){
+await p.goto('http://127.0.0.1:8020/#'+type);assert.equal(await p.locator('.table-panel').count(),1);assert.equal(await p.locator('.count-total').innerText(),'0');
+assert.deepEqual(await p.evaluate(type=>V2ProductCategories.trees[type],type),expected[type]);
+const q=p.locator('#query-form'),parent=q.getByLabel('设备类别',{exact:true}),child=q.getByLabel('设备子类别',{exact:true});
+assert.deepEqual(await parent.locator('option').evaluateAll(es=>es.map(e=>e.value).filter(Boolean)),expected[type].map(n=>n[0]));
+for(const [branch,children] of expected[type]){
+await parent.selectOption(branch);assert.deepEqual(await child.locator('option').evaluateAll(es=>es.map(e=>e.value).filter(Boolean)),children);assert.equal(await child.isVisible(),children.length>0);
+if(children.length)await child.selectOption(children[0]);await parent.selectOption(expected[type].at(-1)[0]);assert.equal(await child.inputValue(),'');assert.equal(await child.isVisible(),false);assert.equal(await q.locator('input[name=category]').inputValue(),expected[type].at(-1)[0]);
+}
+await p.locator('#query-form').getByRole('button',{name:'⟳ 重置',exact:true}).click();await query();const rows=await p.evaluate(t=>structuredClone(V2.fixtures[t]),type);assert(rows.length>=3);for(const r of rows)assert(expected[type].some(([a,cs])=>a===r.category||cs.includes(r.category)));
+ok(type+' exact parent/child dictionaries, all branches, child reset, direct leaf selection and valid samples');
+if(type==='boiler-product'){
+const first=rows[0];await row(first.id).getByRole('button',{name:'编辑',exact:true}).click();await p.locator('#dialog').getByLabel('设备类别',{exact:true}).selectOption('有机热载体锅炉');await p.locator('#dialog').getByLabel('设备子类别',{exact:true}).selectOption('有机热载体液相炉');await save();await row(first.id).getByRole('button',{name:'复制',exact:true}).click();const last=await p.evaluate(()=>V2BoilerProducts.rows.at(-1));assert.equal(last.category,'有机热载体液相炉');await row(first.id).getByRole('button',{name:'编辑',exact:true}).click();await p.locator('#dialog').getByLabel('设备类别',{exact:true}).selectOption('旧目录锅炉');assert.equal(await p.locator('#dialog input[name=category]').inputValue(),'旧目录锅炉');assert.equal(await p.locator('#dialog').getByLabel('设备子类别',{exact:true}).isVisible(),false);await close();ok('boiler session editing and copy retain new dictionary child category; direct leaf needs no extra selection');
+}
+if(type==='elevator-product'||type==='crane-product'){
+assert.deepEqual(await p.locator('.table-panel thead th:not(.check)').evaluateAll(es=>es.map(e=>e.querySelector('button span')?.textContent||e.textContent)),['序号','操作','设备代码','产品名称','制造单位','产品型号','产品编号','设备类别','创建日期','备注']);
+const first=rows[0];await parent.selectOption(expected[type][0][0]);await child.selectOption(expected[type][0][1][0]);await query();assert(Number(await p.locator('.count-total').innerText())>=1);await p.locator('#query-form').getByRole('button',{name:'⟳ 重置',exact:true}).click();await query();
+await row(first.id).getByRole('button',{name:'编辑',exact:true}).click();assert.equal(await p.locator('#dialog-title').innerText(),type==='elevator-product'?'电梯产品编辑':'起重机械产品编辑');const modal=p.locator('#dialog'),mp=modal.getByLabel('设备类别',{exact:true}),mc=modal.getByLabel('设备子类别',{exact:true});
+assert.equal(await modal.getByLabel('产品编号',{exact:true}).inputValue(),first.productNumber);assert.equal(await modal.getByLabel('额定蒸发量',{exact:true}).count(),0);assert.equal(await modal.getByLabel('壳程设计压力（MPa）',{exact:true}).count(),0);
+await mp.selectOption(expected[type][1][0]);assert.equal(await mc.inputValue(),'');await mc.selectOption(expected[type][1][1][0]);await save();assert.match(await row(first.id).innerText(),new RegExp(expected[type][1][1][0]));
+await row(first.id).getByRole('button',{name:'编辑',exact:true}).click();assert.equal(await mc.inputValue(),expected[type][1][1][0]);await close();await row(first.id).getByRole('button',{name:'复制',exact:true}).click();assert.match(await p.locator('#announcement').innerText(),/复制成功/);
+const copied=await p.evaluate(t=>V2.fixtures[t].at(-1),type);assert.equal(copied.category,expected[type][1][1][0]);assert.notEqual(copied.id,first.id);assert.equal(copied.productType,type);assert(Number(await p.locator('.count-total').innerText())>=4);ok(type+' adapted editable parameters, cascading save/reopen and independent copy retains category');
+for(const name of ['修改记录','检验信息']){await row(first.id).getByRole('button',{name:'更多>>>',exact:true}).click();await p.getByRole('menuitem',{name,exact:true}).click();if(name==='修改记录'){assert.equal(await p.locator('.more-dialog-view').getAttribute('data-type'),type);assert.equal(await p.locator('.more-dialog-view').getAttribute('data-record'),first.id)}else assert.equal(await p.locator('.product-form').getAttribute('data-product-type'),type);await close()}
+await p.getByRole('button',{name:'按产品编号排序',exact:true}).click();await p.getByLabel('每页条数',{exact:true}).selectOption('2');await p.locator('tbody tr[data-id]').first().locator('input').check();await p.getByRole('button',{name:'下一页',exact:true}).click();assert.equal(await p.locator('.count-selected').innerText(),'1');
+const dl=p.waitForEvent('download');await p.getByRole('button',{name:'导出',exact:true}).click();const d=await dl,csv=fs.readFileSync(await d.path(),'utf8');assert.equal(csv.trim().split(/\r?\n/).length,5);assert.match(csv,/备注/);
+await p.locator('.table-toolbar').getByRole('button',{name:'设 置',exact:true}).click();await p.locator('#dialog').getByLabel('备注',{exact:true}).uncheck();await close();assert.equal(await p.getByRole('button',{name:'按备注排序',exact:true}).count(),0);ok(type+' shared menus and typed contexts, sorting/paging/selection/export/columns');
+await p.getByLabel('每页条数',{exact:true}).selectOption('10');
+for(const width of [1366,1920,390]){await p.setViewportSize({width,height:900});assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await p.screenshot({path:out+'/screenshots/'+type+'-list-'+width+'.png'});await row(first.id).getByRole('button',{name:'编辑',exact:true}).click();assert(await p.locator('#dialog').evaluate(e=>e.scrollHeight<=e.clientHeight+1));await p.screenshot({path:out+'/screenshots/'+type+'-edit-'+width+'.png'});await close()}await p.setViewportSize({width:1366,height:900});ok(type+' desktop/narrow screenshots and single dialog scroll');
+}
+}
+assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);ok('no blocking JavaScript/console errors or writes');fs.writeFileSync(out+'/test-results.json',JSON.stringify({passed:checks.length,failed:0,skipped:0,checks,errors},null,2));
+}catch(e){fs.writeFileSync(out+'/failure.json',JSON.stringify({checks,errors,error:e.stack},null,2));throw e}finally{await b.close()}})().catch(e=>{console.error(e);process.exit(1)});
+

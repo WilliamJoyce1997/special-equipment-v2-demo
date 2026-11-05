@@ -1,0 +1,31 @@
+{
+  "passed": 16,
+  "failed": 0,
+  "checks": [
+    "elevator exact complete headers / independent checkbox / initial empty",
+    "elevator every fixture/detail key populated with correct number/date types",
+    "elevator sort/page/column settings do not trigger initial query",
+    "elevator pre-query export guarded with no download",
+    "elevator explicit blank query returns 8 records",
+    "elevator cross-page selection / current-page select-all / requery clears selection",
+    "elevator bottom-right blue text / green counts / no pagination overlap",
+    "elevator conditional query/detail full fields/close preserves result",
+    "elevator no match / reset empty / sorting never implicitly loads",
+    "elevator CSV full exact ordered columns even when hidden",
+    "elevator queried ascending/descending sorting",
+    "elevator 1366/1920/768/390 layouts and query/detail usable",
+    "elevator category first-visit empty / tab query-state retained / reset retained",
+    "top decorative border removed; header/sidebar alignment and active blue retained",
+    "separate inspections/dates/organizations and consistent installation totals",
+    "no fatal JS or console errors"
+  ],
+  "errors": [],
+  "headers": [
+    {
+      "key": "elevator",
+      "expected": 53,
+      "actual": 53,
+      "matched": true
+    }
+  ]
+}

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>界面调试</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <style>
+        body { margin: 20px; font-family: Arial, sans-serif; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .error { color: red; }
+        .success { color: green; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>CMMS界面调试工具</h1>
+    
+    <div class="debug-section">
+        <h2>1. 登录测试</h2>
+        <button onclick="testLogin()">测试登录</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>2. API测试</h2>
+        <button onclick="testAPIs()">测试所有API</button>
+        <div id="apiResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>3. JavaScript函数检查</h2>
+        <button onclick="checkFunctions()">检查函数</button>
+        <div id="functionResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>4. 工单管理页面测试</h2>
+        <button onclick="testWorkOrderPage()">测试工单页面</button>
+        <div id="workorderResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>5. 控制台错误</h2>
+        <div id="consoleErrors"></div>
+    </div>
+
+    <!-- 加载所有JavaScript文件 -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/assets.js"></script>
+    <script src="/static/js/workorders.js"></script>
+    <script src="/static/js/maintenance.js"></script>
+    <script src="/static/js/index.js"></script>
+
+    <script>
+        let authToken = null;
+
+        // 捕获控制台错误
+        window.addEventListener('error', function(e) {
+            const errorDiv = document.getElementById('consoleErrors');
+            errorDiv.innerHTML += `<div class="error">错误: ${e.message} (${e.filename}:${e.lineno})</div>`;
+        });
+
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            element.innerHTML += `<div class="${className}">${message}</div>`;
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            resultDiv.innerHTML = '';
+            
+            try {
+                log('loginResult', '正在测试登录...', 'info');
+                
+                const response = await fetch('/api/auth/login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.access;
+                    log('loginResult', '✅ 登录成功', 'success');
+                    log('loginResult', `用户: ${data.user.username} (${data.user.role})`, 'info');
+                } else {
+                    const error = await response.json();
+                    log('loginResult', `❌ 登录失败: ${JSON.stringify(error)}`, 'error');
+                }
+            } catch (error) {
+                log('loginResult', `❌ 登录异常: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAPIs() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.innerHTML = '';
+
+            if (!authToken) {
+                log('apiResult', '❌ 请先登录', 'error');
+                return;
+            }
+
+            const apis = [
+                { name: '设备列表', url: '/api/assets/' },
+                { name: '用户列表', url: '/api/auth/users/' },
+                { name: '工单列表', url: '/api/workorders/' },
+                { name: '保养计划', url: '/api/maintenance/plans/' },
+                { name: '备件列表', url: '/api/spareparts/' }
+            ];
+
+            for (const api of apis) {
+                try {
+                    log('apiResult', `测试 ${api.name}...`, 'info');
+                    
+                    const response = await fetch(api.url, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        log('apiResult', `✅ ${api.name}: ${data.results ? data.results.length : 'N/A'} 条记录`, 'success');
+                    } else {
+                        log('apiResult', `❌ ${api.name}: ${response.status} ${response.statusText}`, 'error');
+                    }
+                } catch (error) {
+                    log('apiResult', `❌ ${api.name}: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        function checkFunctions() {
+            const resultDiv = document.getElementById('functionResult');
+            resultDiv.innerHTML = '';
+
+            const functions = [
+                'API',
+                'loadWorkOrders',
+                'renderWorkOrdersTable',
+                'showWorkOrderModal',
+                'saveWorkOrder',
+                'startWorkOrder',
+                'completeWorkOrder',
+                'closeWorkOrder',
+                'assignWorkOrder',
+                'showMessage',
+                'showWorkOrderMessage'
+            ];
+
+            functions.forEach(funcName => {
+                if (typeof window[funcName] !== 'undefined') {
+                    log('functionResult', `✅ ${funcName}: 已定义 (${typeof window[funcName]})`, 'success');
+                } else {
+                    log('functionResult', `❌ ${funcName}: 未定义`, 'error');
+                }
+            });
+        }
+
+        async function testWorkOrderPage() {
+            const resultDiv = document.getElementById('workorderResult');
+            resultDiv.innerHTML = '';
+
+            if (!authToken) {
+                log('workorderResult', '❌ 请先登录', 'error');
+                return;
+            }
+
+            try {
+                log('workorderResult', '测试工单页面加载...', 'info');
+
+                // 检查页面元素
+                const pageElement = document.getElementById('page-workorders');
+                if (pageElement) {
+                    log('workorderResult', '✅ 找到工单页面容器', 'success');
+                } else {
+                    log('workorderResult', '❌ 未找到工单页面容器', 'error');
+                }
+
+                // 测试loadWorkOrders函数
+                if (typeof loadWorkOrders === 'function') {
+                    log('workorderResult', '✅ loadWorkOrders函数存在', 'success');
+                    
+                    // 创建临时页面容器
+                    if (!pageElement) {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.id = 'page-workorders';
+                        document.body.appendChild(tempDiv);
+                    }
+
+                    await loadWorkOrders();
+                    log('workorderResult', '✅ loadWorkOrders执行完成', 'success');
+
+                    // 检查表格是否创建
+                    const tableBody = document.getElementById('workOrdersTableBody');
+                    if (tableBody) {
+                        log('workorderResult', '✅ 工单表格已创建', 'success');
+                        log('workorderResult', `表格内容: ${tableBody.innerHTML.substring(0, 100)}...`, 'info');
+                    } else {
+                        log('workorderResult', '❌ 工单表格未创建', 'error');
+                    }
+                } else {
+                    log('workorderResult', '❌ loadWorkOrders函数不存在', 'error');
+                }
+
+            } catch (error) {
+                log('workorderResult', `❌ 测试异常: ${error.message}`, 'error');
+                log('workorderResult', `错误堆栈: ${error.stack}`, 'error');
+            }
+        }
+
+        // 页面加载完成后自动检查函数
+        window.addEventListener('load', function() {
+            log('consoleErrors', '页面加载完成，开始检查...', 'info');
+            checkFunctions();
+        });
+    </script>
+</body>
+</html>

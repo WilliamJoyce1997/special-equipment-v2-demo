@@ -1,0 +1,63 @@
+{
+  "rows": [
+    {
+      "file": "query-domains/engine-results.json",
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "person-query/engine-results.json",
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "query-domains/browser-results.json",
+      "passed": 16,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "person-query/browser-results.json",
+      "passed": 25,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "dossier/test-results.json",
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "inspection-unification/test-results.json",
+      "passed": 32,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "inspection-unit/test-results.json",
+      "passed": 16,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "personnel/test-results.json",
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "safety-valve/test-results.json",
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "total": {
+    "passed": 233,
+    "failed": 0,
+    "skipped": 0
+  }
+}

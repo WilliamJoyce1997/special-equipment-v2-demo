@@ -1,0 +1,24 @@
+{
+  "passed": 15,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "menu / initial empty / five samples / ten reference headers including remarks",
+    "four search keys / combined filters / reset",
+    "30 fields / required and uniqueness / isolated session save",
+    "close discards edit draft",
+    "14 inspection fields / required and dates / save reopen cancel / product isolation",
+    "copy truly adds unique independent product records, no inspection copied",
+    "copy searchable and independently editable",
+    "paging/sort/selection/tab preservation and export updated data",
+    "shared column settings",
+    "1366 list and two dialogs / single scroll / footer buttons",
+    "1920 list and two dialogs / single scroll / footer buttons",
+    "768 list and two dialogs / single scroll / footer buttons",
+    "390 list and two dialogs / single scroll / footer buttons",
+    "no unrelated data mutation, browser errors or write requests",
+    "refresh resets all edits/copies/inspection: session only"
+  ],
+  "errors": [],
+  "demoDatabaseSha256Unchanged": true
+}

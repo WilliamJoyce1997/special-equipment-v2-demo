@@ -1,0 +1,29 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const ctx={V2Personnel:{rows:[]},V2InspectionUnits:{rows:[]}};ctx.window=ctx;vm.createContext(ctx);
+for(const n of ['query-dictionaries','query-engine'])vm.runInContext(fs.readFileSync('static/v2/'+n+'.js','utf8'),ctx);
+const D=ctx.V2QueryDictionaries.person,E=ctx.V2QueryEngine;
+let passed=0;const ok=s=>{passed++;console.log('PASS '+s)},plain=x=>JSON.parse(JSON.stringify(x));
+const expected='姓名、身份证、出生年月、性别、单位名称、单位组织机构代码、单位地址、联系地址、邮政编码（单位）、邮政编码（住址）、所在区域名称、地区代码、单位联系电话、个人电话、手机号码、传真、电子邮箱、职务、负责工作、职称、学历、毕业院校、所学专业、档案编号、申请类别、持证状态、考核号、考核机构、发证机构、证书编号、证书底卡编号、持证项目级别、批准项目、批准资格明细、批准日期、有效日期至、初次取证日期、最终考核结论'.split('、');
+assert.equal(D.fields.length,38);assert.deepEqual(plain(D.fields.map(f=>f.label)),expected);assert.equal(new Set(D.fields.map(f=>f.id)).size,38);ok('38 exact ordered labels and stable unique IDs');
+ctx.V2InspectionUnits.rows=[{id:'unit-1',name:'演示单位',address:'演示地址'}];
+ctx.V2Personnel.rows=[{id:'DEMO-PERSON-002',name:'演示甲',birthDate:'1990-01-01',sex:'男',unitId:'unit-1',ndt:'否',qualifications:[]},{id:'DEMO-PERSON-001',name:'演示乙',birthDate:'1991-02-01',sex:'女',unitId:'unit-1',ndt:'否',qualifications:[]}];
+const p=ctx.V2Personnel.rows[0],r=(fieldId,op,value,values)=>({kind:'rule',fieldId,op,value,values}),g=(logic,...children)=>({kind:'group',logic,children});
+function plan(expression=g('and'),objectType='inspector',resultColumns=[{fieldId:'person.name',color:'#000000',frozen:false}]){const ids=[];function walk(n){if(n.kind==='rule')ids.push(n.fieldId);else n.children.forEach(walk)}walk(expression);return {version:1,domain:'person',name:'DEMO查询',objectType,conditionFieldIds:[...new Set(ids)],expression,resultColumns};}
+assert.equal(E.execute(plan()).length,1);assert.equal(E.execute(plan(g('and'),'ndt'))[0].personId,'DEMO-PERSON-001');ok('explicit classification independent of ndt no inference');
+assert.equal(D.value(p,null,D.fieldMap['person.unitName']),'演示单位');ctx.V2InspectionUnits.rows[0].name='演示更新单位';assert.equal(D.value(p,null,D.fieldMap['person.unitName']),'演示更新单位');assert.equal(D.value(p,null,D.fieldMap['person.unitOrganizationCode']),null);ok('unitId live association; organization code not confused with credit code');
+assert.equal(E.execute(plan(g('and',r('person.name','contains','甲'),r('person.sex','eq','男')))).length,1);assert.equal(E.execute(plan(g('and',r('person.name','contains','乙')))).length,0);ok('text and enum comparisons execute actual rows');
+assert.equal(E.execute(plan(g('and',r('person.birthDate','between',null,['1989-01-01','1990-12-31'])))).length,1);assert.throws(()=>E.validatePlan(plan(g('and',r('person.birthDate','between',null,['2026-02-31','2026-12-31'])))));assert.throws(()=>E.validatePlan(plan(g('and',r('person.birthDate','between',null,['2027-01-01','2026-01-01'])))));ok('date comparison and invalid/reversed ranges');
+const number={type:'number',label:'数值测试'};E.validateRule({op:'between',values:['1','5']},number);assert(E.compare(3,{op:'between',values:[1,5]},number));assert(!E.compare(null,{op:'lt',value:1},number));assert.throws(()=>E.validateRule({op:'eq',value:'NaN'},number));ok('generic numeric operations without treating missing as zero or IDs as numbers');
+assert(E.compare('是',{op:'eq',value:true},{type:'boolean'}));assert(!E.compare(null,{op:'eq',value:false},{type:'boolean'}));ok('generic boolean operations and missing semantics');
+assert(E.compare(null,{op:'empty'},{type:'text'}));assert(!E.compare(null,{op:'ne',value:'x'},{type:'text'}));ok('missing values only satisfy explicit empty operators');
+assert.equal(E.execute(plan(g('and',g('or',r('person.name','eq','不存在'),r('person.name','contains','甲')),r('person.sex','eq','男')))).length,1);ok('nested AND OR expressions with explicit groups');
+p.qualifications=[{id:'q1',personId:p.id,'证书编号':'DEMO-Q-A','考核机构':'机构A'},{id:'q2',personId:p.id,'证书编号':'DEMO-Q-B','考核机构':'机构B'},{id:'foreign',personId:'DEMO-PERSON-001','证书编号':'DEMO-Q-A','考核机构':'机构B'}];
+assert.equal(E.execute(plan(g('and',r('qualification.certificate','eq','DEMO-Q-A'),r('qualification.examOrg','eq','机构B')))).length,0);
+assert.equal(E.execute(plan(g('and',r('qualification.certificate','eq','DEMO-Q-A'),r('qualification.examOrg','eq','机构A')))).length,1);ok('same qualification row constraints, foreign person rows rejected');
+const expanded=E.execute(plan(g('and'), 'inspector',[{fieldId:'qualification.certificate',color:'#ff0000',frozen:true}]));assert.equal(expanded.length,2);assert.equal(expanded[0].qualificationId,'q1');ok('qualification result columns expand only linked matching qualifications');
+p.qualifications=[];assert.equal(E.execute(plan(g('and',r('qualification.certificate','eq','DEMO-Q-A')))).length,0);assert.equal(E.execute(plan(g('or',r('qualification.certificate','eq','DEMO-Q-A'),r('person.name','contains','甲')))).length,1);ok('empty qualifications do not fabricate matches; base OR remains valid');
+assert.throws(()=>E.validatePlan(plan(g('and'),'inspector',[])));assert.throws(()=>E.validatePlan(plan(g('and'),'inspector',[{fieldId:'unknown',color:'#000000',frozen:false}])));assert.throws(()=>E.validatePlan(plan(g('and'),'unit')));ok('reject empty output, unknown fields and unimplemented domains');
+assert.throws(()=>E.validatePlan(plan(g('and',r('person.identity','eq','123456789012345678')))));assert.throws(()=>E.validatePlan(plan(g('and',r('person.name','bad','x')))));ok('sensitive real-looking identifiers and invalid operators rejected');
+const before=JSON.stringify(ctx.V2Personnel.rows);E.execute(plan());assert.equal(JSON.stringify(ctx.V2Personnel.rows),before);ok('read-only execution preserves source data');
+fs.mkdirSync('docs/special-equipment-v2/person-query',{recursive:true});fs.writeFileSync('docs/special-equipment-v2/person-query/engine-results.json',JSON.stringify({passed,failed:0,skipped:0},null,2));
+

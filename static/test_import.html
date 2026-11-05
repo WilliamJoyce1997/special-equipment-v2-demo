@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备批量导入测试</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .import-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .result-area {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>设备台账批量导入测试</h1>
+        
+        <div class="import-section">
+            <h3>批量导入功能测试</h3>
+            <p>请先下载模板，填写设备信息后上传</p>
+            
+            <div style="margin: 20px 0;">
+                <a href="/api/assets/download_template/" class="btn btn-secondary" target="_blank">下载Excel模板</a>
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">选择文件导入</button>
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleFileUpload(this)">
+            </div>
+            
+            <div class="result-area" id="resultArea">
+                <p>等待文件上传...</p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h3>导入字段说明</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f0f0f0;">
+                        <th style="padding: 8px; border: 1px solid #ddd;">字段名</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">是否必填</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">设备编码</td><td style="padding: 8px; border: 1px solid #ddd;">是</td><td style="padding: 8px; border: 1px solid #ddd;">唯一标识，不能重复</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">设备名称</td><td style="padding: 8px; border: 1px solid #ddd;">是</td><td style="padding: 8px; border: 1px solid #ddd;">设备的名称</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">工厂</td><td style="padding: 8px; border: 1px solid #ddd;">否</td><td style="padding: 8px; border: 1px solid #ddd;">设备所在工厂</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">车间</td><td style="padding: 8px; border: 1px solid #ddd;">否</td><td style="padding: 8px; border: 1px solid #ddd;">设备所在车间</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">产线</td><td style="padding: 8px; border: 1px solid #ddd;">否</td><td style="padding: 8px; border: 1px solid #ddd;">设备所在产线</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">工位</td><td style="padding: 8px; border: 1px solid #ddd;">否</td><td style="padding: 8px; border: 1px solid #ddd;">设备所在工位</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">供应商</td><td style="padding: 8px; border: 1px solid #ddd;">否</td><td style="padding: 8px; border: 1px solid #ddd;">设备供应商</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">型号</td><td style="padding: 8px; border: 1px solid #ddd;">否</td><td style="padding: 8px; border: 1px solid #ddd;">设备型号</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid #ddd;">状态</td><td style="padding: 8px; border: 1px solid #ddd;">否</td><td style="padding: 8px; border: 1px solid #ddd;">active/inactive/retired/maintenance</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // API基础配置
+        const API_BASE = '/api';
+        
+        // 获取认证头
+        function getAuthHeaders() {
+            const token = localStorage.getItem('access_token');
+            return {
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            };
+        }
+        
+        // 处理文件上传
+        async function handleFileUpload(input) {
+            const file = input.files[0];
+            if (!file) {
+                return;
+            }
+            
+            const resultArea = document.getElementById('resultArea');
+            resultArea.innerHTML = '<p style="color: #0066cc;">正在上传和处理文件，请稍候...</p>';
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await fetch(`${API_BASE}/assets/import_excel/`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                // 显示结果
+                let html = '<h4>导入结果</h4>';
+                html += `<p><strong>成功导入:</strong> ${result.success_count || 0} 条</p>`;
+                html += `<p><strong>失败:</strong> ${result.error_count || 0} 条</p>`;
+                html += `<p><strong>消息:</strong> ${result.message || '无消息'}</p>`;
+                
+                if (result.errors && result.errors.length > 0) {
+                    html += '<h5>错误详情:</h5><ul>';
+                    result.errors.forEach(error => {
+                        html += `<li style="color: #cc0000;">${error}</li>`;
+                    });
+                    html += '</ul>';
+                }
+                
+                resultArea.innerHTML = html;
+                
+            } catch (error) {
+                console.error('导入失败:', error);
+                resultArea.innerHTML = `<p style="color: #cc0000;">导入失败: ${error.message}</p>`;
+            }
+            
+            // 清空文件选择
+            input.value = '';
+        }
+    </script>
+</body>
+</html>

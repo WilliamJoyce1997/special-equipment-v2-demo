@@ -1,0 +1,17 @@
+{
+  "checks": [
+    "crane reference query order and 8 samples",
+    "crane query/detail/close retains filters",
+    "crane dropdown and reset",
+    "crane date range",
+    "crane combined filters and empty state",
+    "crane sort pagination and page size",
+    "crane column settings and actual CSV download",
+    "crane demonstration record actions",
+    "crane 1366 layout and query/detail interaction",
+    "crane 768 layout and query/detail interaction",
+    "crane 390 layout and query/detail interaction"
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    '综合查询',\n    '所在地区',\n    '设备类别',\n    '使用状态',\n    '受理状态',\n    '部门名称',\n-   '厂牌编号',\n    '拼音简称',\n-   '最新检验业务 检验类别',\n    '主管部门',\n    '是否在重要场所',\n    '注册状态',\n    '使用单位',\n+   '最新检验业务 检验类别',\n    '办理日期',\n    '设备使用场所',\n    '检验日期'\n  ]\n\n    at C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\batch2.e2e.cjs:28:9"
+}

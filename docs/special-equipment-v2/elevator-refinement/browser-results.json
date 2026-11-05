@@ -1,0 +1,25 @@
+{
+  "passed": 17,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "seven equipment use exact shared status",
+    "per-type places and toolbar initial selection gates",
+    "elevator category hierarchy, child clearing and five exact normal-query enums",
+    "49 ordered screenshot advanced fields, exact enums, conclusion disabled",
+    "duplicate base/advanced fields synchronize; month and insurance actually filter",
+    "elevator detail category/status and history category share dictionaries",
+    "toolbar menu separate from row menu; important batch validates, saves selected rows and preserves selection",
+    "risk cancel discards; confirmation changes selected records only",
+    "seven maintenance fields, search selection, required validation and selected-only session save",
+    "maintenance details and list state stay consistent",
+    "actual requested print URL, selected-record previews/real QR and browser print invocation/control fallback",
+    "print offset/scale/overlay work; PDF generated; close returns without list-state loss",
+    "row More retains original five options",
+    "1366 toolbar and single-scroll maintenance dialog usable",
+    "1920 toolbar and single-scroll maintenance dialog usable",
+    "390 toolbar and single-scroll maintenance dialog usable",
+    "other modules and database unchanged; no blocking JS errors or network writes"
+  ],
+  "errors": []
+}

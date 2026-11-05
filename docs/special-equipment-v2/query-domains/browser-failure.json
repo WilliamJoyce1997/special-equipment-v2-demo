@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "unit page initially empty, eight types and exact shared 13-field dictionary",
+    "seven missing unit types show source status, inspection unit plan saves",
+    "unit actual four archives, result color/freeze, paging and complete CSV",
+    "unit edit saves and reopens the same plan, executes actual text predicate",
+    "missing source executes honest empty result, not manufacturing/name-string archives",
+    "equipment page initial empty and eight top-level types, dictionary feeds both steps",
+    "actual boiler numeric predicate and history aggregate, one row per device",
+    "type changes prune invalid fields/conditions; pipe subtype switches, cancel preserves boiler plan",
+    "installation/pipeline plans save explicit subtypes, execute eight distinct records each"
+  ],
+  "errors": [],
+  "error": "page.evaluate: TypeError: Cannot read properties of undefined (reading 'part')\n    at Object.page (http://127.0.0.1:8020/static/v2/dossier.js:380:157)\n    at eval (eval at evaluate (:368:30), <anonymous>:1:185)\n    at UtilityScript.evaluate (<anonymous>:370:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\query-domains.e2e.cjs:23:23"
+}

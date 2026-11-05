@@ -1,0 +1,5 @@
+{
+  "checks": [],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ '检验单位编辑 · 只读演示'\n- '检验单位信息'\n       ^\n\n    at C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\inspection-unit-info.e2e.cjs:9:69"
+}

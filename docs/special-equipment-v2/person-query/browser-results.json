@@ -1,0 +1,33 @@
+{
+  "passed": 25,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "person query tab, actual initial empty scheme list and query",
+    "four panes and exact same 38-field dictionary in steps two and four",
+    "required name and at least one result column validation",
+    "explicit person type switches retain valid fields; condition add/remove/group works",
+    "localStorage persists only validated plan, output order/color/freeze",
+    "execution uses actual linked person and renders output columns/order/color/freeze",
+    "CSV complete and closes result preserving scheme list selection/state",
+    "re-edit restores expression and cancel discards draft",
+    "editing save updates same stable scheme ID and reopens saved values",
+    "scheme list reuses working column settings",
+    "scheme survives refresh; refreshed main page still waits for query",
+    "Asia/Shanghai creation-date filter and display agree across UTC midnight",
+    "unconditional typed query returns two actual ndt people, sorting and page-size work",
+    "creator filter and reset to unqueried empty",
+    "scheme date-range invalid order blocked",
+    "storage failure keeps dialog, does not claim success or overwrite saved scheme",
+    "1366 desktop/narrow list, builder and dynamic results usable",
+    "1920 desktop/narrow list, builder and dynamic results usable",
+    "768 desktop/narrow list, builder and dynamic results usable",
+    "390 desktop/narrow list, builder and dynamic results usable",
+    "single delete cancellation and confirmed bulk delete affect plans only",
+    "corrupt local storage reported and not silently overwritten",
+    "new unit/equipment pages reuse the shared scheme renderer",
+    "all nine accepted equipment pages open and query actual fixtures",
+    "no blocking errors or network writes; isolated database hash unchanged"
+  ],
+  "errors": []
+}

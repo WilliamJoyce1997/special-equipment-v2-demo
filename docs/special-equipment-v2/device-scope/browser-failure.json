@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "boiler detail/All/query water and safety-valve applicability",
+    "vessel detail/All/query water and safety-valve applicability",
+    "elevator detail/All/query water and safety-valve applicability",
+    "crane detail/All/query water and safety-valve applicability",
+    "vehicle detail/All/query water and safety-valve applicability",
+    "amusement detail/All/query water and safety-valve applicability",
+    "ropeway detail/All/query water and safety-valve applicability"
+  ],
+  "errors": [],
+  "error": "locator.click: Error: strict mode violation: getByRole('tab', { name: '压力管道装置', exact: true }) resolved to 2 elements:\n    1) <button role=\"tab\" type=\"button\" class=\"tab-select\" aria-selected=\"false\">…</button> aka getByRole('tablist', { name: '已打开页面' }).getByRole('tab', { name: '压力管道装置' })\n    2) <button role=\"tab\" type=\"button\" aria-selected=\"true\" class=\"equipment-subtab active\">压力管道装置</button> aka getByRole('tablist', { name: '设备信息子标签' }).getByRole('tab', { name: '压力管道装置' })\n\nCall log:\n\u001b[2m  - waiting for getByRole('tab', { name: '压力管道装置', exact: true })\u001b[22m\n\n    at tab (C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\device-scope.e2e.cjs:5:69)\n    at C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\device-scope.e2e.cjs:8:140"
+}

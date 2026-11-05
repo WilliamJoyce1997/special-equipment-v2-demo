@@ -1,0 +1,26 @@
+{
+  "p0_source": "C:\\Users\\willi\\.codex\\worktrees\\special-equipment-p0\\OpenCMMS",
+  "v2": "C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS",
+  "v2_has_git_metadata": false,
+  "zip_crc_ok": true,
+  "snapshot_entries": 185,
+  "p0_source_changes_since_snapshot": [],
+  "reference_count": 16,
+  "reference_hashes_ok": true,
+  "p0_demo_unchanged": true,
+  "v2_demo_matches_snapshot": true,
+  "databases": {
+    "demo.sqlite3": {
+      "integrity": "ok",
+      "foreign_key_errors": 0,
+      "table_count": 41
+    },
+    "p0-demo-snapshot.sqlite3": {
+      "integrity": "ok",
+      "foreign_key_errors": 0,
+      "table_count": 41
+    }
+  },
+  "restore_integrity": "ok",
+  "original_database_sha256": "1391ec130fb6beba13350d3dd716660cd0a645b3d6055cc9fcaa786dc5641f64"
+}

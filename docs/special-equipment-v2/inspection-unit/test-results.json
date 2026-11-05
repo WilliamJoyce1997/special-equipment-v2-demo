@@ -1,0 +1,24 @@
+{
+  "passed": 16,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "menu/tab opens with real initial empty state",
+    "four fictional units and ten exact ordered business headers",
+    "name/credit/contact text filters mapped correctly",
+    "region + explicit demo overdue combination independent of enabled",
+    "sort/selection and export includes all queried units in configured field order",
+    "tab switching retains unit results/selection",
+    "two-row pagination retains selected count",
+    "shared column settings hide/show unit field",
+    "organization-specific advanced query, reset returns initial empty before new search",
+    "unit wide table freezes selection/sequence/actions without overlap",
+    "edit is explicitly read-only, no fake save",
+    "more toggles and contains two actions",
+    "menu closes outside or on table scroll, no clipped floating menu",
+    "organization audit shared component isolates IDs and query/reset; qualifications scoped, empty and disabled mutations",
+    "desktop/narrow list and modal layout and close without duplicate vertical scroll",
+    "no browser JS/console errors"
+  ],
+  "errors": []
+}

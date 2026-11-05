@@ -1,0 +1,23 @@
+{
+  "passed": 15,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "initial empty boiler page, agency disabled and advanced area hidden",
+    "31 province options, municipal districts, city selection and invalid child clearing; actual region filtering",
+    "boiler category/fuel cascades and independent reset-to-empty behavior",
+    "hover-only query help, inline advanced area, eight exact advanced dropdowns",
+    "advanced predicates actually filter, no-match/reset empty and normal toggle collapse",
+    "query settings exact 38 fields, help, draft save/hide and initial restore",
+    "table settings drag order, hide, color and contiguous freeze actually render",
+    "restore keeps complete boiler headers, CSV, sorting and pagination",
+    "same-unit multi-selection guard, agency cancel/required/save, other units and historical agency unchanged",
+    "boiler brief/history/inspection detail share exact category and nature options",
+    "all seven brief dialogs have one effective vertical body scroller, close restores page",
+    "1366 boiler advanced and single-scroll brief layouts usable",
+    "1920 boiler advanced and single-scroll brief layouts usable",
+    "390 boiler advanced and single-scroll brief layouts usable",
+    "other module data/database unchanged; no network writes or blocking browser errors"
+  ],
+  "errors": []
+}

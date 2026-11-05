@@ -1,0 +1,373 @@
+[
+  {
+    "id": "person.name",
+    "key": "name",
+    "label": "姓名",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.identity",
+    "key": "identity",
+    "label": "身份证",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": true
+  },
+  {
+    "id": "person.birthDate",
+    "key": "birthDate",
+    "label": "出生年月",
+    "type": "date",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.sex",
+    "key": "sex",
+    "label": "性别",
+    "type": "enum",
+    "scope": "person",
+    "options": [
+      "男",
+      "女"
+    ],
+    "sensitive": false
+  },
+  {
+    "id": "person.unitName",
+    "key": "unitName",
+    "label": "单位名称",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.unitOrganizationCode",
+    "key": "unitOrganizationCode",
+    "label": "单位组织机构代码",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.unitAddress",
+    "key": "unitAddress",
+    "label": "单位地址",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.homeAddress",
+    "key": "homeAddress",
+    "label": "联系地址",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.unitPostalCode",
+    "key": "unitPostalCode",
+    "label": "邮政编码（单位）",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.postalCode",
+    "key": "postalCode",
+    "label": "邮政编码（住址）",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.region",
+    "key": "region",
+    "label": "所在区域名称",
+    "type": "enum",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.regionCode",
+    "key": "regionCode",
+    "label": "地区代码",
+    "type": "enum",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.unitPhone",
+    "key": "unitPhone",
+    "label": "单位联系电话",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": true
+  },
+  {
+    "id": "person.phone",
+    "key": "phone",
+    "label": "个人电话",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": true
+  },
+  {
+    "id": "person.mobile",
+    "key": "mobile",
+    "label": "手机号码",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": true
+  },
+  {
+    "id": "person.fax",
+    "key": "fax",
+    "label": "传真",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": true
+  },
+  {
+    "id": "person.email",
+    "key": "email",
+    "label": "电子邮箱",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": true
+  },
+  {
+    "id": "person.position",
+    "key": "position",
+    "label": "职务",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.responsibility",
+    "key": "responsibility",
+    "label": "负责工作",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.title",
+    "key": "title",
+    "label": "职称",
+    "type": "enum",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.education",
+    "key": "education",
+    "label": "学历",
+    "type": "enum",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.college",
+    "key": "college",
+    "label": "毕业院校",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.major",
+    "key": "major",
+    "label": "所学专业",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "person.archiveNumber",
+    "key": "archiveNumber",
+    "label": "档案编号",
+    "type": "text",
+    "scope": "person",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.application",
+    "key": "application",
+    "label": "申请类别",
+    "type": "enum",
+    "scope": "qualification",
+    "qualificationKey": "申请类别",
+    "options": [
+      "演示首次申请",
+      "演示延续申请"
+    ],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.certificateStatus",
+    "key": "certificateStatus",
+    "label": "持证状态",
+    "type": "enum",
+    "scope": "qualification",
+    "qualificationKey": "持证状态",
+    "options": [
+      "演示未持证",
+      "演示资料待核"
+    ],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.examNumber",
+    "key": "examNumber",
+    "label": "考核号",
+    "type": "text",
+    "scope": "qualification",
+    "qualificationKey": "考核号",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.examOrg",
+    "key": "examOrg",
+    "label": "考核机构",
+    "type": "text",
+    "scope": "qualification",
+    "qualificationKey": "考核机构",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.issuingOrg",
+    "key": "issuingOrg",
+    "label": "发证机构",
+    "type": "text",
+    "scope": "qualification",
+    "qualificationKey": "发证机构",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.certificate",
+    "key": "certificate",
+    "label": "证书编号",
+    "type": "text",
+    "scope": "qualification",
+    "qualificationKey": "证书编号",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.certificateCard",
+    "key": "certificateCard",
+    "label": "证书底卡编号",
+    "type": "text",
+    "scope": "qualification",
+    "qualificationKey": "证书底卡编号",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.projectLevel",
+    "key": "projectLevel",
+    "label": "持证项目级别",
+    "type": "enum",
+    "scope": "qualification",
+    "qualificationKey": "持证项目级别",
+    "options": [
+      "演示一级",
+      "演示二级"
+    ],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.project",
+    "key": "project",
+    "label": "批准项目",
+    "type": "enum",
+    "scope": "qualification",
+    "qualificationKey": "批准项目",
+    "options": [
+      "演示项目A",
+      "演示项目B"
+    ],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.approvalDetails",
+    "key": "approvalDetails",
+    "label": "批准资格明细",
+    "type": "text",
+    "scope": "qualification",
+    "qualificationKey": "批准资格明细",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.approvedDate",
+    "key": "approvedDate",
+    "label": "批准日期",
+    "type": "date",
+    "scope": "qualification",
+    "qualificationKey": "批准日期",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.validUntil",
+    "key": "validUntil",
+    "label": "有效日期至",
+    "type": "date",
+    "scope": "qualification",
+    "qualificationKey": "有效日期",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.firstCertificateDate",
+    "key": "firstCertificateDate",
+    "label": "初次取证日期",
+    "type": "date",
+    "scope": "qualification",
+    "qualificationKey": "初次取证日期",
+    "options": [],
+    "sensitive": false
+  },
+  {
+    "id": "qualification.examConclusion",
+    "key": "examConclusion",
+    "label": "最终考核结论",
+    "type": "enum",
+    "scope": "qualification",
+    "qualificationKey": "最终考核结论",
+    "options": [],
+    "sensitive": false
+  }
+]

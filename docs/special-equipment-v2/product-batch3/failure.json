@@ -1,0 +1,5 @@
+{
+  "checks": [],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n0 !== 1\n\n    at C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\product-batch3.e2e.cjs:8:53"
+}

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工单管理修复测试</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <style>
+        .test-container { max-width: 800px; margin: 20px auto; padding: 20px; }
+        .test-section { margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { border-color: #10b981; background: #f0fdf4; }
+        .error { border-color: #ef4444; background: #fef2f2; }
+        .info { border-color: #3b82f6; background: #eff6ff; }
+        .btn { margin: 5px; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 工单管理修复测试</h1>
+        
+        <div class="test-section info">
+            <h3>📋 测试说明</h3>
+            <p>测试工单管理功能，特别是API路径修复后的用户列表加载。</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🔐 步骤 1: 登录</h3>
+            <button class="btn btn-primary" onclick="testLogin()">登录</button>
+            <div id="loginResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>👥 步骤 2: 测试用户列表API</h3>
+            <button class="btn btn-success" onclick="testUsersAPI()">测试用户列表</button>
+            <div id="usersResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📄 步骤 3: 测试工单页面加载</h3>
+            <button class="btn btn-warning" onclick="testWorkOrderPage()">测试工单页面</button>
+            <div id="pageResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>➕ 步骤 4: 测试创建工单模态框</h3>
+            <button class="btn btn-warning" onclick="testCreateModal()">测试创建模态框</button>
+            <div id="modalResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 当前状态</h3>
+            <div id="currentStatus">
+                <p><strong>登录状态:</strong> <span id="loginStatus">未登录</span></p>
+                <p><strong>用户数量:</strong> <span id="userCount">0</span> 个</p>
+                <p><strong>设备数量:</strong> <span id="assetCount">0</span> 个</p>
+            </div>
+        </div>
+
+        <!-- 隐藏的页面容器 -->
+        <div id="page-workorders" style="display: none;"></div>
+    </div>
+
+    <!-- JavaScript文件 -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/workorders.js"></script>
+    <script src="/static/js/index.js"></script>
+
+    <script>
+        let authToken = null;
+        let users = [];
+        let assets = [];
+
+        function updateResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            element.innerHTML = `<div class="test-section ${className}" style="margin-top: 10px;">${message}</div>`;
+        }
+
+        function updateStatus() {
+            const token = localStorage.getItem('access_token');
+            document.getElementById('loginStatus').textContent = token ? '已登录' : '未登录';
+            document.getElementById('userCount').textContent = users.length;
+            document.getElementById('assetCount').textContent = assets.length;
+        }
+
+        async function testLogin() {
+            updateResult('loginResult', '🔄 正在登录...', 'info');
+            
+            try {
+                const response = await fetch('/api/auth/login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.access;
+                    localStorage.setItem('access_token', data.access);
+                    localStorage.setItem('refresh_token', data.refresh);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    updateResult('loginResult', `✅ 登录成功！<br>用户: ${data.user.username}<br>角色: ${data.user.role}`, 'success');
+                    updateStatus();
+                } else {
+                    const error = await response.json();
+                    updateResult('loginResult', `❌ 登录失败: ${error.detail || '未知错误'}`, 'error');
+                }
+            } catch (error) {
+                updateResult('loginResult', `❌ 登录异常: ${error.message}`, 'error');
+            }
+        }
+
+        async function testUsersAPI() {
+            if (!authToken) {
+                updateResult('usersResult', '❌ 请先登录', 'error');
+                return;
+            }
+
+            updateResult('usersResult', '🔄 正在测试用户API...', 'info');
+
+            try {
+                // 测试修复后的API调用
+                console.log('测试API调用: /auth/users/');
+                const response = await API.get('/auth/users/', { page_size: 1000 });
+                
+                users = response.results || [];
+                updateResult('usersResult', `✅ 用户API测试成功！<br>获取到 ${users.length} 个用户`, 'success');
+                updateStatus();
+
+                // 显示用户列表
+                if (users.length > 0) {
+                    const userList = users.slice(0, 5).map(user => 
+                        `• ${user.full_name || user.username} (${user.role_display || user.role})`
+                    ).join('<br>');
+                    updateResult('usersResult', `✅ 用户API测试成功！<br>获取到 ${users.length} 个用户<br><br>前5个用户:<br>${userList}`, 'success');
+                }
+
+            } catch (error) {
+                updateResult('usersResult', `❌ 用户API测试失败: ${error.message}`, 'error');
+                console.error('用户API测试错误:', error);
+            }
+        }
+
+        async function testWorkOrderPage() {
+            if (!authToken) {
+                updateResult('pageResult', '❌ 请先登录', 'error');
+                return;
+            }
+
+            updateResult('pageResult', '🔄 正在测试工单页面...', 'info');
+
+            try {
+                // 测试loadWorkOrders函数
+                if (typeof loadWorkOrders === 'function') {
+                    await loadWorkOrders();
+                    updateResult('pageResult', '✅ 工单页面加载成功！<br>页面HTML已生成', 'success');
+                } else {
+                    updateResult('pageResult', '❌ loadWorkOrders函数不存在', 'error');
+                }
+            } catch (error) {
+                updateResult('pageResult', `❌ 工单页面测试失败: ${error.message}`, 'error');
+                console.error('工单页面测试错误:', error);
+            }
+        }
+
+        async function testCreateModal() {
+            if (!authToken) {
+                updateResult('modalResult', '❌ 请先登录', 'error');
+                return;
+            }
+
+            updateResult('modalResult', '🔄 正在测试创建模态框...', 'info');
+
+            try {
+                // 测试showWorkOrderModal函数
+                if (typeof showWorkOrderModal === 'function') {
+                    await showWorkOrderModal();
+                    updateResult('modalResult', '✅ 创建模态框测试成功！<br>模态框已显示，用户和设备列表已加载', 'success');
+                } else {
+                    updateResult('modalResult', '❌ showWorkOrderModal函数不存在', 'error');
+                }
+            } catch (error) {
+                updateResult('modalResult', `❌ 创建模态框测试失败: ${error.message}`, 'error');
+                console.error('创建模态框测试错误:', error);
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            updateStatus();
+            console.log('🚀 工单管理修复测试页面已加载');
+        });
+
+        // 错误捕获
+        window.addEventListener('error', function(e) {
+            console.error('❌ JavaScript错误:', e.message);
+        });
+    </script>
+</body>
+</html>

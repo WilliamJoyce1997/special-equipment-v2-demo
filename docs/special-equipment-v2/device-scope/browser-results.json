@@ -1,0 +1,30 @@
+{
+  "passed": 22,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "boiler detail/All/query water and safety-valve applicability",
+    "vessel detail/All/query water and safety-valve applicability",
+    "elevator detail/All/query water and safety-valve applicability",
+    "crane detail/All/query water and safety-valve applicability",
+    "vehicle detail/All/query water and safety-valve applicability",
+    "amusement detail/All/query water and safety-valve applicability",
+    "ropeway detail/All/query water and safety-valve applicability",
+    "installation detail/All/query water and safety-valve applicability",
+    "pipeline detail/All/query water and safety-valve applicability",
+    "vessel recent inspection date/next/report/conclusion from same latest record",
+    "only elevator latest testing tab has ordered reference fields, disabled generation and faithful values",
+    "installation brief exactly two collapsible groups, ten fields and reused linked count",
+    "pipeline-1 four direct buttons reuse contextual inspection/audit/QR dialogs",
+    "pipeline-2 four direct buttons reuse contextual inspection/audit/QR dialogs",
+    "pipeline reference subject fields/stars and four inspection groups, distinct full/online record binding",
+    "pipeline six component headers/empty state and All exactly reuses three parts",
+    "second pipeline full inspection and components do not use first pipeline data",
+    "1366 elevator/pipeline/installation layouts usable",
+    "1920 elevator/pipeline/installation layouts usable",
+    "390 elevator/pipeline/installation layouts usable",
+    "legacy inapplicable plan clearly blocked without deleting conditions; valid plans still execute/save and old plan can be confirmed deleted",
+    "no source/database mutation, network write or blocking browser errors"
+  ],
+  "errors": []
+}

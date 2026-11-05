@@ -1,0 +1,19 @@
+{
+  "passed": 11,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "exact five ordered elevator menu items",
+    "other eight types retain original actions without new entries",
+    "testing five current-row facts, ordered eight headers, empty/fold/pagination/statistics/confirm and list selection",
+    "correction 11 fields, four required, exact dictionaries/read-only age, required/year validation and cancel discard",
+    "Escape discards and save updates only selected elevator with independently entered dates and unchanged age",
+    "latest testing detail and reopened correction share same session fields",
+    "old three menu functions preserved, second elevator dialogs and save remain isolated",
+    "1920 dialog layout, single main vertical scroller and reachable footer",
+    "390 dialog layout, single main vertical scroller and reachable footer",
+    "other modules and database unchanged, no network writes or blocking JS errors",
+    "reload restores fixtures: no hidden persistence"
+  ],
+  "errors": []
+}

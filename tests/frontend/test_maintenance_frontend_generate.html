@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>保养计划前端生成工单测试</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <style>
+        .test-container { max-width: 800px; margin: 20px auto; padding: 20px; }
+        .test-section { margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { border-color: #10b981; background: #f0fdf4; }
+        .error { border-color: #ef4444; background: #fef2f2; }
+        .info { border-color: #3b82f6; background: #eff6ff; }
+        .btn { margin: 5px; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 保养计划前端生成工单测试</h1>
+        
+        <div class="test-section info">
+            <h3>📋 测试说明</h3>
+            <p>测试保养计划前端生成工单功能，验证修复后的API调用是否正常。</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🔐 步骤 1: 登录</h3>
+            <button class="btn btn-primary" onclick="testLogin()">登录</button>
+            <div id="loginResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 步骤 2: 加载保养计划</h3>
+            <button class="btn btn-success" onclick="testLoadPlans()">加载保养计划</button>
+            <div id="plansResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>➕ 步骤 3: 创建测试保养计划</h3>
+            <button class="btn btn-warning" onclick="testCreatePlan()">创建测试计划</button>
+            <div id="createResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 步骤 4: 生成工单</h3>
+            <button class="btn btn-danger" onclick="testGenerateWorkOrder()">生成工单</button>
+            <div id="generateResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🗑️ 步骤 5: 清理测试数据</h3>
+            <button class="btn btn-danger" onclick="cleanupTestData()">清理数据</button>
+            <div id="cleanupResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 当前状态</h3>
+            <div id="currentStatus">
+                <p><strong>登录状态:</strong> <span id="loginStatus">未登录</span></p>
+                <p><strong>保养计划数:</strong> <span id="planCount">0</span> 个</p>
+                <p><strong>测试计划ID:</strong> <span id="testPlanId">-</span></p>
+                <p><strong>生成的工单:</strong> <span id="generatedWO">-</span></p>
+            </div>
+        </div>
+
+        <!-- 隐藏的页面容器 -->
+        <div id="page-maintenance" style="display: none;"></div>
+    </div>
+
+    <!-- JavaScript文件 -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/maintenance.js"></script>
+    <script src="/static/js/index.js"></script>
+
+    <script>
+        let authToken = null;
+        let testPlanId = null;
+        let availableAssets = [];
+
+        function updateResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            element.innerHTML = `<div class="test-section ${className}" style="margin-top: 10px;">${message}</div>`;
+        }
+
+        function updateStatus() {
+            const token = localStorage.getItem('access_token');
+            document.getElementById('loginStatus').textContent = token ? '已登录' : '未登录';
+            document.getElementById('testPlanId').textContent = testPlanId || '-';
+        }
+
+        async function testLogin() {
+            updateResult('loginResult', '🔄 正在登录...', 'info');
+            
+            try {
+                const response = await fetch('/api/auth/login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.access;
+                    localStorage.setItem('access_token', data.access);
+                    localStorage.setItem('refresh_token', data.refresh);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    updateResult('loginResult', `✅ 登录成功！<br>用户: ${data.user.username}<br>角色: ${data.user.role}`, 'success');
+                    updateStatus();
+
+                    // 加载设备列表
+                    await loadAssets();
+                } else {
+                    const error = await response.json();
+                    updateResult('loginResult', `❌ 登录失败: ${error.detail || '未知错误'}`, 'error');
+                }
+            } catch (error) {
+                updateResult('loginResult', `❌ 登录异常: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadAssets() {
+            try {
+                const response = await API.getAssets({ page_size: 1000 });
+                availableAssets = response.results || [];
+                console.log('✅ 加载设备列表:', availableAssets.length, '个设备');
+            } catch (error) {
+                console.error('❌ 加载设备失败:', error);
+            }
+        }
+
+        async function testLoadPlans() {
+            if (!authToken) {
+                updateResult('plansResult', '❌ 请先登录', 'error');
+                return;
+            }
+
+            updateResult('plansResult', '🔄 正在加载保养计划...', 'info');
+
+            try {
+                const response = await API.getMaintenancePlans({ page_size: 100 });
+                const plans = response.results || [];
+                
+                document.getElementById('planCount').textContent = plans.length;
+                
+                let plansList = '';
+                if (plans.length > 0) {
+                    plansList = '<br><strong>现有计划:</strong><br>';
+                    plans.slice(0, 5).forEach(plan => {
+                        plansList += `• ${plan.code}: ${plan.title} (${plan.is_active ? '启用' : '停用'})<br>`;
+                    });
+                }
+                
+                updateResult('plansResult', `✅ 保养计划加载成功！<br>获取到 ${plans.length} 个保养计划${plansList}`, 'success');
+            } catch (error) {
+                updateResult('plansResult', `❌ 加载保养计划失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCreatePlan() {
+            if (!authToken) {
+                updateResult('createResult', '❌ 请先登录', 'error');
+                return;
+            }
+
+            if (availableAssets.length === 0) {
+                updateResult('createResult', '❌ 没有可用设备', 'error');
+                return;
+            }
+
+            updateResult('createResult', '🔄 正在创建测试保养计划...', 'info');
+
+            const planData = {
+                code: 'FRONTEND-TEST-' + Date.now(),
+                equipment: availableAssets[0].id,
+                title: '前端测试保养计划-生成工单',
+                description: '这是一个前端测试保养计划，用于测试生成工单功能',
+                trigger_type: 'time',
+                frequency_value: 30,
+                frequency_unit: 'day',
+                priority: 'medium',
+                estimated_hours: 2.0,
+                estimated_cost: 100.00,
+                required_skills: '机械师',
+                checklist_template: ['检查机油', '检查皮带', '清洁滤网'],
+                is_active: true
+            };
+
+            try {
+                const response = await API.createMaintenancePlan(planData);
+                testPlanId = response.id;
+                
+                updateResult('createResult', `✅ 测试保养计划创建成功！<br>编号: ${response.code}<br>ID: ${response.id}`, 'success');
+                updateStatus();
+            } catch (error) {
+                updateResult('createResult', `❌ 创建测试保养计划失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testGenerateWorkOrder() {
+            if (!authToken) {
+                updateResult('generateResult', '❌ 请先登录', 'error');
+                return;
+            }
+
+            if (!testPlanId) {
+                updateResult('generateResult', '❌ 请先创建测试保养计划', 'error');
+                return;
+            }
+
+            updateResult('generateResult', '🔄 正在生成工单...', 'info');
+
+            try {
+                // 使用API.post方法调用生成工单接口
+                const response = await API.post(`/maintenance/plans/${testPlanId}/generate_work_order/`, {});
+                
+                document.getElementById('generatedWO').textContent = response.wo_code || 'Unknown';
+                
+                updateResult('generateResult', `✅ 工单生成成功！<br>工单编号: ${response.wo_code}<br>工单ID: ${response.work_order_id}<br>消息: ${response.message}`, 'success');
+                
+                // 验证生成的工单
+                if (response.work_order_id) {
+                    try {
+                        const woResponse = await API.getWorkOrder(response.work_order_id);
+                        updateResult('generateResult', `✅ 工单生成并验证成功！<br>工单编号: ${response.wo_code}<br>摘要: ${woResponse.summary}<br>状态: ${woResponse.status}<br>类型: ${woResponse.wo_type}`, 'success');
+                    } catch (verifyError) {
+                        console.warn('工单验证失败:', verifyError);
+                    }
+                }
+                
+            } catch (error) {
+                updateResult('generateResult', `❌ 生成工单失败: ${error.message}`, 'error');
+                console.error('生成工单错误详情:', error);
+            }
+        }
+
+        async function cleanupTestData() {
+            if (!testPlanId) {
+                updateResult('cleanupResult', '⚠️ 没有需要清理的测试数据', 'info');
+                return;
+            }
+
+            updateResult('cleanupResult', '🔄 正在清理测试数据...', 'info');
+
+            try {
+                await API.deleteMaintenancePlan(testPlanId);
+                
+                updateResult('cleanupResult', '✅ 测试数据清理成功！', 'success');
+                testPlanId = null;
+                updateStatus();
+            } catch (error) {
+                updateResult('cleanupResult', `❌ 清理测试数据失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            updateStatus();
+            console.log('🚀 保养计划前端生成工单测试页面已加载');
+        });
+
+        // 错误捕获
+        window.addEventListener('error', function(e) {
+            console.error('❌ JavaScript错误:', e.message);
+        });
+    </script>
+</body>
+</html>

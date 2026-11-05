@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "installation title, exactly two tabs and five collapsible groups",
+    "58 reference fields, six required marks, current record values and folding",
+    "change table ten ordered headers, date validation/reset, empty statistics and column settings",
+    "19 pipeline columns, scoped record, sorting, page size, selected count, horizontal scroll and fixed actions",
+    "four existing pipeline actions keep context, independent four-tab detail and parent selection retained on close",
+    "second installation isolation and genuinely unlinked installation empty",
+    "1366 form and linked wide-table usable",
+    "1920 form and linked wide-table usable",
+    "390 form and linked wide-table usable"
+  ],
+  "errors": [],
+  "error": "TypeError [ERR_INVALID_ARG_TYPE]: The \"regexp\" argument must be an instance of RegExp. Received type string ('2026-01-09')\n    at internalMatch (node:assert:855:11)\n    at strict.match (node:assert:897:3)\n    at C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\installation-detail.e2e.cjs:18:984"
+}

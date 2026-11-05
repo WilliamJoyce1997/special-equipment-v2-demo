@@ -1,0 +1,10 @@
+.local/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+staticfiles/
+media/
+.playwright-cli/
+dist-pages/

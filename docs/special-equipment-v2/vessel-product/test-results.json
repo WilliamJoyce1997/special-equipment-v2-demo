@@ -1,0 +1,21 @@
+{
+  "passed": 13,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "vessel menu, initial empty, three samples, 10 exact headers",
+    "vessel keyword and combined query/reset",
+    "26 vessel fields / three category levels / independent shell-tube values / read-only, close only",
+    "boiler-product shared audit and inspection, typed product ID and session reopen",
+    "vessel-product shared audit and inspection, typed product ID and session reopen",
+    "vessel actual repeated copy, independent IDs/numbers, inspection excluded",
+    "vessel export header/data, sorting, pagination and selection",
+    "shared vessel column settings",
+    "1366 vessel table and three dialogs layout / single scroll",
+    "1920 vessel table and three dialogs layout / single scroll",
+    "768 vessel table and three dialogs layout / single scroll",
+    "390 vessel table and three dialogs layout / single scroll",
+    "no blocking console errors or write requests"
+  ],
+  "errors": []
+}

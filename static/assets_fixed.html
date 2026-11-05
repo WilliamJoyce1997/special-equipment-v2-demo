@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备台账管理</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .search-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-active { background: #d1fae5; color: #065f46; }
+        .status-inactive { background: #fef3c7; color: #92400e; }
+        .status-maintenance { background: #dbeafe; color: #1e40af; }
+        .status-retired { background: #fee2e2; color: #991b1b; }
+        .message {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .message.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .message.error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .message.info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>设备台账管理</h1>
+        
+        <!-- 工具栏 -->
+        <div class="toolbar">
+            <a href="/api/assets/download_template/" class="btn btn-secondary btn-sm" target="_blank">📥 下载模板</a>
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('importFile').click()">📤 批量导入</button>
+            <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleImport(this)">
+            <a href="/api/assets/export_csv/" class="btn btn-secondary btn-sm" target="_blank">📊 导出台账</a>
+            <button class="btn btn-success btn-sm" onclick="loadAssets()">🔄 刷新数据</button>
+            <button class="btn btn-primary btn-sm" onclick="showAddModal()">➕ 新增设备</button>
+        </div>
+        
+        <!-- 搜索区域 -->
+        <div class="search-section">
+            <input type="text" id="searchInput" class="form-input" placeholder="搜索设备编码、名称..." style="flex: 1;">
+            <select id="statusFilter" class="form-select">
+                <option value="">全部状态</option>
+                <option value="active">运行中</option>
+                <option value="inactive">停机</option>
+                <option value="maintenance">保养中</option>
+                <option value="retired">报废</option>
+            </select>
+            <button class="btn btn-primary" onclick="searchAssets()">搜索</button>
+        </div>
+        
+        <!-- 消息显示区域 -->
+        <div id="messageArea"></div>
+        
+        <!-- 设备列表 -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>设备编码</th>
+                        <th>设备名称</th>
+                        <th>位置</th>
+                        <th>供应商</th>
+                        <th>状态</th>
+                        <th>启用日期</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="assetsTable">
+                    <tr><td colspan="7" style="text-align: center; padding: 40px;">正在加载设备数据...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // API配置
+        const API_BASE = '/api';
+        let allAssets = [];
+        
+        // 获取认证头
+        function getAuthHeaders() {
+            const token = localStorage.getItem('access_token');
+            return {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            };
+        }
+        
+        // 显示消息
+        function showMessage(message, type = 'info') {
+            const messageArea = document.getElementById('messageArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            messageArea.appendChild(messageDiv);
+            
+            // 3秒后自动移除
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+        
+        // 处理批量导入
+        async function handleImport(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            showMessage('正在导入文件，请稍候...', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await fetch(`${API_BASE}/assets/import_excel/`, {
+                    method: 'POST',
+                    headers: {
+                        ...(localStorage.getItem('access_token') && { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` })
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success_count > 0) {
+                    showMessage(`导入成功！成功导入 ${result.success_count} 条记录${result.error_count > 0 ? `，失败 ${result.error_count} 条` : ''}`, 'success');
+                    loadAssets(); // 重新加载数据
+                    
+                    if (result.errors && result.errors.length > 0) {
+                        setTimeout(() => {
+                            alert('部分记录导入失败：\n\n' + result.errors.slice(0, 10).join('\n') + (result.errors.length > 10 ? '\n...' : ''));
+                        }, 500);
+                    }
+                } else {
+                    showMessage(result.message || '导入失败', 'error');
+                    if (result.errors && result.errors.length > 0) {
+                        setTimeout(() => {
+                            alert('导入失败：\n\n' + result.errors.slice(0, 10).join('\n'));
+                        }, 500);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('导入失败:', error);
+                showMessage(`导入失败: ${error.message}`, 'error');
+            }
+            
+            // 清空文件选择
+            input.value = '';
+        }
+        
+        // 加载设备数据
+        async function loadAssets() {
+            try {
+                const response = await fetch(`${API_BASE}/assets/`, {
+                    headers: getAuthHeaders()
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                allAssets = data.results || [];
+                renderAssets(allAssets);
+                
+            } catch (error) {
+                console.error('加载设备数据失败:', error);
+                document.getElementById('assetsTable').innerHTML = 
+                    `<tr><td colspan="7" style="text-align: center; color: red; padding: 40px;">加载失败: ${error.message}</td></tr>`;
+            }
+        }
+        
+        // 渲染设备列表
+        function renderAssets(assets) {
+            const tbody = document.getElementById('assetsTable');
+            
+            if (!assets || assets.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">暂无设备数据</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = assets.map(asset => `
+                <tr>
+                    <td>${asset.code || '-'}</td>
+                    <td>${asset.name || '-'}</td>
+                    <td>${getLocationDisplay(asset)}</td>
+                    <td>${asset.vendor || '-'}</td>
+                    <td>${getStatusBadge(asset.status)}</td>
+                    <td>${formatDate(asset.start_date)}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="viewAsset(${asset.id})">查看</button>
+                        <button class="btn btn-secondary btn-sm" onclick="editAsset(${asset.id})">编辑</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // 获取位置显示
+        function getLocationDisplay(asset) {
+            const parts = [asset.factory, asset.workshop, asset.line, asset.station].filter(p => p);
+            return parts.length > 0 ? parts.join(' / ') : '-';
+        }
+        
+        // 获取状态标签
+        function getStatusBadge(status) {
+            const badges = {
+                'active': '<span class="status-badge status-active">运行中</span>',
+                'inactive': '<span class="status-badge status-inactive">停机</span>',
+                'maintenance': '<span class="status-badge status-maintenance">保养中</span>',
+                'retired': '<span class="status-badge status-retired">报废</span>'
+            };
+            return badges[status] || `<span class="status-badge">${status || '-'}</span>`;
+        }
+        
+        // 格式化日期
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            try {
+                return new Date(dateStr).toLocaleDateString('zh-CN');
+            } catch (e) {
+                return dateStr;
+            }
+        }
+        
+        // 搜索设备
+        function searchAssets() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            let filtered = allAssets;
+            
+            if (searchTerm) {
+                filtered = filtered.filter(asset => 
+                    (asset.code && asset.code.toLowerCase().includes(searchTerm)) ||
+                    (asset.name && asset.name.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            if (statusFilter) {
+                filtered = filtered.filter(asset => asset.status === statusFilter);
+            }
+            
+            renderAssets(filtered);
+        }
+        
+        // 查看设备详情
+        function viewAsset(id) {
+            const asset = allAssets.find(a => a.id === id);
+            if (asset) {
+                alert(`设备详情：\n编码：${asset.code}\n名称：${asset.name}\n状态：${asset.status}\n位置：${getLocationDisplay(asset)}`);
+            }
+        }
+        
+        // 编辑设备
+        function editAsset(id) {
+            showMessage('编辑功能开发中...', 'info');
+        }
+        
+        // 显示新增模态框
+        function showAddModal() {
+            showMessage('新增功能开发中...', 'info');
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAssets();
+        });
+    </script>
+</body>
+</html>

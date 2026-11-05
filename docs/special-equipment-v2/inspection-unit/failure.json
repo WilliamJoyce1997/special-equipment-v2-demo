@@ -1,0 +1,14 @@
+{
+  "checks": [
+    "menu/tab opens with real initial empty state",
+    "four fictional units and ten exact ordered business headers",
+    "name/credit/contact text filters mapped correctly",
+    "region + explicit demo overdue combination independent of enabled",
+    "sort/selection and export includes all queried units in configured field order",
+    "tab switching retains unit results/selection",
+    "edit is explicitly read-only, no fake save",
+    "more toggles and contains two actions"
+  ],
+  "errors": [],
+  "error": "locator.click: Error: strict mode violation: getByRole('button', { name: '⟳ 重置', exact: true }) resolved to 2 elements:\n    1) <button type=\"button\" class=\"secondary\">⟳  重置</button> aka getByRole('form', { name: '检验单位查询条件' }).getByRole('button', { name: '⟳ 重置' })\n    2) <button type=\"button\" class=\"secondary\">⟳ 重置</button> aka locator('#dialog-body').getByRole('button', { name: '⟳ 重置' })\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '⟳ 重置', exact: true })\u001b[22m\n\n    at C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\inspection-unit.e2e.cjs:22:240"
+}

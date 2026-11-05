@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主页面修复测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .btn { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #0056b3; }
+        .btn-success { background: #28a745; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .code { background: #f8f9fa; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>主页面修复测试</h1>
+    
+    <div class="test-section">
+        <h3>问题说明</h3>
+        <div class="info">
+            <p><strong>问题原因：</strong> index.js中的<code class="code">loadAssets()</code>函数覆盖了assets.js中的同名函数，导致批量导入功能无法正常显示。</p>
+            <p><strong>修复方案：</strong> 将index.js中的函数重命名为<code class="code">loadAssetsPage()</code>，避免函数名冲突。</p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>测试步骤</h3>
+        <ol>
+            <li>点击下面的按钮打开修复后的主页面</li>
+            <li>点击左侧菜单的"设备台账"</li>
+            <li>查看是否显示批量导入按钮</li>
+            <li>测试批量导入功能</li>
+        </ol>
+        
+        <div style="margin: 15px 0;">
+            <a href="/static/index.html" target="_blank" class="btn">打开主页面</a>
+            <button class="btn btn-success" onclick="openWithAssets()">直接打开设备台账</button>
+            <a href="/static/debug_assets.html" target="_blank" class="btn btn-warning">调试页面</a>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>功能验证清单</h3>
+        <div id="checkList">
+            <label><input type="checkbox"> 主页面能正常加载</label><br>
+            <label><input type="checkbox"> 左侧菜单"设备台账"可点击</label><br>
+            <label><input type="checkbox"> 设备台账页面正常显示</label><br>
+            <label><input type="checkbox"> 显示"下载模板"按钮</label><br>
+            <label><input type="checkbox"> 显示"批量导入"按钮</label><br>
+            <label><input type="checkbox"> 显示"导出台账"按钮</label><br>
+            <label><input type="checkbox"> 批量导入功能正常工作</label><br>
+            <label><input type="checkbox"> 设备数据正常加载</label><br>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>如果仍有问题</h3>
+        <div class="error">
+            <p><strong>请检查以下几点：</strong></p>
+            <ul>
+                <li>浏览器控制台是否有JavaScript错误</li>
+                <li>网络请求是否正常（F12 → Network标签）</li>
+                <li>是否有缓存问题（Ctrl+F5强制刷新）</li>
+                <li>服务器是否正常运行</li>
+            </ul>
+        </div>
+        
+        <div class="success">
+            <p><strong>替代方案：</strong></p>
+            <ul>
+                <li><a href="/static/assets_fixed.html" target="_blank">使用修复版设备台账页面</a></li>
+                <li><a href="/static/test_import.html" target="_blank">使用简单批量导入页面</a></li>
+                <li><a href="/static/debug_assets.html" target="_blank">使用调试页面</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function openWithAssets() {
+            const mainWindow = window.open('/static/index.html', '_blank');
+            
+            // 等待页面加载后自动导航到设备台账
+            setTimeout(() => {
+                try {
+                    if (mainWindow && !mainWindow.closed) {
+                        // 尝试在新窗口中点击设备台账菜单
+                        mainWindow.postMessage({
+                            action: 'clickAssets'
+                        }, '*');
+                    }
+                } catch (e) {
+                    console.log('无法自动导航，请手动点击设备台账菜单');
+                }
+            }, 3000);
+        }
+        
+        // 监听来自主页面的消息
+        window.addEventListener('message', (event) => {
+            if (event.data.status) {
+                const statusDiv = document.createElement('div');
+                statusDiv.className = `status ${event.data.type || 'info'}`;
+                statusDiv.textContent = event.data.message;
+                document.body.appendChild(statusDiv);
+            }
+        });
+    </script>
+</body>
+</html>

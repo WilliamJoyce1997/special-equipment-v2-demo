@@ -1,0 +1,71 @@
+{
+  "archive_directory": "C:/Users/willi/.codex/reference-archives/special-equipment-v2/2026-10-29-offwork",
+  "count": 16,
+  "verified_sha256": true,
+  "files": [
+    {
+      "name": "01-codex-clipboard-e26c6f1f-0be2-40cc-8e25-6b951f8ddf41.png",
+      "sha256": "eb3759c0543f4a736334847682cb31f499bc11e6ad92cf98eb144be4f9b7fdc6"
+    },
+    {
+      "name": "02-codex-clipboard-7dcbdb20-8372-490b-90c6-032fcd0fc115.png",
+      "sha256": "965d9908d039048e9f8cda115090f5d8a6b8a48911fc413250c44ec69a5bfa0a"
+    },
+    {
+      "name": "03-codex-clipboard-3d77bd97-8523-4327-a3fe-5ecb31603183.png",
+      "sha256": "6d4ff3dc2d57a2187cdb3c172025685d3d7577d29fdaefb8ae72579948b7c6ad"
+    },
+    {
+      "name": "04-codex-clipboard-f5133f51-4741-4330-a5c0-8e3ee3780597.png",
+      "sha256": "d8a1dd1c135dbb994adda269a13a309a5b8d2d52ff6c9a1ffd3a31a0a56d6d0b"
+    },
+    {
+      "name": "05-codex-clipboard-a2510d29-16c8-488e-ad18-1fba65249293.png",
+      "sha256": "6e886c3f031edd2bc45ef2bd0a2785168e56809375e4db0d9ffcb06edf9bbcad"
+    },
+    {
+      "name": "06-codex-clipboard-437e289e-22fb-4bef-b07d-a6c9354d9d18.png",
+      "sha256": "767c812a6ea2ac05bf628a38c37783011f1fb17c19b68fab47cf2af209083781"
+    },
+    {
+      "name": "07-codex-clipboard-5bb13149-bf09-40e5-aede-2df989c660a9.png",
+      "sha256": "262b2afb1cefcffd1b32b5d625999beec933d4c9df3644ec33ca2ea648b72d63"
+    },
+    {
+      "name": "08-codex-clipboard-dd98c572-3fff-4946-8702-2ba1a73a32de.png",
+      "sha256": "dd42fa973c1c55c2ea09abf60bbe9181340c519b1c2c4bff0a368302f072dd6b"
+    },
+    {
+      "name": "09-codex-clipboard-9c8ce990-de37-4637-93f0-2e36444c0283.png",
+      "sha256": "1b698622b58d6baa70510d4adf578a4538e6ab9433165b4b66364f5820f500c3"
+    },
+    {
+      "name": "10-codex-clipboard-d750a360-d5c5-42df-9e53-c95f5fc7a8f5.png",
+      "sha256": "078484200b60aecabac8f6c5c3fa09eb28ba4a3cc727ea9ab01c84c2e59fe3dc"
+    },
+    {
+      "name": "11-codex-clipboard-b699c0b1-d856-4ec6-bfa9-c34624aa35dd.png",
+      "sha256": "be083265c852c02d715d312cfecc20761ce0a6531df2772f60b20dc88c26cf9b"
+    },
+    {
+      "name": "12-codex-clipboard-86c9274c-37e0-489a-bf16-e8c440d68118.png",
+      "sha256": "a05f2c255250a6151e70c6326325db8a1c822f4f69f2f23c639e0bc25d7c9d8e"
+    },
+    {
+      "name": "13-codex-clipboard-cc8d3558-4083-4ccd-9d44-7a557d80c87a.png",
+      "sha256": "9382e2532d2f103f5ea01d4bbe02f4655eb3de5375e6a96b88ac7972df2b9fd4"
+    },
+    {
+      "name": "14-codex-clipboard-9a3d7906-742a-4261-94ac-18e1aa6a12d2.png",
+      "sha256": "cd5cf3395d4a3b8b95e7c94720bb65a3690481184e126408f14287017a82560d"
+    },
+    {
+      "name": "15-codex-clipboard-77ea044e-edc7-4c23-ba5e-495d695200cd.png",
+      "sha256": "89c043e88556ceb52bf43d6a3cc63fc3a69c4433b5da26ada49add42aceac268"
+    },
+    {
+      "name": "16-codex-clipboard-6289aad6-fd85-4dd3-baec-87a81c400e7c.png",
+      "sha256": "7d15d043fddb0adb6784527bdf9af56916da36e2d6e07bdbfbf9f39646597d53"
+    }
+  ]
+}

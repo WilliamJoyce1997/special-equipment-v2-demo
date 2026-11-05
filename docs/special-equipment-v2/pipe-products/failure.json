@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "pipe-component initial empty, three samples and ordered headers",
+    "component full six-parent/26-child dictionary and clearing linkage",
+    "pipe-component query/reset"
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n'管道元件' !== '压力管道元件'\n\n    at C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\pipe-products.e2e.cjs:14:680"
+}

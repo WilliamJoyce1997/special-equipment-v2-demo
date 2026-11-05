@@ -1,0 +1,17 @@
+{
+  "checks": [],
+  "errors": [
+    "Unexpected end of input",
+    "V2 is not defined",
+    "V2EquipmentSchema is not defined",
+    "V2 is not defined",
+    "V2InspectionUnits is not defined",
+    "V2 is not defined",
+    "V2 is not defined",
+    "V2 is not defined",
+    "V2 is not defined",
+    "V2 is not defined",
+    "V2 is not defined"
+  ],
+  "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#nav [data-page=\"boiler\"]')\u001b[22m\n\n    at C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\equipment-common.e2e.cjs:5:48"
+}

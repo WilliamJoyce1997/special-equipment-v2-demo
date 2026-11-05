@@ -1,0 +1,17 @@
+{
+  "passed": 9,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "QR 1920 layout, footer close, scroll restored",
+    "Escape 1920 cleanup",
+    "QR 768 layout, footer close, scroll restored",
+    "Escape 768 cleanup",
+    "QR 390 layout, footer close, scroll restored",
+    "Escape 390 cleanup",
+    "audit actor/field/date three-way combination",
+    "three actual modal screenshots captured; no reference files copied",
+    "no blocking JS"
+  ],
+  "errors": []
+}

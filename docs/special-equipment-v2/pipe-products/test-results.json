@@ -1,0 +1,22 @@
+{
+  "passed": 14,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "pipe-component initial empty, three samples and ordered headers",
+    "component full six-parent/26-child dictionary and clearing linkage",
+    "pipe-component query/reset",
+    "pipe-component complete record-specific read-only fields, close only",
+    "pipe-component actual copy and typed shared audit/inspection",
+    "pipe-component sort/page/select/export including last field",
+    "pipe-component desktop/narrow layout and single main scroll",
+    "pipe-project initial empty, three samples and ordered headers",
+    "pipe-project query/reset",
+    "pipe-project complete record-specific read-only fields, close only",
+    "pipe-project actual copy and typed shared audit/inspection",
+    "pipe-project sort/page/select/export including last field",
+    "pipe-project desktop/narrow layout and single main scroll",
+    "no blocking JavaScript errors"
+  ],
+  "errors": []
+}

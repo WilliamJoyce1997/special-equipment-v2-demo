@@ -1,0 +1,22 @@
+{
+  "passed": 14,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "锅炉 shared region/enums/help/settings/advanced/agency/export/detail/reset",
+    "压力容器 shared region/enums/help/settings/advanced/agency/export/detail/reset",
+    "电梯 shared region/enums/help/settings/advanced/agency/export/detail/reset",
+    "起重机械 shared region/enums/help/settings/advanced/agency/export/detail/reset",
+    "场（厂）内机动车辆 shared region/enums/help/settings/advanced/agency/export/detail/reset",
+    "大型游乐设施 shared region/enums/help/settings/advanced/agency/export/detail/reset",
+    "客运索道 shared region/enums/help/settings/advanced/agency/export/detail/reset",
+    "vessel exact cascade leaf reset, purpose and quick-door filtering",
+    "vessel detail shares category hierarchy, geography, purpose and quick-door dictionaries",
+    "vessel agency session update preserves historical inspection reports",
+    "1366 vessel normal/advanced usable",
+    "1920 vessel normal/advanced usable",
+    "390 vessel normal/advanced usable",
+    "no blocking browser errors, network writes or database changes"
+  ],
+  "errors": []
+}

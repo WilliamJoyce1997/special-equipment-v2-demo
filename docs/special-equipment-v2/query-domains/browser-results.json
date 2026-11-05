@@ -1,0 +1,62 @@
+{
+  "passed": 16,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "unit page initially empty, eight types and exact shared 13-field dictionary",
+    "seven missing unit types show source status, inspection unit plan saves",
+    "unit actual four archives, result color/freeze, paging and complete CSV",
+    "unit edit saves and reopens the same plan, executes actual text predicate",
+    "missing source executes honest empty result, not manufacturing/name-string archives",
+    "equipment page initial empty and eight top-level types, dictionary feeds both steps",
+    "actual boiler numeric predicate and history aggregate, one row per device",
+    "type changes prune invalid fields/conditions; pipe subtype switches, cancel preserves boiler plan",
+    "installation/pipeline plans save explicit subtypes, execute eight distinct records each",
+    "nine dictionaries match actual dossier DOM (installation two-tab structure), including textarea and date-range endpoints",
+    "unit creator filtering, reset empty and separate page state",
+    "three domain storage keys and plan IDs remain isolated",
+    "unit desktop/narrow schemes, builder and results usable",
+    "equipment desktop/narrow schemes, builder and results usable",
+    "equipment bulk delete confirms and never deletes unit plans",
+    "no source mutations, database changes, network writes or blocking console errors"
+  ],
+  "errors": [],
+  "reports": [
+    {
+      "type": "boiler",
+      "rendered": 253
+    },
+    {
+      "type": "vessel",
+      "rendered": 176
+    },
+    {
+      "type": "elevator",
+      "rendered": 211
+    },
+    {
+      "type": "crane",
+      "rendered": 169
+    },
+    {
+      "type": "vehicle",
+      "rendered": 169
+    },
+    {
+      "type": "amusement",
+      "rendered": 169
+    },
+    {
+      "type": "ropeway",
+      "rendered": 169
+    },
+    {
+      "type": "installation",
+      "rendered": 58
+    },
+    {
+      "type": "pipeline",
+      "rendered": 127
+    }
+  ]
+}

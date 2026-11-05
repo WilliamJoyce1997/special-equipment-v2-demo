@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "boiler A detail fields/context/read-only problems and cancel preserves parent",
+    "boiler A attachment headers/filter validation/reset/empty and Escape only closes child",
+    "boiler A repeat open/close without stale nodes or parent state loss",
+    "boiler B detail fields/context/read-only problems and cancel preserves parent"
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(await child().locator('.table-scroll').evaluate(e=>e.scrollLeft>0))\n\n    at C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\inspection-record-dialogs.e2e.cjs:40:199"
+}

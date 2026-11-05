@@ -1,0 +1,20 @@
+{
+  "passed": 12,
+  "failed": 0,
+  "skipped": 0,
+  "checks": [
+    "elevator-product exact parent/child dictionaries, all branches, child reset, direct leaf selection and valid samples",
+    "elevator-product adapted editable parameters, cascading save/reopen and independent copy retains category",
+    "elevator-product shared menus and typed contexts, sorting/paging/selection/export/columns",
+    "elevator-product desktop/narrow screenshots and single dialog scroll",
+    "crane-product exact parent/child dictionaries, all branches, child reset, direct leaf selection and valid samples",
+    "crane-product adapted editable parameters, cascading save/reopen and independent copy retains category",
+    "crane-product shared menus and typed contexts, sorting/paging/selection/export/columns",
+    "crane-product desktop/narrow screenshots and single dialog scroll",
+    "boiler-product exact parent/child dictionaries, all branches, child reset, direct leaf selection and valid samples",
+    "boiler session editing and copy retain new dictionary child category; direct leaf needs no extra selection",
+    "vessel-product exact parent/child dictionaries, all branches, child reset, direct leaf selection and valid samples",
+    "no blocking JavaScript/console errors or writes"
+  ],
+  "errors": []
+}

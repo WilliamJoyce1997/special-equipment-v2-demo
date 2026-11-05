@@ -1,0 +1,20 @@
+{
+  "passed": 13,
+  "failed": 0,
+  "checks": [
+    "boiler actual CSV regression",
+    "vessel actual CSV regression",
+    "elevator actual CSV regression",
+    "summary no-selection guidance",
+    "summary cross-unit/category refused",
+    "summary excludes stopped pipeline",
+    "summary active quantities and length",
+    "same fictional unit consistent credit code",
+    "boiler 768 responsive query/detail",
+    "boiler 390 responsive query/detail",
+    "vessel 768 responsive query/detail",
+    "vessel 390 responsive query/detail",
+    "no fatal JS"
+  ],
+  "errors": []
+}

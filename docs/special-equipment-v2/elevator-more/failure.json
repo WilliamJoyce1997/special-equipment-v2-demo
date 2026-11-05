@@ -1,0 +1,11 @@
+{
+  "checks": [
+    "exact five ordered elevator menu items",
+    "other eight types retain original actions without new entries",
+    "testing five current-row facts, ordered eight headers, empty/fold/pagination/statistics/confirm and list selection",
+    "correction 11 fields, four required, exact dictionaries/read-only age, required/year validation and cancel discard",
+    "Escape discards and save updates only selected elevator with independently entered dates and unchanged age"
+  ],
+  "errors": [],
+  "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#main tbody tr[data-id]').first().getByRole('button', { name: '更多>>', exact: true })\u001b[22m\n\n    at more (C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\elevator-more.e2e.cjs:4:86)\n    at C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\elevator-more.e2e.cjs:13:463"
+}

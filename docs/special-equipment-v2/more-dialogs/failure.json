@@ -1,0 +1,31 @@
+{
+  "checks": [
+    "boiler unique real QR decoded by jsQR, exact per-device fields",
+    "boiler QR close restores page/sort/query/selection",
+    "boiler three inspection regions / disabled mutations / detail dataset identical / table scroll",
+    "boiler audit context/filter/reset/empty/footer and narrow layouts",
+    "boiler repeated open/close, one overlay, scroll lock released",
+    "boiler accepted brief and list state unchanged",
+    "vessel unique real QR decoded by jsQR, exact per-device fields",
+    "vessel QR close restores page/sort/query/selection",
+    "vessel three inspection regions / disabled mutations / detail dataset identical / table scroll",
+    "vessel audit context/filter/reset/empty/footer and narrow layouts",
+    "vessel repeated open/close, one overlay, scroll lock released",
+    "vessel accepted brief and list state unchanged",
+    "elevator unique real QR decoded by jsQR, exact per-device fields",
+    "elevator QR close restores page/sort/query/selection",
+    "elevator three inspection regions / disabled mutations / detail dataset identical / table scroll",
+    "elevator audit context/filter/reset/empty/footer and narrow layouts",
+    "elevator repeated open/close, one overlay, scroll lock released",
+    "elevator accepted brief and list state unchanged",
+    "crane unique real QR decoded by jsQR, exact per-device fields",
+    "crane QR close restores page/sort/query/selection",
+    "crane three inspection regions / disabled mutations / detail dataset identical / table scroll",
+    "crane audit context/filter/reset/empty/footer and narrow layouts",
+    "crane repeated open/close, one overlay, scroll lock released",
+    "crane accepted brief and list state unchanged",
+    "vehicle unique real QR decoded by jsQR, exact per-device fields"
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Expected \"actual\" to be strictly unequal to:\n\n'hidden'\n    at close (C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\more-dialogs.e2e.cjs:13:134)\n    at async C:\\Users\\willi\\.codex\\worktrees\\special-equipment-v2\\OpenCMMS\\tests\\v2\\more-dialogs.e2e.cjs:31:2"
+}

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>完整流程测试</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <style>
+        .test-container { max-width: 800px; margin: 20px auto; padding: 20px; }
+        .step { margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { border-color: #10b981; background: #f0fdf4; }
+        .error { border-color: #ef4444; background: #fef2f2; }
+        .info { border-color: #3b82f6; background: #eff6ff; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>CMMS 完整流程测试</h1>
+        
+        <div class="step info">
+            <h3>测试说明</h3>
+            <p>这个页面将测试CMMS系统的完整登录和界面流程</p>
+        </div>
+
+        <div class="step">
+            <h3>步骤 1: 清除现有登录状态</h3>
+            <button class="btn btn-secondary" onclick="clearLoginState()">清除登录状态</button>
+            <div id="step1-result"></div>
+        </div>
+
+        <div class="step">
+            <h3>步骤 2: 测试登录API</h3>
+            <button class="btn btn-primary" onclick="testLogin()">测试登录</button>
+            <div id="step2-result"></div>
+        </div>
+
+        <div class="step">
+            <h3>步骤 3: 测试主页面访问</h3>
+            <button class="btn btn-success" onclick="testMainPage()">访问主页面</button>
+            <div id="step3-result"></div>
+        </div>
+
+        <div class="step">
+            <h3>步骤 4: 直接跳转测试</h3>
+            <p>点击下面的链接测试实际的页面跳转：</p>
+            <a href="/static/login.html" class="btn btn-info" target="_blank">打开登录页面</a>
+            <a href="/static/index.html" class="btn btn-warning" target="_blank">打开主页面</a>
+        </div>
+
+        <div class="step">
+            <h3>当前状态</h3>
+            <div id="current-status"></div>
+        </div>
+    </div>
+
+    <script>
+        function updateStatus(stepId, message, type = 'info') {
+            const element = document.getElementById(stepId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            element.innerHTML = `<div class="${className}" style="margin-top: 10px; padding: 10px; border-radius: 4px;">${message}</div>`;
+        }
+
+        function showCurrentStatus() {
+            const token = localStorage.getItem('access_token');
+            const user = localStorage.getItem('user');
+            
+            let status = '<h4>本地存储状态:</h4>';
+            status += `<p><strong>Access Token:</strong> ${token ? '存在' : '不存在'}</p>`;
+            
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    status += `<p><strong>用户:</strong> ${userData.username} (${userData.role})</p>`;
+                } catch (e) {
+                    status += `<p><strong>用户数据:</strong> 解析错误</p>`;
+                }
+            } else {
+                status += `<p><strong>用户数据:</strong> 不存在</p>`;
+            }
+
+            document.getElementById('current-status').innerHTML = status;
+        }
+
+        function clearLoginState() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user');
+            updateStatus('step1-result', '✅ 登录状态已清除', 'success');
+            showCurrentStatus();
+        }
+
+        async function testLogin() {
+            updateStatus('step2-result', '正在测试登录...', 'info');
+            
+            try {
+                const response = await fetch('/api/auth/login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('access_token', data.access);
+                    localStorage.setItem('refresh_token', data.refresh);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    updateStatus('step2-result', `✅ 登录成功！用户: ${data.user.username} (${data.user.role})`, 'success');
+                    showCurrentStatus();
+                } else {
+                    const error = await response.json();
+                    updateStatus('step2-result', `❌ 登录失败: ${error.detail || '未知错误'}`, 'error');
+                }
+            } catch (error) {
+                updateStatus('step2-result', `❌ 登录异常: ${error.message}`, 'error');
+            }
+        }
+
+        function testMainPage() {
+            const token = localStorage.getItem('access_token');
+            
+            if (!token) {
+                updateStatus('step3-result', '❌ 请先登录', 'error');
+                return;
+            }
+
+            updateStatus('step3-result', '✅ 有登录token，可以访问主页面。点击下面的链接测试：<br><a href="/static/index.html" target="_blank" class="btn btn-primary btn-sm" style="margin-top: 10px;">打开主页面</a>', 'success');
+        }
+
+        // 页面加载时显示当前状态
+        window.addEventListener('load', showCurrentStatus);
+    </script>
+</body>
+</html>

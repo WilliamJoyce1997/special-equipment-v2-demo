@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>使用标志打印 · V2演示</title><link rel="icon" href="data:,"><link rel="stylesheet" href="/static/v2/elevator-print.css"></head>
+<body><aside id="directory"><h1>电子表单</h1><details open><summary>使用标志打印</summary><details open><summary>表单集</summary><button id="template">模板页</button><div id="records"></div></details></details></aside>
+<div class="print-workspace"><header><button id="offset">▤ 调整偏移</button><button id="settings">▧ 更多设置 ▾</button><label class="overlay-switch"><input id="overlay" type="checkbox" role="switch">套打</label><span class="print-hint">网页打印时请把设置中边距改为 <strong>无边距</strong></span><button id="web-print">▣ 网页打印</button><button id="control-print">▣ 控件打印</button><button id="close">⏻ 关闭</button></header>
+<p id="print-note" role="status">虚构演示使用标志 · 无法定效力，不可作为真实登记、检验或准用证明。</p><main id="preview"></main></div>
+<dialog id="print-dialog"><form method="dialog"><h2 id="print-dialog-title"></h2><div id="print-dialog-content"></div><div class="print-dialog-actions"><button value="cancel">取消</button><button id="apply" value="save">确认</button></div></form></dialog>
+<script src="/static/v2/vendor/qrcode.js"></script><script src="/static/v2/elevator-print.js"></script></body></html>

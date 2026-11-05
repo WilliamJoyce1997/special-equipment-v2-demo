@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>详细调试</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <style>
+        .debug-panel { margin: 20px; padding: 15px; border: 1px solid #ddd; }
+        .log { font-family: monospace; font-size: 12px; background: #f5f5f5; padding: 10px; max-height: 300px; overflow-y: auto; }
+        .error { color: red; }
+        .success { color: green; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <div class="debug-panel">
+        <h1>CMMS 详细调试</h1>
+        
+        <div style="margin: 10px 0;">
+            <button class="btn btn-primary" onclick="runFullTest()">运行完整测试</button>
+            <button class="btn btn-secondary" onclick="clearLog()">清空日志</button>
+        </div>
+
+        <div id="log" class="log"></div>
+
+        <!-- 隐藏的工单页面容器 -->
+        <div id="page-workorders" style="display: none;"></div>
+    </div>
+
+    <!-- 按正确顺序加载JavaScript -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/assets.js"></script>
+    <script src="/static/js/workorders.js"></script>
+    <script src="/static/js/maintenance.js"></script>
+    <script src="/static/js/index.js"></script>
+
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            logDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        async function runFullTest() {
+            clearLog();
+            log('开始完整测试...', 'info');
+
+            // 1. 检查JavaScript对象和函数
+            log('=== 检查JavaScript对象和函数 ===', 'info');
+            
+            const checks = [
+                { name: 'API', obj: window.API },
+                { name: 'loadWorkOrders', obj: window.loadWorkOrders },
+                { name: 'renderWorkOrdersTable', obj: window.renderWorkOrdersTable },
+                { name: 'showWorkOrderModal', obj: window.showWorkOrderModal },
+                { name: 'saveWorkOrder', obj: window.saveWorkOrder },
+                { name: 'showMessage', obj: window.showMessage },
+                { name: 'showWorkOrderMessage', obj: window.showWorkOrderMessage }
+            ];
+
+            checks.forEach(check => {
+                if (check.obj) {
+                    log(`✅ ${check.name}: ${typeof check.obj}`, 'success');
+                } else {
+                    log(`❌ ${check.name}: 未定义`, 'error');
+                }
+            });
+
+            // 2. 测试登录
+            log('=== 测试登录 ===', 'info');
+            try {
+                const loginResponse = await fetch('/api/auth/login/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+
+                if (loginResponse.ok) {
+                    const loginData = await loginResponse.json();
+                    localStorage.setItem('access_token', loginData.access);
+                    localStorage.setItem('user', JSON.stringify(loginData.user));
+                    log('✅ 登录成功', 'success');
+                } else {
+                    log('❌ 登录失败', 'error');
+                    return;
+                }
+            } catch (error) {
+                log(`❌ 登录异常: ${error.message}`, 'error');
+                return;
+            }
+
+            // 3. 测试API调用
+            log('=== 测试API调用 ===', 'info');
+            try {
+                if (window.API && window.API.getWorkOrders) {
+                    const workOrders = await window.API.getWorkOrders({ page_size: 10 });
+                    log(`✅ 获取工单: ${workOrders.results ? workOrders.results.length : 0} 条`, 'success');
+                } else {
+                    log('❌ API.getWorkOrders 不存在', 'error');
+                }
+
+                if (window.API && window.API.getAssets) {
+                    const assets = await window.API.getAssets({ page_size: 10 });
+                    log(`✅ 获取设备: ${assets.results ? assets.results.length : 0} 条`, 'success');
+                } else {
+                    log('❌ API.getAssets 不存在', 'error');
+                }
+            } catch (error) {
+                log(`❌ API调用异常: ${error.message}`, 'error');
+            }
+
+            // 4. 测试工单页面加载
+            log('=== 测试工单页面加载 ===', 'info');
+            try {
+                if (window.loadWorkOrders) {
+                    await window.loadWorkOrders();
+                    log('✅ loadWorkOrders 执行成功', 'success');
+
+                    // 检查页面元素
+                    const pageElement = document.getElementById('page-workorders');
+                    if (pageElement && pageElement.innerHTML.includes('工单管理')) {
+                        log('✅ 工单页面HTML已生成', 'success');
+                    } else {
+                        log('❌ 工单页面HTML未正确生成', 'error');
+                    }
+
+                    const tableBody = document.getElementById('workOrdersTableBody');
+                    if (tableBody) {
+                        log('✅ 工单表格已创建', 'success');
+                        log(`表格内容预览: ${tableBody.innerHTML.substring(0, 200)}...`, 'info');
+                    } else {
+                        log('❌ 工单表格未创建', 'error');
+                    }
+
+                    const modal = document.getElementById('woModal');
+                    if (modal) {
+                        log('✅ 工单模态框已创建', 'success');
+                    } else {
+                        log('❌ 工单模态框未创建', 'error');
+                    }
+                } else {
+                    log('❌ loadWorkOrders 函数不存在', 'error');
+                }
+            } catch (error) {
+                log(`❌ 工单页面加载异常: ${error.message}`, 'error');
+                log(`错误堆栈: ${error.stack}`, 'error');
+            }
+
+            // 5. 测试创建工单模态框
+            log('=== 测试创建工单模态框 ===', 'info');
+            try {
+                if (window.showWorkOrderModal) {
+                    await window.showWorkOrderModal();
+                    log('✅ showWorkOrderModal 执行成功', 'success');
+
+                    // 检查模态框是否显示
+                    const modal = document.getElementById('woModal');
+                    if (modal && modal.classList.contains('show')) {
+                        log('✅ 工单模态框已显示', 'success');
+                    } else {
+                        log('❌ 工单模态框未显示', 'error');
+                    }
+                } else {
+                    log('❌ showWorkOrderModal 函数不存在', 'error');
+                }
+            } catch (error) {
+                log(`❌ 创建工单模态框异常: ${error.message}`, 'error');
+            }
+
+            log('=== 测试完成 ===', 'info');
+        }
+
+        // 捕获所有错误
+        window.addEventListener('error', function(e) {
+            log(`JavaScript错误: ${e.message} (${e.filename}:${e.lineno})`, 'error');
+        });
+
+        // 页面加载完成后显示基本信息
+        window.addEventListener('load', function() {
+            log('页面加载完成', 'info');
+            log(`用户代理: ${navigator.userAgent}`, 'info');
+            log(`当前URL: ${window.location.href}`, 'info');
+        });
+    </script>
+</body>
+</html>
