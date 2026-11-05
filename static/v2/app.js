@@ -33,9 +33,9 @@ const V2Help=(()=>{
   trigger.addEventListener('focus',()=>position(wrap));
   return wrap;
  }
- function showSettings(show,title,body,mode,text){
+ function showSettings(show,title,body,mode,text,onClose=()=>{}){
   const wrap=create(text,{header:true});
-  show(title,body,mode,()=>wrap.remove());
+  show(title,body,mode,()=>{wrap.remove();onClose();});
   const header=document.querySelector('#dialog .dialog-header');
   header.insertBefore(wrap,header.lastElementChild);
  }
@@ -45,6 +45,31 @@ const V2Help=(()=>{
  window.addEventListener('resize',reposition);
  window.addEventListener('scroll',reposition,true);
  return {create,showSettings};
+})();
+
+// Shared field-order dialog used by all nine device queries.
+const V2FieldSettings=(()=>{
+ function open({items,defaults,isQuery,show,close,refresh,onSave,helpText,onPreview,onClose}){
+ const {el,button}=V2QueryResults,root=el('div','boiler-settings'),holder=el('div'),error=el('p','form-error');
+ error.setAttribute('role','alert');let draft=items.map(item=>({...item})),dragged=null;
+ function paint(){holder.replaceChildren();const table=el('table'),head=el('thead'),hr=el('tr'),all=el('input');all.type='checkbox';all.setAttribute('aria-label','选择全部字段');all.checked=draft.every(f=>f.shown);all.onchange=()=>{for(const f of draft)f.shown=all.checked;paint();onPreview?.(draft);};const check=el('th');check.append(all);hr.append(check,el('th','','字段名称'));if(!isQuery)hr.append(el('th','','字段文字颜色'),el('th','','冻结字段'));head.append(hr);const body=el('tbody');
+ for(const [i,f]of draft.entries()){const tr=el('tr');tr.dataset.field=f.key;tr.draggable=true;tr.ondragstart=e=>{dragged=f.key;e.dataTransfer.setData('text/plain',f.key);};tr.ondragover=e=>e.preventDefault();tr.ondrop=e=>{e.preventDefault();const at=draft.findIndex(x=>x.key===dragged);if(at<0)return;const [moved]=draft.splice(at,1);draft.splice(i,0,moved);paint();onPreview?.(draft);};
+ const td=el('td'),cb=el('input');cb.type='checkbox';cb.checked=f.shown;cb.setAttribute('aria-label','显示 '+f.label+(f.key==='inspectionCredit'?'（检验机构）':f.key==='creditCode'?'（使用单位）':''));cb.onchange=()=>{f.shown=cb.checked;onPreview?.(draft);};td.append(cb);
+ const name=el('td','boiler-setting-name',f.label),moves=el('span','boiler-order-buttons');for(const [text,delta]of [['↑',-1],['↓',1]]){const b=button(text,'link',()=>{const j=i+delta;if(j>=0&&j<draft.length){[draft[i],draft[j]]=[draft[j],draft[i]];paint();onPreview?.(draft);}});b.setAttribute('aria-label',f.label+(delta<0?'上移':'下移'));b.disabled=i+delta<0||i+delta>=draft.length;moves.append(b);}name.append(moves);tr.append(td,name);
+ if(!isQuery){const color=el('input');color.type='color';color.value=f.color;color.setAttribute('aria-label',f.label+'文字颜色');color.oninput=()=>f.color=color.value;const c=el('td');c.append(color);const frozen=el('input');frozen.type='checkbox';frozen.checked=f.frozen;frozen.setAttribute('aria-label','冻结 '+f.label);frozen.onchange=()=>f.frozen=frozen.checked;const freezeCell=el('td');freezeCell.append(frozen);tr.append(c,freezeCell);}body.append(tr);}
+ table.append(head,body);holder.append(table);}
+
+ const actions=el('div','boiler-modal-actions');
+ actions.append(button('还原初始配置','primary',()=>{draft=defaults();paint();onPreview?.(draft);}),
+ button('保存','primary',()=>{
+  if(!draft.some(f=>f.shown)){error.textContent='至少选择一个字段';return;}
+  try{onSave(draft);}catch(e){error.textContent=e.message;return;}
+  close();refresh();
+ }));
+ root.append(holder,error,actions);paint();
+ V2Help.showSettings(show,isQuery?'查询条件自定义字段':'表格自定义展示字段',root,'boiler-settings-dialog',helpText,onClose);
+ }
+ return {open};
 })();
 
 /* Isolated boiler page controller; shared V2 table/modal primitives, session-only configuration. */
@@ -59,6 +84,12 @@ function initial(){return {searched:false,filters:{},draft:{},advanced:false,que
 function select(label,options,value,name){const {el}=U(),input=el('select','control');input.name=name;input.setAttribute('aria-label',label);for(const v of ['',...options]){const o=el('option','',v||'请选择');o.value=v;input.append(o);}input.value=value||'';return input;}
 function control(f,values){if(f.label==='单位所属行业')f={...f,type:'cascade',tree:V2CommonFields.industry};const {el}=U(),wrap=el('div','field'),label=el('label','',f.label),id='equipment-'+type+'-'+f.key+'-'+(++serial);label.htmlFor=id;wrap.append(label);
  const uniqueLabel=f.key==='creditCode'?'社会信用代码（使用单位）':f.key==='inspectionCredit'?'社会信用代码（检验机构）':f.label;
+ if(f.type==='problemPair'){
+  const box=el('div','pipeline-problem-pair');
+  box.append(select('主要问题（设备问题）',V2PipelineSchema.enums.inspectionProblems,values.inspectionProblems,'inspectionProblems'),
+   select('主要问题（管理问题）',V2PipelineSchema.enums.managementProblems,values.managementProblems,'managementProblems'));
+  box.firstElementChild.id=id;wrap.append(box);return wrap;
+ }
  if(f.type==='cascade'){
  const box=el('div','boiler-cascade'),[parent,child]=String(values[f.key]||'').split(' / '),first=select(f.label+'一级',Object.keys(f.tree),parent,''),second=select(f.label+'二级',f.tree[parent]||[],child,''),hidden=el('input');hidden.type='hidden';hidden.name=f.key;hidden.value=values[f.key]||'';
  first.id=id;const update=()=>{const children=f.tree[first.value]||[];second.replaceChildren(...select('',children,'','').children);second.hidden=!children.length;hidden.value=first.value;};first.onchange=update;second.onchange=()=>hidden.value=first.value+(second.value?' / '+second.value:'');second.hidden=!(f.tree[parent]||[]).length;box.append(first,second,hidden);wrap.append(box);return wrap;
@@ -83,17 +114,21 @@ function institution(){
  const error=el('p','form-error');error.setAttribute('role','alert');const actions=el('div','boiler-modal-actions');actions.append(button('保存','primary',()=>{const name=input.value.trim();if(!name){error.textContent='请填写检验责任主体机构名称';return;}if(name.length>120){error.textContent='机构名称不能超过120字';return;}for(const r of rows){r._historicalInspectionOrg??=r.inspectionOrg??'';r.inspectionOrg=name;}apiRef.close();apiRef.refresh();apiRef.announce('已更新当前前端演示会话中的责任机构，未写入数据库');}),button('关闭','secondary',apiRef.close));root.append(error,actions);apiRef.show('更改检验机构',root,'boiler-institution-dialog');
 }
 function settings(kind){
- const {el,button}=U(),isQuery=kind==='query',root=el('div','boiler-settings'),items=isQuery?st.queryOrder.map(k=>({...S().advanced.find(f=>f.key===k),shown:!st.hiddenQueries.has(k)})):st.columns.map(c=>({...c})),holder=el('div'),error=el('p','form-error');error.setAttribute('role','alert');let draft=items.map(x=>({...x})),dragged=null;
- function paint(){holder.replaceChildren();const table=el('table'),head=el('thead'),hr=el('tr'),all=el('input');all.type='checkbox';all.setAttribute('aria-label','选择全部字段');all.checked=draft.every(f=>f.shown);all.onchange=()=>{for(const f of draft)f.shown=all.checked;paint();};const check=el('th');check.append(all);hr.append(check,el('th','','字段名称'));if(!isQuery)hr.append(el('th','','字段文字颜色'),el('th','','冻结字段'));head.append(hr);const body=el('tbody');
- for(const [i,f]of draft.entries()){const tr=el('tr');tr.dataset.field=f.key;tr.draggable=true;tr.ondragstart=e=>{dragged=f.key;e.dataTransfer.setData('text/plain',f.key);};tr.ondragover=e=>e.preventDefault();tr.ondrop=e=>{e.preventDefault();const at=draft.findIndex(x=>x.key===dragged);if(at<0)return;const [moved]=draft.splice(at,1);draft.splice(i,0,moved);paint();};
- const td=el('td'),cb=el('input');cb.type='checkbox';cb.checked=f.shown;cb.setAttribute('aria-label','显示 '+f.label+(f.key==='inspectionCredit'?'（检验机构）':f.key==='creditCode'?'（使用单位）':''));cb.onchange=()=>f.shown=cb.checked;td.append(cb);
- const name=el('td','boiler-setting-name',f.label),moves=el('span','boiler-order-buttons');for(const [text,delta]of [['↑',-1],['↓',1]]){const b=button(text,'link',()=>{const j=i+delta;if(j>=0&&j<draft.length){[draft[i],draft[j]]=[draft[j],draft[i]];paint();}});b.setAttribute('aria-label',f.label+(delta<0?'上移':'下移'));b.disabled=i+delta<0||i+delta>=draft.length;moves.append(b);}name.append(moves);tr.append(td,name);
- if(!isQuery){const color=el('input');color.type='color';color.value=f.color;color.setAttribute('aria-label',f.label+'文字颜色');color.oninput=()=>f.color=color.value;const c=el('td');c.append(color);const frozen=el('input');frozen.type='checkbox';frozen.checked=f.frozen;frozen.setAttribute('aria-label','冻结 '+f.label);frozen.onchange=()=>f.frozen=frozen.checked;const freezeCell=el('td');freezeCell.append(frozen);tr.append(c,freezeCell);}body.append(tr);}
- table.append(head,body);holder.append(table);}
- const actions=el('div','boiler-modal-actions');actions.append(button('还原初始配置','primary',()=>{draft=isQuery?S().advanced.map(f=>({...f,shown:true})):defaultColumns();paint();}),button('保存','primary',()=>{if(!draft.some(f=>f.shown)){error.textContent='至少选择一个字段';return;}if(isQuery){st.queryOrder=draft.map(f=>f.key);st.hiddenQueries=new Set(draft.filter(f=>!f.shown).map(f=>f.key));for(const k of st.hiddenQueries)if(!S().base.some(f=>f.key===k))for(const suffix of ['', '_min','_max']){delete st.draft[k+suffix];delete st.filters[k+suffix];}st.table.selected.clear();}else st.columns=draft.map(f=>({...f}));apiRef.close();apiRef.refresh();}));
- root.append(holder,error,actions);paint();
- V2Help.showSettings(apiRef.show,isQuery?'查询条件自定义字段':'表格自定义展示字段',root,'boiler-settings-dialog',settingsHelp);
+ const isQuery=kind==='query';
+ V2FieldSettings.open({
+  isQuery,show:apiRef.show,close:apiRef.close,refresh:apiRef.refresh,helpText:settingsHelp,
+  items:isQuery?st.queryOrder.map(k=>({...S().advanced.find(f=>f.key===k),shown:!st.hiddenQueries.has(k)})):st.columns,
+  defaults:()=>isQuery?S().advanced.map(f=>({...f,shown:true})):defaultColumns(),
+  onSave:draft=>{
+   if(isQuery){
+    st.queryOrder=draft.map(f=>f.key);st.hiddenQueries=new Set(draft.filter(f=>!f.shown).map(f=>f.key));
+    for(const k of st.hiddenQueries)if(!S().base.some(f=>f.key===k))for(const suffix of ['', '_min','_max']){delete st.draft[k+suffix];delete st.filters[k+suffix];}
+    st.table.selected.clear();
+   }else st.columns=draft.map(f=>({...f}));
+  }
+ });
 }
+
 function render(api,key='boiler'){apiRef=api;type=key;st=states[type]??=initial();const {el,button}=U(),root=el('div','boiler-page'),panel=el('section','panel query-panel'),form=el('form');form.id='query-form';form.setAttribute('aria-label',V2.types[type].title+'查询条件');
  form.addEventListener('input',e=>{const source=e.target;if(source.name)for(const target of form.querySelectorAll('[name]'))if(target!==source&&target.name===source.name)target.value=source.value;});form.addEventListener('change',e=>{const source=e.target;if(source.name)for(const target of form.querySelectorAll('[name]'))if(target!==source&&target.name===source.name)target.value=source.value;});const grid=el('div','query-grid');for(const f of S().base)grid.append(control(f,st.draft));form.append(grid);
  if(st.advanced){const advanced=el('section','boiler-advanced'),h=el('h2','','高级查询条件'),g=el('div','query-grid');advanced.append(h);for(const key of st.queryOrder)if(!st.hiddenQueries.has(key))g.append(control(S().advanced.find(f=>f.key===key),st.draft));advanced.append(g);form.append(advanced);}
@@ -154,6 +189,42 @@ function open(key){
  const u=new URL(location.href);u.hash=key;history.replaceState(null,'',u);document.title=labels[key]+' · 特种设备综合管理系统';
  document.body.classList.remove('mobile-menu');nav();tabs();render();
 }
+function pipeQueryConfig(p){
+ if(p.queryFields)return p.queryPreview||p.queryFields;
+ const keys=pipeSchema().advanced.map(f=>f.key);
+ let saved=null;
+ try{saved=JSON.parse(localStorage.getItem('v2:pipe-query-fields:'+state.key+':v1'));}
+ catch{}
+ const order=Array.isArray(saved?.order)?saved.order.filter(k=>keys.includes(k)):[];
+ const hidden=Array.isArray(saved?.hidden)?saved.hidden.filter(k=>keys.includes(k)):[];
+ p.queryFields={order:[...new Set([...order,...keys])],hidden:hidden.length===keys.length?[]:[...new Set(hidden)]};
+ return p.queryFields;
+}
+function pipeQuerySettings(){
+ const p=pageState(),schema=pipeSchema(),config=pipeQueryConfig(p);
+ p.filters=Object.fromEntries(new FormData(document.querySelector('#query-form')));
+ const moduleKey=state.key,storageKey='v2:pipe-query-fields:'+moduleKey+':v1';
+ const rows=()=>config.order.map(key=>({...schema.advanced.find(f=>f.key===key),shown:!config.hidden.includes(key)}));
+ const configuration=draft=>({order:draft.map(f=>f.key),hidden:draft.filter(f=>!f.shown).map(f=>f.key)});
+ V2FieldSettings.open({
+  isQuery:true,show:dialog,close:closeDialog,refresh:render,helpText:V2EquipmentPage.settingsHelp,
+  items:rows(),defaults:()=>schema.advanced.map(f=>({...f,shown:true})),
+  onPreview:draft=>{p.queryPreview=configuration(draft);render();},
+  onClose:()=>{delete p.queryPreview;if(state.key===moduleKey)render();},
+  onSave:draft=>{
+   const next=configuration(draft);
+   try{localStorage.setItem(storageKey,JSON.stringify(next));}
+   catch{throw Error('浏览器未能保存字段配置，请检查本地存储权限后重试。');}
+   p.queryFields=next;
+   for(const field of schema.advanced)if(next.hidden.includes(field.key)&&!schema.base.some(base=>base.key===field.key)){
+    for(const suffix of ['','_min','_max'])delete p.filters[field.key+suffix];
+    if(field.type==='problemPair')delete p.filters.managementProblems;
+   }
+   p.page=1;p.selected.clear();
+  }
+ });
+}
+function pipeSchema(){return state.key==='installation'?V2InstallationSchema:state.key==='pipeline'?V2PipelineSchema:null;}
 function render(){
  V2InspectionUnits.closeMenu();V2BoilerProducts.closeMenu();document.getElementById('record-more-menu')?.remove();const main=$('#main'),t=V2.types[state.key];main.replaceChildren();if(state.details[state.key]?.creating){main.append(V2Dossier.createInstallation(state.details[state.key],{show:dialog,close:closeDialog}));return;}if(state.details[state.key]){main.append(V2Dossier.page(state.details[state.key],{show:dialog,close:closeDialog,openDevice}));return;}
  if(V2EquipmentSchema.supported.includes(state.key)){main.append(V2EquipmentPage.render({show:dialog,close:closeDialog,refresh:render,announce,openDevice},state.key));return;}
@@ -161,23 +232,24 @@ function render(){
  if(!t?.implemented){const panel=el('section','panel planned');panel.append(el('span','planned-label','后续设计 · 尚未开发'),el('h1','',labels[state.key]),el('p','','本批已实现设备管理下九类设备页面，其他基础档案模块保留后续设计。'),el('p','','此菜单保留信息架构，未接通业务操作及数据接口。'));if(t?.queryPlan)panel.append(el('p','','已规划查询字段：'+t.queryPlan.join('、')));main.append(panel);return;}
  const p=pageState(),panel=el('section','panel query-panel'),form=el('form');form.id='query-form';form.setAttribute('aria-label',t.title+'查询条件');
  const grid=el('div','query-grid');
- for(const field of (state.key==='installation'?V2InstallationSchema.base:t.queries)){const holder=state.key==='installation'?V2EquipmentPage.control(field,p.filters):fieldControl(field,p.filters);holder.hidden=state.key!=='installation'&&p.hiddenQueries.has(field.key);if(holder.hidden)holder.style.display='none';grid.append(holder);}
+ for(const field of (pipeSchema()?pipeSchema().base:t.queries)){const holder=pipeSchema()?V2EquipmentPage.control(field,p.filters):fieldControl(field,p.filters);holder.hidden=!pipeSchema()&&p.hiddenQueries.has(field.key);if(holder.hidden)holder.style.display='none';grid.append(holder);}
  const actions=el('div','query-actions'),search=el('button','primary','⌕  查询');search.type='submit';const reset=button('⟳  重置','secondary',()=>{p.hasSearched=false;p.filters={};p.page=1;p.selected.clear();render();announce('已重置查询条件，列表等待查询');});
  const links=el('div','query-links'),helpText=t.entity==='safety-valve'?'按使用单位、装置名称、产品编号及日期范围组合查询；日期为独立虚构字段，不推算或承诺法定校验周期。':t.entity==='product'?'综合查询匹配设备代码、产品名称、产品规格、产品编号；全部为独立虚构产品，编辑及复制仅当前前端会话有效。':t.entity==='person'?'综合查询匹配姓名、演示身份证标识或关联单位名称；地区、持证状态、数据来源按且组合。全部为虚构人员，持证状态不是实际资格结论。':t.entity==='organization'?'单位名称、信用代码、联系人支持文本匹配；地区和超期状态精确组合筛选。超期为预设演示状态，不代表真实资质结论。':'查询条件按“且”组合；综合查询匹配设备代码、注册代码及使用证编号。日期和数值支持仅填单侧边界；表头可排序，表格可横向滚动。全部记录为虚构样本。';
  const showHelp=()=>info('使用说明',helpText);
  const help=['installation','pipeline'].includes(state.key)?V2Help.create(helpText,{compact:true,onClick:showHelp}):button('?','help',showHelp);
  if(help.tagName==='BUTTON')help.setAttribute('aria-label','查询使用说明');
- links.append(help,button('⚙ 设置','link',()=>settings('query')),button(state.key==='installation'&&p.advanced?'⌕普通查询':'⌕高级查询','link',advanced));
+ links.append(help,button('⚙ 设置','link',()=>settings('query')),button(pipeSchema()&&p.advanced?'⌕普通查询':'⌕高级查询','link',advanced));
  form.append(grid);
- if(state.key==='installation'&&p.advanced){
+ if(pipeSchema()&&p.advanced){
   const section=el('section','boiler-advanced'),grid=el('div','query-grid');section.append(el('h2','','高级查询条件'));
-  for(const field of V2InstallationSchema.advanced)if(!p.hiddenQueries.has(field.key))grid.append(V2EquipmentPage.control(field,p.filters));
+  const config=pipeQueryConfig(p);
+  for(const key of config.order)if(!config.hidden.includes(key))grid.append(V2EquipmentPage.control(pipeSchema().advanced.find(f=>f.key===key),p.filters));
   section.append(grid);form.append(section);
  }
  actions.append(search,reset,links);const error=el('p','form-error');error.id='form-error';error.setAttribute('role','alert');form.append(actions,error);
- form.addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));if(state.key==='installation'){const problem=V2InstallationSchema.valid(data);if(problem){error.textContent=problem;return;}}else if(!validate(data,t,error))return;p.filters=data;p.hasSearched=true;p.page=1;p.selected.clear();renderTable();});
+ form.addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));if(pipeSchema()){const problem=pipeSchema().valid(data);if(problem){error.textContent=problem;return;}}else if(!validate(data,t,error))return;p.filters=data;p.hasSearched=true;p.page=1;p.selected.clear();renderTable();});
  for(const event of ['input','change'])form.addEventListener(event,e=>{
- if(state.key==='installation'&&e.target.name)for(const other of form.querySelectorAll('[name]'))if(other!==e.target&&other.name===e.target.name)other.value=e.target.value;
+ if(pipeSchema()&&e.target.name)for(const other of form.querySelectorAll('[name]'))if(other!==e.target&&other.name===e.target.name)other.value=e.target.value;
  if(p.selected.size){p.selected.clear();renderTable();}});
  panel.append(form);main.append(panel,el('section','panel table-panel'));renderTable();
 }
@@ -200,7 +272,7 @@ function validate(data,t,error){
 function filtered(){
  const p=pageState(),t=V2.types[state.key];
  if(!p.hasSearched)return [];
- const rows=state.key==='installation'?V2.fixtures.installation.filter(r=>V2InstallationSchema.matches(r,p.filters)):V2.fixtures[state.key].filter(row=>Object.entries(p.filters).every(([key,value])=>{
+ const rows=pipeSchema()?V2.fixtures[state.key].filter(r=>pipeSchema().matches(r,p.filters)):V2.fixtures[state.key].filter(row=>Object.entries(p.filters).every(([key,value])=>{
  value=String(value??'').trim();if(!value)return true;
  if(key==='category'&&t.entity==='product')return V2ProductCategories.matches(state.key,row.category,value);
  if(key==='search')return (t.searchKeys||['equipmentCode','registrationCode','certificate','registrationCertificate','vehicleRegistrationCertificate','installationCertificate']).some(k=>String(row[k]??'').toLowerCase().includes(value.toLowerCase()));
@@ -290,12 +362,12 @@ function inspection(row){const box=el('div');box.append(el('p','notice','模拟�
  const dl=el('dl','detail-grid'),fields=V2.types[state.key].columns.filter(c=>c.key==='equipmentCode'||/检验|检测|下检/.test(c.label));
  for(const c of fields){const d=el('div','detail-field');d.append(el('dt','',c.label),el('dd','',String(row[c.key]??'—')));dl.append(d);}box.append(dl);dialog('检验信息 · 模拟展示',box);}
 function settings(kind){
- if(state.key==='installation'&&kind==='query')pageState().filters=Object.fromEntries(new FormData(document.querySelector('#query-form')));
- const p=pageState(),t=V2.types[state.key],isQuery=kind==='query',hidden=isQuery?p.hiddenQueries:p.hidden,fields=isQuery?(state.key==='installation'?V2InstallationSchema.advanced:t.queries):t.columns;
+ if(pipeSchema()&&kind==='query'){pipeQuerySettings();return;}
+ const p=pageState(),t=V2.types[state.key],isQuery=kind==='query',hidden=isQuery?p.hiddenQueries:p.hidden,fields=isQuery?(pipeSchema()?pipeSchema().advanced:t.queries):t.columns;
  const box=el('div'),notice=el('p','notice',isQuery?'选择本页可见的查询条件；隐藏条件会清空其已应用的筛选值，排列顺序保持参考图顺序。':'选择本页显示的表格列；序号和操作列保留。设置仅保存在本次浏览器页面会话，不写入数据库。');
  const grid=el('div','settings-grid');
  for(const f of fields){const label=el('label'),cb=el('input');cb.type='checkbox';cb.checked=!hidden.has(f.key);cb.onchange=()=>{
- if(cb.checked)hidden.delete(f.key);else{if(!isQuery&&hidden.size===fields.length-1){cb.checked=true;announce('至少保留一列数据');return;}hidden.add(f.key);if(isQuery&&!(state.key==='installation'&&V2InstallationSchema.base.some(base=>base.key===f.key))){delete p.filters[f.key];delete p.filters[f.key+'_min'];delete p.filters[f.key+'_max'];p.page=1;p.selected.clear();}}
+ if(cb.checked)hidden.delete(f.key);else{if(!isQuery&&hidden.size===fields.length-1){cb.checked=true;announce('至少保留一列数据');return;}hidden.add(f.key);if(isQuery&&!(pipeSchema()&&pipeSchema().base.some(base=>base.key===f.key))){delete p.filters[f.key];delete p.filters[f.key+'_min'];delete p.filters[f.key+'_max'];if(f.type==='problemPair')delete p.filters.managementProblems;p.page=1;p.selected.clear();}}
  isQuery?render():renderTable();};label.append(cb,document.createTextNode(f.label));grid.append(label);}
  box.append(notice,grid);
  const title=isQuery?'查询条件设置':'表格列设置';
@@ -308,9 +380,9 @@ function newInstallation(){
  labels[key]='新增压力管道设备信息';open(key);
 }
 function advanced(){
- if(state.key==='installation'){
+ if(pipeSchema()){
   const p=pageState();p.filters=Object.fromEntries(new FormData(document.querySelector('#query-form')));p.advanced=!p.advanced;
-  if(!p.advanced)for(const f of V2InstallationSchema.advanced)if(!V2InstallationSchema.base.some(b=>b.key===f.key))for(const suffix of ['','_min','_max'])delete p.filters[f.key+suffix];
+  if(!p.advanced)for(const f of pipeSchema().advanced)if(!pipeSchema().base.some(b=>b.key===f.key)){for(const suffix of ['','_min','_max'])delete p.filters[f.key+suffix];if(f.type==='problemPair')delete p.filters.managementProblems;}
   render();return;
  }
  const p=pageState(),box=el('div'),form=el('form');box.append(el('p','notice','补充筛选条件与普通查询条件按“且”组合，针对当前虚构样本生效。'));

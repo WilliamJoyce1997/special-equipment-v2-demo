@@ -182,3 +182,17 @@ for(const [i,row] of V2.fixtures.installation.entries()){
  row.registration=({'已登记':'已注册','未登记':'未注册'})[row.registration]||row.registration;
  row.inspectionNature='正常检验';
 }
+
+for(const [i,row]of V2.fixtures.pipeline.entries()){
+ row.category=i%2?'公用管道 / 燃气管道':'工业管道 / 工艺管道';
+ row.latestInspectionKind=V2InstallationSchema.latestKinds[i%3];
+ row.province='53';row.area='5301';
+ row.registration=({'已登记':'已注册','未登记':'未注册'})[row.registration]||row.registration;
+ row.acceptance=({'已受理':'已报检','未受理':'未检验'})[row.acceptance]||row.acceptance;
+ row.inspectionNature='正常检验';
+ row.fullInspectionConclusion=i%2?'不合格':'合格';
+ row.fullInspectionDepartment=i%2?'XX监管局':'SCD';
+ row.fullInspectionProblems=i%2?'裂纹':'腐蚀';
+ row.fullManagementProblems=i%2?'人员管理':'质量管理体系';
+ row.safetyValveInspection=i%2?'未检':'已检';
+}

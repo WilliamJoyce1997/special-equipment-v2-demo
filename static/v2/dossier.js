@@ -180,6 +180,7 @@ function pipelineTypedRecord(row,kind){
  return {id:row.id+'-'+prefix+'-inspection','检验类别':kind,'检验日期':date,'下检日期':row[prefix==='full'?'nextFullInspectionDate':'nextOnlineInspectionDate']??(prefix==='full'?row.nextInspection:'')??'',
  '检验部门':row[prefix+'InspectionDepartment']??'','检验员':row[prefix+'Inspector']??'','报告编号':row[prefix+'InspectionReport']??'',
  '上次检验日期':row[prefix+'PreviousInspectionDate']??'','检验结论':row[prefix+'InspectionConclusion']??'','主要问题':row[prefix+'InspectionProblems']??'',
+ '设备问题':row[prefix+'InspectionProblems']??'','管理问题':row[prefix+'ManagementProblems']??'',
  '检验机构':row.inspectionOrg??'','检验性质':row[prefix+'InspectionNature']??'','业务流水号':row[prefix+'InspectionFlow']??'','来源':'前端已有字段映射（演示）','添加人':'','添加时间':''};
 }
 
@@ -206,6 +207,8 @@ function control(field,data){
  else{const tree=V2EquipmentSchema.get(data._deviceType).category,[parent,child]=String(data.category||'').split(' / ');wrap.append(choose('设备类别一级',Object.keys(tree).map(x=>[x,x]),parent));if(tree[parent]?.length)wrap.append(choose('设备类别二级',tree[parent].map(x=>[x,x]),child));}
  }else if(field.label==='单位所属行业'){
  wrap.append(V2CommonFields.cascade(V2CommonFields.industry,field.label,String(data[field.key]||'')));
+ }else if(data._deviceType==='pipeline'&&['category','_categoryPath'].includes(field.key)){
+ wrap.append(V2CommonFields.cascade(V2PipelineSchema.category,'设备类别',String(data.category||'')));
  }else if(data._deviceType==='installation'&&field.key==='_installationCategory'){
  wrap.append(V2CommonFields.cascade(V2InstallationSchema.category,'设备类别',String(data.category||'')));
  }else wrap.append(inputFor(field.key,field.rangeEnd?field.label+'（开始）':field.label));

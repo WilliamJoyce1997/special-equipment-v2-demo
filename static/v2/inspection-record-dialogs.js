@@ -38,9 +38,9 @@ function detail(type,row,record){
  field.append(caption,input);grid.append(field);
  }
  const problems=el('div','inspection-problems'),caption=el('div','problems-caption','主要问题'),groups=el('div','problem-groups');
- for(const [name,key,labels] of [['设备问题','设备问题',V2BoilerSchema.enums.inspectionProblems],['管理问题','管理问题',['质量管理体系','人员管理','设计图纸','材料','施工过程']]]){
+ for(const [name,key,labels] of [['设备问题','设备问题',V2BoilerSchema.enums.inspectionProblems],['管理问题','管理问题',type==='pipeline'?V2PipelineSchema.enums.managementProblems:['质量管理体系','人员管理','设计图纸','材料','施工过程']]]){
  const group=el('fieldset'),legend=el('legend','',name+'：');group.append(legend);
- for(const text of labels){const label=el('label'),cb=el('input');cb.type='checkbox';cb.disabled=true;cb.checked=Array.isArray(record[key])&&record[key].includes(text);label.append(cb,document.createTextNode(text));group.append(label);}
+ for(const text of labels){const label=el('label'),cb=el('input');cb.type='checkbox';cb.disabled=true;cb.checked=(Array.isArray(record[key])?record[key]:type==='pipeline'?[record[key]]:[]).includes(text);label.append(cb,document.createTextNode(text));group.append(label);}
  groups.append(group);
  }
  problems.append(caption,groups);body.append(grid,problems);dialog.show();

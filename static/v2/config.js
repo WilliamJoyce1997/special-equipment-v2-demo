@@ -737,6 +737,7 @@ const flatten=tree=>Object.entries(tree).flatMap(([p,cs])=>[p,...cs.map(c=>p+' /
 function optionsFor(type,f){
  if(f.label==='单位所属行业')return V2CommonFields.flatten(V2CommonFields.industry);
  if(f.label==='组织单元')return V2CommonFields.organizationUnits;
+ if(type==='pipeline')return V2PipelineSchema.optionsFor(f);
  if(type==='installation'){
   if(['设备类别','设备分类代码'].includes(f.label))return V2CommonFields.flatten(V2InstallationSchema.category);
   return V2InstallationSchema.formEnums[f.key]||V2BoilerSchema.optionsFor(f);
@@ -888,4 +889,72 @@ window.V2InstallationSchema=(()=>{
   return String(rounded/1000n)+'.'+String(rounded%1000n).padStart(3,'0');
  }
  return {base,advanced,category,latestKinds,inspectionKinds,formEnums,matches,valid,lengthTotal};
+})();
+
+window.V2PipelineSchema=(()=>{
+ const B=V2BoilerSchema,I=V2InstallationSchema;
+ const pipeLevels=['GA1','GA2','GB1','GB2','GC1','GC2','GC3','GD1','GD2','GCD'];
+ const conclusions=['合格','不合格','复检合格','复检不合格','监护使用','整改后合格'];
+ const managementProblems=['质量管理体系','人员管理','设计图纸','材料','施工过程'];
+ const enums={pipeLevel:pipeLevels,importantPipeline:['是','否'],latestInspectionKind:I.latestKinds,
+ status:B.enums.status,acceptance:B.enums.acceptance,registration:B.enums.registration,
+ inspectionNature:B.enums.inspectionNature,inspectionSubjectUnit:B.enums.inspectionSubjectUnit,
+ safetyValveInspection:B.enums.safetyValveInspection,inspectionConclusion:conclusions,
+ inspectionProblems:B.enums.inspectionProblems,managementProblems,inspectionDepartment:['SCD','XX监管局']};
+ const labels={'设备检验结论':'inspectionConclusion','管道级别':'pipeLevel','检验结论':'inspectionConclusion','检验部门':'inspectionDepartment','主要问题':'inspectionProblems','安全阀是否检验':'safetyValveInspection','安全阀校验情况':'safetyValveInspection','检验性质':'inspectionNature','检验主体组织单元':'inspectionSubjectUnit','使用状态':'status'};
+ const base=V2.types.pipeline.queries.map(f=>({...f,options:enums[f.key]||f.options}));
+ for(const f of base){
+  if(f.key==='category')Object.assign(f,{type:'cascade',tree:I.category});
+  if(f.key==='region')f.type='region';
+  if(f.key==='inspectionKind')Object.assign(f,{key:'latestInspectionKind',options:I.latestKinds});
+ }
+ const advanced=[
+ ['advancedStatus','使用状态'],['unit','使用单位名称'],['registeredDate','注册登记日期','dateRange'],
+ ['registrationCode','管道注册代码'],['registrationCertificate','使用证编号'],['pipelineNumber','管道编号'],
+ ['nextFullInspectionDate','下次全面检验日期','dateRange'],['nextOnlineInspectionDate','下次在线检验日期','dateRange'],['advancedPipeLevel','管道级别'],
+ ['installOrg','安装单位'],['usageLocation','管道装置详细地址'],['identificationCode','设备识别码'],
+ ['inspectionOrg','检验机构名称'],['firstInspectionDate','首次检验日期','dateRange'],['inspectionNature','检验性质','select'],
+ ['inspectionExtensionUntil','检验延期时限','dateRange'],['inspectionDate','检验日期','dateRange'],['inspectionDepartment','检验部门','select'],
+ ['inspector','检验员'],['inspectionConclusion','检验结论','select'],['inspectionProblems','主要问题','problemPair'],
+ ['previousInspectionDate','上次检验日期','dateRange'],['safetyValveInspection','安全阀是否检验','select'],['safetyValveInspectionDate','安全阀校验日期','dateRange'],
+ ['inspectionSubjectUnit','检验主体组织单元','select']
+ ].map(([key,label,type='text'])=>({key,label,type,options:enums[key]||[]}));
+ const typedKeys={nextFullInspectionDate:'_fullNextDate',nextOnlineInspectionDate:'_onlineNextDate',
+ inspectionDate:'_fullDate',inspectionDepartment:'_fullDepartment',inspector:'_fullInspector',
+ previousInspectionDate:'_fullPreviousDate',inspectionConclusion:'_fullConclusion',inspectionProblems:'_fullProblems'};
+ function value(row,key){
+  if(key==='advancedStatus')return row.status;
+  if(key==='advancedPipeLevel')return row.pipeLevel;
+  if(key==='managementProblems')return row.fullManagementProblems??null;
+  if(typedKeys[key])return V2Dossier.queryValue('pipeline',row,null,{scope:'asset',key:typedKeys[key]});
+  return row[key]??null;
+ }
+ function matches(row,filters){return Object.entries(filters).every(([key,raw])=>{
+  const v=String(raw??'').trim();if(!v)return true;
+  if(key==='search')return ['equipmentCode','registrationCode','registrationCertificate'].some(k=>String(row[k]||'').includes(v));
+  if(key==='category')return row.category===v||String(row.category).startsWith(v+' / ');
+  if(key==='province'||key==='area')return String(row[key]||'').startsWith(v);
+  if(/_(min|max)$/.test(key)){
+   const name=key.slice(0,-4),actual=value(row,name);if(actual==null||actual==='')return false;
+   if(name==='length')return Number.isFinite(Number(actual))&&(key.endsWith('_min')?Number(actual)>=Number(v):Number(actual)<=Number(v));
+   return key.endsWith('_min')?String(actual)>=v:String(actual)<=v;
+  }
+  const actual=value(row,key);if(actual==null)return false;
+  if(Array.isArray(actual))return actual.includes(v);
+  const f=[...base,...advanced].find(f=>f.key===key);
+  return f?.type==='select'||['inspectionProblems','managementProblems'].includes(key)?String(actual)===v:String(actual).includes(v);
+ });}
+ function valid(filters){
+  for(const [key,values]of Object.entries(enums))if(filters[key]&&!values.includes(filters[key]))return '选项无效';
+  for(const f of [...base,...advanced])if(f.type.endsWith('Range')){
+   const a=filters[f.key+'_min'],b=filters[f.key+'_max'];
+   if(a&&b&&(f.type==='numberRange'?Number(a)>Number(b):a>b))return f.label+'下限不能大于上限';
+  }
+  return '';
+ }
+ function optionsFor(field){
+  if(['category','_categoryPath'].includes(field.key)||['管道类别','设备类别'].includes(field.label))return V2CommonFields.flatten(I.category);
+  return enums[labels[field.label]||field.key]||null;
+ }
+ return {base,advanced,category:I.category,enums,value,matches,valid,optionsFor};
 })();

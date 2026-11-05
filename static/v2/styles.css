@@ -360,3 +360,5 @@ dialog.inspection-record-dialog[open]{display:flex;flex-direction:column;width:m
 
 .installation-create .edit-mode input:checked{background:#3189ef}
 .installation-create .edit-mode input:checked:before{left:16px}
+
+.pipeline-problem-pair{display:flex;gap:6px;min-width:0}.pipeline-problem-pair .control{min-width:0;flex:1}
