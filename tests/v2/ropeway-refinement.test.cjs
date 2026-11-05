@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const c={};c.window=c;vm.createContext(c);
+for(const n of ['config','fixtures','dossier'])vm.runInContext(fs.readFileSync('static/v2/'+n+'.js','utf8'),c);
+const s=c.V2EquipmentSchema.get('ropeway'),v=c.V2EquipmentSchema.get('vehicle');
+assert.equal(s.base.find(f=>f.key==='category').type,'cascade');
+assert.deepEqual(Object.keys(s.category),['旧目录客运索道','客运架空索道','客运缆车','客运拖牵索道']);
+assert.deepEqual(Array.from(s.advanced,f=>f.label),'注册登记机构 注册登记日期 设备名称 使用单位名称 报告书编号 设备型号 下次检验日期 出厂编号 是否公众聚集场所 制造单位 安装单位 设备使用(所在)地点 设备识别码 设备投用日期 注册更新日期 检验性质 延期至 检验类别 检验结论 首次检验日期 使用状态变更日期 创建日期 现维保单位 制造日期 长度(斜长)(m) 运行速度（m/s） 安全阀是否检验 安全阀校验日期 检验主体组织单元 主要问题 上次检验日期 社会信用代码 检验部门 使用证编号 设备代码 安全总监 安全员'.split(' '));
+for(const k of ['latestInspectionKind','inspectionKind','inspectionNature'])assert.equal(s.enums[k],v.enums[k]);
+assert.deepEqual(Array.from(s.enums.safetyValveInspection),['是','否']);
+assert.deepEqual(Array.from(s.enums.publicGatheringPlace),'学校 幼儿园 医疗机构 车站 机场 客运码头 商场 餐饮场所 体育场馆 展览馆 公园 宾馆 影剧院 图书馆 儿童活动中心 公共浴池 养老机构 旅游景区 公共区域人行通道 政府公共服务 广场写字楼 其他'.split(' '));
+assert.equal(s.advanced.find(f=>f.key==='inspectionConclusion').disabled,true);
+assert.equal(s.advanced.find(f=>f.key==='safetyValveInspectionDate').type,'dateRange');
+assert(c.V2.fixtures.ropeway.some(r=>s.matches(r,{category:'客运缆车 / 往复式客运缆车',safetyValveInspection:'否',publicGatheringPlace:'公园'})));

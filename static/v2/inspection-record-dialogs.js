@@ -33,7 +33,7 @@ function detail(type,row,record){
  if(required){const star=el('span','required-mark','*');star.setAttribute('aria-hidden','true');caption.append(star);}caption.append(document.createTextNode(label));
  const input=el(kind==='select'?'select':'input','control inspection-read-control'),value=record[key]??'';
  input.id='inspection-read-'+key;caption.htmlFor=input.id;input.setAttribute('aria-label',label);
- if(kind==='select'){const options=V2EquipmentSchema.optionsFor(type,{key,label});for(const v of options?['',...options]:[value]){const option=el('option','',v||'请选择');option.value=v;input.append(option);}input.value=value;input.disabled=true;}
+ if(kind==='select'){const options=type==='installation'&&label==='检验类别'?V2InstallationSchema.inspectionKinds:V2EquipmentSchema.optionsFor(type,{key,label});for(const v of options?['',...options]:[value]){const option=el('option','',v||'请选择');option.value=v;input.append(option);}input.value=value;input.disabled=true;}
  else{input.type=kind;input.readOnly=true;input.value=value;input.placeholder='—';}
  field.append(caption,input);grid.append(field);
  }

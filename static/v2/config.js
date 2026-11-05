@@ -72,7 +72,7 @@ Object.assign(types.amusement,{
 });
 Object.assign(types.ropeway,{
  implemented:true,categories:['客运架空索道','客运缆车','客运拖牵索道'],
- queries:q('search','region','category','status','acceptance','department','pinyin','authority','important','registration','unit',kind,'handled','place','inspected'),
+ queries:q('search','region','category','status','acceptance','department','pinyin','authority','important','registration','unit',{...kind,key:'latestInspectionKind'},'handled','place','inspected'),
  columns:[...commonDeviceCols,...tail,col('model','索道型号'),numeric('lineLength','线路长度（m）'),numeric('speed','运行速度（m/s）'),numeric('hourlyCapacity','每小时运量（人）'),col('inspectionKind',kind.label,240)],
  actions:['更改检验机构','导出']
 });
@@ -657,14 +657,20 @@ const craneEnums={
  inspectionKind:['定期检验','监督检验','制造监督检验','起重其他委托检验'],
  governorInspection:['已检','未检']
 };
-const inspectionLabels={'最新检验业务检验类别':'latestInspectionKind','最新检验业务 检验类别':'latestInspectionKind','检验性质':'inspectionNature','检验类别':'inspectionKind','限速器是否检验':'governorInspection'};
+const inspectionLabels={'是否公众聚集场所':'publicGatheringPlace','安全阀是否检验':'safetyValveInspection','最新检验业务检验类别':'latestInspectionKind','最新检验业务 检验类别':'latestInspectionKind','检验性质':'inspectionNature','检验类别':'inspectionKind','限速器是否检验':'governorInspection'};
 const vehicleAndAmusementEnums={
  latestInspectionKind:['定期检验','安装监检','进口监检','驻厂监检','新装验收','普查验收','移梯验收','停启验收','改造验收','大修验收','重新验收','型式试验'],
  inspectionNature:B.enums.inspectionNature,
  inspectionKind:['定期检验','监督检验'],
  governorInspection:['是','否']
 };
-const inspectionEnums={crane:craneEnums,vehicle:vehicleAndAmusementEnums,amusement:vehicleAndAmusementEnums};
+const {latestInspectionKind,inspectionNature,inspectionKind}=vehicleAndAmusementEnums;
+const ropewayEnums={
+ latestInspectionKind,inspectionNature,inspectionKind,
+ safetyValveInspection:['是','否'],
+ publicGatheringPlace:'学校 幼儿园 医疗机构 车站 机场 客运码头 商场 餐饮场所 体育场馆 展览馆 公园 宾馆 影剧院 图书馆 儿童活动中心 公共浴池 养老机构 旅游景区 公共区域人行通道 政府公共服务 广场写字楼 其他'.split(' ')
+};
+const inspectionEnums={crane:craneEnums,vehicle:vehicleAndAmusementEnums,amusement:vehicleAndAmusementEnums,ropeway:ropewayEnums};
 const categoryTrees={vessel:vesselCategory,elevator:elevatorCategory,crane:craneCategory,
  vehicle:{'机动工业车辆':['叉车'],'非公路用旅游观光车辆':[],'旧目录厂车':[]},
  amusement:{
@@ -672,6 +678,12 @@ const categoryTrees={vessel:vesselCategory,elevator:elevatorCategory,crane:crane
   '转马类':[],'自控飞机类':[],'赛车类':[],'小火车类':[],'碰碰车类':[],'滑道类':[],
   '水上游乐设施':['峡谷漂流系列','水滑梯系列','碰碰船系列'],
   '无动力游乐设施':['蹦极系列','滑索系列','空中飞人系列','系留式观光气球系列']
+ },
+ ropeway:{
+  '旧目录客运索道':[],
+  '客运架空索道':['往复式客运架空索道','循环式客运架空索道'],
+  '客运缆车':['往复式客运缆车','循环式客运缆车'],
+  '客运拖牵索道':['低位客运拖牵索道','高位客运拖牵索道']
  }};
 const advancedFields=fields=>fields.map(([key,label,type='text'])=>({key,label,type,disabled:key==='inspectionConclusion'}));
 const equipmentInspectionFields=[
@@ -706,9 +718,30 @@ const amusementAdvanced=advancedFields([
  ['inspectionProblems','主要问题','select'],['previousInspectionDate','上次检验日期','dateRange'],['equipmentCode','设备代码'],
  ['certificate','使用证编号'],['safetyDirector','安全总监'],['safetyOfficer','安全员']
 ]);
-const explicitAdvanced={elevator:elevatorAdvanced,crane:craneAdvanced,vehicle:vehicleAdvanced,amusement:amusementAdvanced};
+const ropewayAdvanced=advancedFields([
+ ['registrationOrg','注册登记机构'],['registeredDate','注册登记日期','dateRange'],['name','设备名称'],
+ ['unit','使用单位名称'],['reportNumber','报告书编号'],['model','设备型号'],
+ ['nextInspection','下次检验日期','dateRange'],['factoryNumber','出厂编号'],['publicGatheringPlace','是否公众聚集场所','select'],
+ ['manufacturer','制造单位'],['installOrg','安装单位'],['usageLocation','设备使用(所在)地点'],
+ ['identificationCode','设备识别码'],['commissionedDate','设备投用日期','dateRange'],['updatedDate','注册更新日期','dateRange'],
+ ['inspectionNature','检验性质','select'],['inspectionDeferredUntil','延期至','dateRange'],['inspectionKind','检验类别','select'],
+ ['inspectionConclusion','检验结论','select'],['firstInspectionDate','首次检验日期','dateRange'],['statusChangedDate','使用状态变更日期','dateRange'],
+ ['created','创建日期','dateRange'],['maintenanceOrg','现维保单位'],['manufactured','制造日期','dateRange'],
+ ['lineLength','长度(斜长)(m)'],['speed','运行速度（m/s）'],['safetyValveInspection','安全阀是否检验','select'],
+ ['safetyValveInspectionDate','安全阀校验日期','dateRange'],['inspectionSubjectUnit','检验主体组织单元','select'],['inspectionProblems','主要问题','select'],
+ ['previousInspectionDate','上次检验日期','dateRange'],['creditCode','社会信用代码'],['inspectionDepartment','检验部门'],
+ ['certificate','使用证编号'],['equipmentCode','设备代码'],['safetyDirector','安全总监'],['safetyOfficer','安全员']
+]);
+const explicitAdvanced={elevator:elevatorAdvanced,crane:craneAdvanced,vehicle:vehicleAdvanced,amusement:amusementAdvanced,ropeway:ropewayAdvanced};
 const flatten=tree=>Object.entries(tree).flatMap(([p,cs])=>[p,...cs.map(c=>p+' / '+c)]);
-function optionsFor(type,f){if(!supported.includes(type))return null;const k=f.key,l=f.label;
+function optionsFor(type,f){
+ if(f.label==='单位所属行业')return V2CommonFields.flatten(V2CommonFields.industry);
+ if(f.label==='组织单元')return V2CommonFields.organizationUnits;
+ if(type==='installation'){
+  if(['设备类别','设备分类代码'].includes(f.label))return V2CommonFields.flatten(V2InstallationSchema.category);
+  return V2InstallationSchema.formEnums[f.key]||V2BoilerSchema.optionsFor(f);
+ }
+ if(!supported.includes(type))return null;const k=f.key,l=f.label;
  if(categoryTrees[type]&&(['category','_categoryPath'].includes(k)||l==='设备类别'))return flatten(categoryTrees[type]);
  const inspectionOptions=inspectionEnums[type]?.[inspectionLabels[l]||k];
  if(inspectionOptions)return inspectionOptions;
@@ -754,4 +787,105 @@ function prepareRows(type,rows){if(type==='boiler')return;
  if(type==='vessel')r.purpose=({'储存':'储存容器(C)','换热':'换热容器(E)','反应':'反应容器(R)'})[r.purpose]||r.purpose;
  }}
 return {supported,get,optionsFor,prepareRows,vesselCategory,vesselEnums,elevatorCategory,elevatorEnums,elevatorAdvanced,places};
+})();
+
+// Public fields are matched by their exact labels, independently of inspection-subject units.
+window.V2CommonFields=(()=>{
+ const industry={
+ '农、林、牧、渔':'农业|林业|畜牧业|渔业|农、林、牧、渔服务业',
+ '制造业':'农副食品加工业|食品制造业|饮料制造业|烟草制品业|纺织业|纺织服装、鞋、帽制造业|皮革、毛皮、羽毛(绒)及其制品业|木材加工及木、竹、藤、棕、草制品业|家具制造业|造纸及纸制品业|印刷业和记录媒介的复制|文教体育用品制造业|石油加工、炼焦及核燃料加工业|化学原料及化学制品制造业|医药制造业|化学纤维制造业|橡胶制品业|塑料制品业|非金属矿物制品业|黑色金属冶炼及压延加工业|有色金属冶炼及压延加工业|金属制品业|通用设备制造业|专用设备制造业|交通运输设备制造业|电气机械及器材制造业|通信设备、计算机及其他电子设备制造业|仪器仪表及文化、办公用机械制造业|工艺品及其他制造业|废弃资源和废旧材料回收加工业',
+ '电力、燃气及水生产和供应业':'电力、热力的生产和供应业|燃气生产和供应业|水的生产和供应业',
+ '金融业':'银行业|证券业|保险业|其他金融活动',
+ '教育':'教育',
+ '公共管理、社会组织':'中国共产党机关|国家机构|人民政协和民主党派|群众团体、社会团体和宗教组织|基层群众自治组织',
+ '国际组织':'国际组织',
+ '采掘业':'煤炭开采和洗选业|石油和天然气开采业|黑色金属矿采选业|有色金属矿采选业|非金属矿采选业|其他采矿业',
+ '建筑业':'房屋和土木工程建筑业|建筑安装业|建筑装饰业|其他建筑业',
+ '交通运输、仓储和邮政业':'铁路运输业|道路运输业|城市公共交通业|水上运输业|航空运输业|管道运输业|装卸搬运和其他运输服务业|仓储业|邮政业',
+ '信息传输、计算机服务和软件业':'电信和其他信息传输服务业|计算机服务业|软件业',
+ '批发和零售业':'批发业|零售业',
+ '住宿和餐饮业':'住宿业|餐饮业',
+ '房地产业':'房地产业',
+ '租赁和商务服务业':'租赁业|商务服务业',
+ '科学研究、技术服务和地质勘查业':'研究与试验发展|专业技术服务业|科技交流和推广服务业|地质勘查业',
+ '水利、环境和公共设施管理业':'水利管理业|环境管理业|公共设施管理业',
+ '居民服务和其他服务业':'居民服务业|其他服务业',
+ '卫生、社会保障和社会福利业':'卫生|社会保障业|社会福利业',
+ '文化、体育和娱乐业':'新闻出版业|广播、电视、电影和音像业|文化艺术业|体育|娱乐业'
+ };
+ for(const key of Object.keys(industry))industry[key]=industry[key].split('|');
+ const organizationUnits=['云南省特检'];
+ function flatten(tree){return Object.entries(tree).flatMap(([parent,children])=>[parent,...children.map(child=>parent+' / '+child)]);}
+ function cascade(tree,label,value='',onChange=()=>{},disabled=true){
+  const {el}=V2QueryResults,box=el('div','boiler-cascade'),[parent,child]=value.split(' / ');
+  function select(name,items,value){const input=el('select','dossier-input');input.disabled=disabled;input.setAttribute('aria-label',name);
+   for(const text of ['',...items]){const o=el('option','',text||'请选择');o.value=text;input.append(o);}input.value=value||'';return input;}
+  const first=select(label+'一级',Object.keys(tree),parent),second=select(label+'二级',tree[parent]||[],child);
+  function fill(){second.replaceChildren(...select('',tree[first.value]||[],'').children);second.hidden=!(tree[first.value]||[]).length;}
+  second.hidden=!(tree[parent]||[]).length;
+  first.onchange=()=>{fill();onChange(first.value);};
+  second.onchange=()=>onChange(first.value+(second.value?' / '+second.value:''));
+  box.append(first,second);return box;
+ }
+ return {industry,organizationUnits,flatten,cascade};
+})();
+
+window.V2InstallationSchema=(()=>{
+ const B=V2BoilerSchema;
+ const category={'旧目录压力管道':[],'长输管道':['输油管道','输气管道'],'公用管道':['燃气管道','热力管道'],'工业管道':['工艺管道','动力管道','制冷管道']};
+ const latestKinds=['年度检验','全面检验','安装监检'];
+ const inspectionKinds=['年度检查','全面检验','安装监督检验','压力管道委托检验'];
+ const formEnums={issuingKind:['首次发证','报检','换证','变更'],importantMonitoring:['是','否'],organizationUnit:V2CommonFields.organizationUnits,
+ safetyValveInspection:['未检','已检'],inspectionKind:[...latestKinds],handlingStatus:['已报检','检验中','检验已完毕','未检验'],
+ monitoringConnected:['是','否'],monitoringStatus:['在线','离线'],liabilityInsurance:['是','否'],petrochemicalInstallation:['是','否']};
+ const f=(key,label,type='text')=>({key,label,type,options:({inspectionQueryKind:inspectionKinds,inspectionNature:B.enums.inspectionNature,inspectionSubjectUnit:B.enums.inspectionSubjectUnit,inspectionProblems:B.enums.inspectionProblems}[key]||[]),disabled:key==='inspectionConclusion'});
+ const base=V2.types.installation.queries.map(field=>({...field}));
+ for(const field of base){
+  if(field.key==='category')Object.assign(field,{type:'cascade',tree:category});
+  if(field.key==='region')field.type='region';
+  if(field.key==='inspectionKind')Object.assign(field,{key:'latestInspectionKind',options:latestKinds});
+  if(['status','registration'].includes(field.key))field.options=B.enums[field.key];
+ }
+ const advanced=[
+ ['unit','使用单位名称'],['registeredDate','注册登记日期','dateRange'],['installationName','工程名称'],
+ ['installationCertificate','使用证编号'],['reportNumber','报告书编号'],['model','设备型号'],
+ ['nextFullInspectionDate','下次全面检验日期','dateRange'],['summaryNumber','登记汇总表编号'],['pipelineCount','管道管线数'],
+ ['manufacturer','制造单位'],['installOrg','安装单位'],['usageLocation','管道装置详细地址'],
+ ['identificationCode','设备识别码'],['commissionedDate','设备投用日期','dateRange'],['updatedDate','注册更新日期','dateRange'],
+ ['registrationOrg','注册登记机构'],['creditCode','社会信用代码'],['firstInspectionDate','首次检验日期','dateRange'],
+ ['inspectionNature','检验性质','select'],['inspectionDeferredUntil','延期至','dateRange'],['inspectionQueryKind','检验类别','select'],
+ ['inspectionConclusion','检验结论','select'],['inspected','定期_检验_检验日期','dateRange'],['statusChangedDate','使用状态变更日期','dateRange'],
+ ['inspectionSubjectUnit','检验主体组织单元','select'],['inspectionDepartment','检验部门'],['inspector','检验员'],
+ ['inspectionProblems','主要问题','select'],['equipmentCode','设备代码'],['previousInspectionDate','上次检验日期','dateRange'],
+ ['safetyDirector','安全总监'],['safetyOfficer','安全员']
+ ].map(args=>f(...args));
+ function matches(row,filters){return Object.entries(filters).every(([key,raw])=>{
+  const value=String(raw??'').trim();if(!value)return true;
+  if(key==='search')return ['equipmentCode','registrationCode','installationCertificate'].some(k=>String(row[k]||'').includes(value));
+  if(key==='province'||key==='area')return String(row[key]||'').startsWith(value);
+  if(key==='category')return row.category===value||String(row.category).startsWith(value+' / ');
+  if(/_(min|max)$/.test(key)){const actual=row[key.slice(0,-4)];if(actual==null||actual==='')return false;return key.endsWith('_min')?String(actual)>=value:String(actual)<=value;}
+  const field=[...base,...advanced].find(f=>f.key===key);
+  if(field?.disabled)return false;
+  return field?.type==='select'?row[key]===value:String(row[key]??'').includes(value);
+ });}
+ function valid(filters){for(const field of [...base,...advanced]){
+  if(field.disabled&&filters[field.key])return field.label+'不可用于查询';
+  if(field.type==='select'&&filters[field.key]&&!field.options.includes(filters[field.key]))return field.label+'选项无效';
+  if(field.type==='dateRange'&&filters[field.key+'_min']&&filters[field.key+'_max']&&filters[field.key+'_min']>filters[field.key+'_max'])return field.label+'下限不能大于上限';
+ }return '';}
+ // Add decimal lengths with integer arithmetic and round only the final total.
+ function lengthTotal(rows,key='length'){
+  const values=rows.map(row=>String(row[key]??0)).filter(value=>/^\d+(?:\.\d+)?$/.test(value));
+  const precision=Math.max(3,...values.map(value=>(value.split('.')[1]||'').length));
+  const scale=10n**BigInt(precision);
+  let total=0n;
+  for(const value of values){
+   const [whole,fraction='']=value.split('.');
+   total+=BigInt(whole)*scale+BigInt(fraction.padEnd(precision,'0'));
+  }
+  const divisor=10n**BigInt(precision-3),rounded=(total+divisor/2n)/divisor;
+  return String(rounded/1000n)+'.'+String(rounded%1000n).padStart(3,'0');
+ }
+ return {base,advanced,category,latestKinds,inspectionKinds,formEnums,matches,valid,lengthTotal};
 })();

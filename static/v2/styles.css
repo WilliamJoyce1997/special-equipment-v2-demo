@@ -345,3 +345,18 @@ dialog.inspection-record-dialog[open]{display:flex;flex-direction:column;width:m
 @media(max-width:760px){.elevator-maintenance-grid{grid-template-columns:1fr;margin-bottom:24px;gap:16px}.elevator-maintenance-field{grid-template-columns:130px minmax(0,1fr);gap:8px}.elevator-toolbar-form .notice{font-size:12px}}
 
 .dossier-unmapped-value{display:block;width:100%;color:#94642b;font-size:11px;margin:3px 0;overflow-wrap:anywhere}.dossier-control-wrap:has(.dossier-unmapped-value){flex-wrap:wrap}
+
+.installation-create .dossier-input:disabled{background:#f3f3f5;color:#68717e;opacity:1}
+.installation-create .dossier-input:not(:disabled){background:white}
+.installation-create .edit-mode input{cursor:pointer}
+.installation-unit-dialog{width:min(1500px,96vw)}
+.installation-unit-picker .query-grid{margin-bottom:36px;grid-template-columns:1fr 1fr 120px}
+.installation-unit-picker table{min-width:1300px;width:100%}
+.installation-unit-picker .pagination input{width:70px}
+.installation-unit-picker .pagination select{width:110px}
+@media(max-width:760px){.installation-unit-picker .query-grid{grid-template-columns:1fr}.installation-unit-picker .table-footer{flex-wrap:wrap}}
+
+.installation-summary-hint{color:#e33;font-size:14px}
+
+.installation-create .edit-mode input:checked{background:#3189ef}
+.installation-create .edit-mode input:checked:before{left:16px}

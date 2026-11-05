@@ -84,6 +84,18 @@ for(const [i,row] of V2.fixtures.amusement.entries()){
  row.operatingSpeed=i+1;
 }
 
+// Fictional ropeway values exercise the independent filters and category branches.
+const ropewaySchema=V2EquipmentSchema.get('ropeway');
+for(const [i,row] of V2.fixtures.ropeway.entries()){
+ const children=ropewaySchema.category[row.category];
+ row.category=i===7?'旧目录客运索道':row.category+' / '+children[Math.floor(i/3)%children.length];
+ row.latestInspectionKind=i%2?'安装监检':'定期检验';
+ row.inspectionKind=i%2?'监督检验':'定期检验';
+ row.inspectionNature='正常检验';
+ row.safetyValveInspection=i%2?'否':'是';
+ row.publicGatheringPlace=i%2?'公园':'旅游景区';
+}
+
 V2.fixtures.installation=V2.demoBase('installation','ZZ',8).map((r,i)=>({...r,
  installationName:'云岚虚构工程装置'+String(i+1).padStart(3,'0'),
  creditCode:'DEMO-CREDIT-'+String(i%3+1).padStart(3,'0'),created:'2026-'+String(i+1).padStart(2,'0')+'-02',
@@ -148,7 +160,7 @@ for(const [type,t] of Object.entries(V2.types)){
   }[type]||{};
   const merged={...original,...common,...extras};
   const applicable=new Set([...t.detailFields.map(f=>f.key),...t.queries.map(f=>f.key),'id','source','history','equipmentCode','registrationCode','contact','installationId']);
-  const inspectionSchema={crane:craneSchema,vehicle:vehicleSchema,amusement:amusementSchema}[type];
+  const inspectionSchema={crane:craneSchema,vehicle:vehicleSchema,amusement:amusementSchema,ropeway:ropewaySchema}[type];
   if(inspectionSchema)for(const field of inspectionSchema.advanced)applicable.add(field.key);
   return Object.fromEntries(Object.entries(merged).filter(([key])=>applicable.has(key)));
  });
@@ -160,3 +172,13 @@ for(const a of V2.fixtures.installation){
 V2BoilerSchema.prepareRows(V2.fixtures.boiler);
 
 for(const t of V2EquipmentSchema.supported)V2EquipmentSchema.prepareRows(t,V2.fixtures[t]);
+
+for(const [i,row] of V2.fixtures.installation.entries()){
+ row.category=i%2?'公用管道 / 燃气管道':'工业管道 / 工艺管道';
+ row.latestInspectionKind=V2InstallationSchema.latestKinds[i%3];
+ row.inspectionQueryKind=V2InstallationSchema.inspectionKinds[i%4];
+ row.inspectionKind=V2InstallationSchema.formEnums.inspectionKind[i%3];
+ row.province='53';row.area='5301';
+ row.registration=({'已登记':'已注册','未登记':'未注册'})[row.registration]||row.registration;
+ row.inspectionNature='正常检验';
+}

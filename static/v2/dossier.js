@@ -187,7 +187,7 @@ function model(type,row){
  const data={...row,_deviceType:type,_categoryPath:V2.types[type].title+' / '+(row.category||''),_inspectionDate:row.internalInspectionDate||row.fullInspectionDate||row.inspected||'',_nextInspectionDate:row.nextInternalInspectionDate||row.nextFullInspectionDate||row.nextInspection||'',_reportNumber:row.reportNumber||row.fullInspectionReport||'',_conclusion:'演示记录（无法定效力）',_readOnly:'只读',_source:'前端虚构样本'};
  if(type==='boiler')data._conclusion='模拟记录（无法定效力）';
  if(type==='vessel'){const r=recentInspection(type,row);Object.assign(data,{_inspectionDate:r?.['检验日期']??'',_nextInspectionDate:r?.['下检日期']??'',_reportNumber:r?.['报告编号']??'',_conclusion:r?.['检验结论']??'',inspectionDepartment:r?.['检验部门']??'',inspector:r?.['检验员']??'',inspectionProblems:r?.['主要问题']??'',previousInspectionDate:r?.['上次检验日期']??''});}
- if(type==='installation'){data._installationCategory=Array.isArray(row.categoryPath)?row.categoryPath.join(' / '):row.categoryPath||'压力管道 / '+(row.category||'');data._deviceCount=row.equipmentCount??V2.fixtures.pipeline.filter(p=>p.installationId===row.id).length;}
+ if(type==='installation'){data._installationCategory=Array.isArray(row.categoryPath)?row.categoryPath.join(' / '):row.categoryPath||(row.category||'');data._deviceCount=row.equipmentCount??V2.fixtures.pipeline.filter(p=>p.installationId===row.id).length;}
  if(type==='pipeline')for(const [prefix,kind]of [['full','全面检验'],['online','在线检验']]){const r=pipelineTypedRecord(row,kind);for(const [suffix,label]of Object.entries({Department:'检验部门',Inspector:'检验员',Report:'报告编号',PreviousDate:'上次检验日期',Date:'检验日期',NextDate:'下检日期',Conclusion:'检验结论',Problems:'主要问题'}))data['_'+prefix+suffix]=r?.[label]??'';}
  return data;
 }
@@ -197,13 +197,17 @@ function control(field,data){
  const wrap=el('div','dossier-control-wrap');
  function inputFor(key,name){const allowed=V2EquipmentSchema.optionsFor(data._deviceType,field),value=key==='_categoryPath'&&V2EquipmentSchema.supported.includes(data._deviceType)?String(data[key]||'').replace(V2.types[data._deviceType].title+' / ',''):data[key]??'',select=!!allowed||field.kind==='select',input=el(select?'select':field.kind==='textarea'?'textarea':'input','dossier-input');input.id=key===field.key?id:id+'-end';input.setAttribute('aria-label',name);
  if(select){if(allowed){for(const v of ['',...allowed]){const o=el('option','',v||'请选择');o.value=v;input.append(o);}input.value=String(value);if(value!==''&&!allowed.includes(String(value))){input.title='现有演示值未归类：'+value;const note=el('small','dossier-unmapped-value','现有演示值（未归类）：'+value);wrap.append(note);}}else{const o=el('option','',String(value||'请选择'));o.value=String(value);input.append(o);}input.disabled=true;}
- else{if(field.kind!=='textarea')input.type='text';else input.rows=2;input.readOnly=true;input.value=String(value);input.setAttribute('aria-readonly','true');}
+ else{if(field.kind!=='textarea')input.type='text';else input.rows=2;input.readOnly=true;input.value=field.key==='pipelineTotalLength'?Number(value||0).toFixed(3):String(value);input.setAttribute('aria-readonly','true');}
  if(field.kind==='metadata')input.classList.add('dossier-metadata');return input;}
  if(V2EquipmentSchema.supported.includes(data._deviceType)&&((field.key==='region')||(field.key==='_categoryPath'&&data._deviceType!=='boiler'&&V2EquipmentSchema.get(data._deviceType).category))){
  const choose=(name,options,value)=>{const input=el('select','dossier-input');input.disabled=true;input.setAttribute('aria-label',name);for(const [v,text]of [['','请选择'],...options]){const o=el('option','',text);o.value=v;input.append(o);}input.value=value||'';return input;};
  wrap.classList.add('boiler-cascade');
  if(field.key==='region'){const regions=V2BoilerSchema.regions,p=regions.find(p=>p.code===data.province);wrap.append(choose('所在地区省级',regions.map(p=>[p.code,p.name]),data.province),choose('所在地区市区县',(p?.children||[]).flatMap(c=>[[c.code,c.name],...(c.children||[]).map(a=>[a.code,a.name])]),data.area));}
  else{const tree=V2EquipmentSchema.get(data._deviceType).category,[parent,child]=String(data.category||'').split(' / ');wrap.append(choose('设备类别一级',Object.keys(tree).map(x=>[x,x]),parent));if(tree[parent]?.length)wrap.append(choose('设备类别二级',tree[parent].map(x=>[x,x]),child));}
+ }else if(field.label==='单位所属行业'){
+ wrap.append(V2CommonFields.cascade(V2CommonFields.industry,field.label,String(data[field.key]||'')));
+ }else if(data._deviceType==='installation'&&field.key==='_installationCategory'){
+ wrap.append(V2CommonFields.cascade(V2InstallationSchema.category,'设备类别',String(data.category||'')));
  }else wrap.append(inputFor(field.key,field.rangeEnd?field.label+'（开始）':field.label));
  if(field.rangeEnd){wrap.classList.add('dossier-range');wrap.append(el('span','','—'),inputFor(field.rangeEnd,field.label+'（结束）'));}
  if(field.kind==='date')wrap.append(el('span','dossier-calendar','▦'));
@@ -342,7 +346,7 @@ function latestHistories(rows){
 function histories(type,row){
  const specs=type==='boiler'?[['内部检验',row.internalInspectionDate,row.nextInternalInspectionDate],['外部检验',row.externalInspectionDate,row.nextExternalInspectionDate]]:
  type==='vessel'?[['全面检验',row.fullInspectionDate,row.nextFullInspectionDate],['年度检验',row.annualInspectionDate,row.nextAnnualInspectionDate]]:
- [[row.inspectionKind||'演示检验记录',row.inspected||'',row.nextInspection||'']];
+ [[ (type==='installation'?row.inspectionQueryKind:row.inspectionKind)||'演示检验记录',row.inspected||'',row.nextInspection||'']];
  const records=specs.filter(s=>s[1]).map(([kind,date,next],i)=>({id:row.id+'-inspection-'+i,'检验类别':kind,'检验结论':'模拟记录（无法定效力）','检验日期':date,'下检日期':next,'检验机构':(row._historicalInspectionOrg??row.inspectionOrg)||'未提供（演示）','检验部门':'演示检验部','检验性质':row.inspectionNature||(type==='boiler'?'':'演示记录'),'报告编号':row.reportNumber||row.fullInspectionReport||'','业务流水号':'DEMO-FLOW-'+row.id+'-'+i,'来源':'前端虚构样本','添加人':'演示资料员','添加时间':'2026-10-30 09:00:00'}));
  if(type==='pipeline')for(const kind of ['全面检验','在线检验']){const record=pipelineTypedRecord(row,kind);if(record&&!records.some(r=>r['检验类别']===kind&&r['检验日期']===record['检验日期']))records.push(record);}
  return records;
@@ -413,7 +417,80 @@ function more(trigger,onSelect,items=['智慧监管码','检验信息','修改�
  for(const item of items){const name=typeof item==='string'?item:item.label;const b=btn(name,'',()=>{pop.hidePopover();trigger.focus();onSelect(name);});b.disabled=!!item.disabled;b.setAttribute('role','menuitem');pop.append(b);}
  document.body.append(pop);const r=trigger.getBoundingClientRect();pop.style.left=Math.max(8,Math.min(r.right+10,innerWidth-226))+'px';pop.style.top=Math.max(8,Math.min(r.top,innerHeight-(items.length*52+20)))+'px';pop.showPopover();
 }
-return {linkedPipelines,installationPipelineColumns,brief,page,more,recordTable,tabsFor,componentsFor,recentInspection,queryFields,queryValue,histories,latestHistories,subtabs,changeHeaders,inspectionHeaders,inspectionKinds};
+function chooseInspectionUnit(api,onSelect){
+ const {el,button}=V2QueryResults,root=el('div','installation-unit-picker'),form=el('form','query-grid'),search=el('input','control'),region=el('select','control');
+ search.placeholder='输入单位名称、组织机构代码';search.setAttribute('aria-label','综合查询');
+ region.setAttribute('aria-label','所在地区');
+ for(const name of ['',...new Set(V2InspectionUnits.rows.map(r=>r.region))]){const o=el('option','',name||'请选择');o.value=name;region.append(o);}
+ function field(label,input){const box=el('label','field',label);box.append(input);return box;}
+ const submit=button('查询','primary',()=>{});submit.type='submit';form.append(field('综合查询',search),field('所在地区',region),submit);
+ const holder=el('div');let rows=[...V2InspectionUnits.rows],page=1,size=10;
+ function paint(){
+  holder.replaceChildren();const scroll=el('div','table-scroll'),table=el('table'),head=el('thead'),tr=el('tr'),body=el('tbody');
+  for(const name of ['序号','选择','单位名称','单位地址','统一社会信用代码','地区代码','所在地区','电话','法定代表人','是否启用'])tr.append(el('th','',name));
+  head.append(tr);
+  page=Math.max(1,Math.min(page,Math.ceil(rows.length/size)||1));
+  for(const [i,row] of rows.slice((page-1)*size,page*size).entries()){
+   const tr=el('tr');tr.append(el('td','',String((page-1)*size+i+1)));
+   const cell=el('td');cell.append(button('选择','secondary',()=>{onSelect(row);api.close();}));tr.append(cell);
+   for(const key of ['name','address','creditCode','regionCode','region','phone','legalPerson','enabled'])tr.append(el('td','',row[key]||''));
+   body.append(tr);
+  }
+  if(!rows.length){const td=el('td','empty','暂无数据');td.colSpan=10;const tr=el('tr');tr.append(td);body.append(tr);}
+  table.append(head,body);scroll.append(table);
+  const footer=el('div','table-footer'),pages=el('div','pagination'),prev=button('‹','secondary',()=>{page--;paint();}),next=button('›','secondary',()=>{page++;paint();}),select=el('select','control'),jump=el('input','control');
+  prev.setAttribute('aria-label','上一页');next.setAttribute('aria-label','下一页');prev.disabled=page===1;next.disabled=page*size>=rows.length;
+  select.setAttribute('aria-label','每页条数');for(const n of [2,5,10,20]){const o=el('option','',n+' 条/页');o.value=n;select.append(o);}select.value=size;
+  select.onchange=()=>{size=Number(select.value);page=1;paint();};
+  jump.type='number';jump.min=1;jump.max=Math.ceil(rows.length/size)||1;jump.value=page;jump.setAttribute('aria-label','跳至页');jump.onchange=()=>{page=Math.max(1,Number(jump.value)||1);paint();};
+  pages.append(prev,el('span','',String(page)),next,select,el('span','','跳至'),jump,el('span','','页'));
+  footer.append(pages,el('div','result-count','当前共有 '+rows.length+' 条数据，已选 0 条'));holder.append(scroll,footer);
+ }
+ form.onsubmit=e=>{e.preventDefault();const keyword=search.value.trim();rows=V2InspectionUnits.rows.filter(r=>(!keyword||[r.name,r.creditCode,r.organizationCode].some(v=>String(v||'').includes(keyword)))&&(!region.value||r.region===region.value));page=1;paint();};
+ root.append(form,holder);paint();api.show('检验单位',root,'installation-unit-dialog');
+}
+function createInstallation(entry,api){
+ const {el,button}=V2QueryResults,data=entry.draft,root=el('div','equipment-info installation-create'),bar=el('div','equipment-subtabs');
+ bar.append(el('span','equipment-subtab active','压力管道装置'));
+ const label=el('label','edit-mode','编辑模式：'),toggle=el('input');toggle.type='checkbox';toggle.setAttribute('role','switch');toggle.setAttribute('aria-label','编辑模式');toggle.checked=entry.editing;label.append(toggle);bar.append(label);
+ const content=el('div','equipment-info-content');root.append(bar,content);
+ for(const def of installationDefs()){
+  const group=section(def,{...data,_deviceType:'installation',category:data._installationCategory||''});
+  for(const field of def.fields){
+   const cell=group.querySelector('[data-field-key="'+field.key+'"]'),wrap=cell.querySelector('.dossier-control-wrap');
+   if(field.key==='region'){
+    const holder=V2EquipmentPage.control({key:'region',label:field.label,type:'region'},data);
+    wrap.replaceChildren(holder.querySelector('.boiler-cascade'));
+   }
+   if(field.label==='单位所属行业'||field.key==='_installationCategory'){
+    const tree=field.key==='_installationCategory'?V2InstallationSchema.category:V2CommonFields.industry;
+    wrap.replaceChildren(V2CommonFields.cascade(tree,field.key==='_installationCategory'?'设备类别':field.label,data[field.key]||'',value=>data[field.key]=value,!entry.editing));
+   }
+   for(const input of wrap.querySelectorAll('input,select,textarea')){
+    if(field.kind==='date')input.type='date';
+    if(field.key==='pipelineTotalLength'){
+     input.type='number';input.step='0.001';input.min='0';
+     input.onblur=()=>{if(input.value!==''&&input.validity.valid){input.value=V2InstallationSchema.lengthTotal([{length:input.value}]);data[field.key]=input.value;}};
+    }
+    if(field.kind!=='metadata')input.dataset.editable='true';
+    input.disabled=field.kind==='metadata'||!entry.editing;
+    input.readOnly=field.key==='inspectionOrg';
+    input.removeAttribute('aria-readonly');
+    if(field.key==='region')input.addEventListener('change',()=>{data[input.name]=input.value;if(input.name==='province')data.area='';});
+    else if(!input.closest('.boiler-cascade'))input.oninput=()=>data[field.key]=input.value;
+   }
+   if(field.key==='inspectionOrg'){
+    const input=wrap.querySelector('input');input.onclick=()=>{if(entry.editing)chooseInspectionUnit(api,row=>{data.inspectionOrg=row.name;data.inspectionOrgId=row.id;input.value=row.name;});};
+   }
+  }
+  content.append(group);
+ }
+ const changes=el('details','dossier-group');changes.open=true;changes.append(el('summary','','变更登记信息'),el('p','notice','暂无变更登记信息'));content.append(changes);
+ toggle.onchange=()=>{entry.editing=toggle.checked;for(const input of content.querySelectorAll('[data-editable]'))input.disabled=!entry.editing;};
+ content.append(button('关闭','secondary',()=>document.querySelector('#tabs .tab.active .tab-close')?.click()));
+ return root;
+}
+return {createInstallation,linkedPipelines,installationPipelineColumns,brief,page,more,recordTable,tabsFor,componentsFor,recentInspection,queryFields,queryValue,histories,latestHistories,subtabs,changeHeaders,inspectionHeaders,inspectionKinds};
 })();
 
 
