@@ -362,3 +362,22 @@ dialog.inspection-record-dialog[open]{display:flex;flex-direction:column;width:m
 .installation-create .edit-mode input:checked:before{left:16px}
 
 .pipeline-problem-pair{display:flex;gap:6px;min-width:0}.pipeline-problem-pair .control{min-width:0;flex:1}
+
+.qualification-info-dialog{width:min(1040px,96vw);max-height:94vh}
+.qualification-info-body{padding:20px;max-height:calc(94vh - 76px);overflow:auto}
+.qualification-detail-table{overflow-x:auto;margin:20px 0}
+.qualification-detail-table table{width:100%;min-width:650px;border-collapse:collapse}
+.qualification-detail-table th,.qualification-detail-table td{border:1px solid #e0e5ec;padding:10px}
+.qualification-detail-add{width:100%;font-size:28px;background:white;border:1px solid #e0e5ec}
+.qualification-info-body>label textarea{height:76px}
+.unit-info-field>.boiler-cascade{min-width:0}
+
+.unit-info-dialog>.dialog-footer{display:none}
+
+.qualification-info-dialog[open]{display:flex;flex-direction:column;overflow:hidden}
+.qualification-info-dialog>.dialog-header,.qualification-info-dialog>.dialog-footer{flex:0 0 auto}
+.qualification-info-dialog .qualification-info-body{min-height:0;flex:1 1 auto;max-height:none}
+.qualification-info-dialog>.dialog-footer .boiler-modal-actions{padding:0}
+.qualification-info-body .unit-info-field>span{text-align:right;line-height:1.5}
+.qualification-detail-table .empty{height:80px}
+.boiler-advanced [name=projectCategory]:disabled,.boiler-advanced [name=projectLevel]:disabled{background:#f3f3f5;cursor:not-allowed}

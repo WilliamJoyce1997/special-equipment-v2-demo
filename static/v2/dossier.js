@@ -205,7 +205,7 @@ function control(field,data){
  wrap.classList.add('boiler-cascade');
  if(field.key==='region'){const regions=V2BoilerSchema.regions,p=regions.find(p=>p.code===data.province);wrap.append(choose('所在地区省级',regions.map(p=>[p.code,p.name]),data.province),choose('所在地区市区县',(p?.children||[]).flatMap(c=>[[c.code,c.name],...(c.children||[]).map(a=>[a.code,a.name])]),data.area));}
  else{const tree=V2EquipmentSchema.get(data._deviceType).category,[parent,child]=String(data.category||'').split(' / ');wrap.append(choose('设备类别一级',Object.keys(tree).map(x=>[x,x]),parent));if(tree[parent]?.length)wrap.append(choose('设备类别二级',tree[parent].map(x=>[x,x]),child));}
- }else if(field.label==='单位所属行业'){
+ }else if(['单位所属行业','所属行业'].includes(field.label)){
  wrap.append(V2CommonFields.cascade(V2CommonFields.industry,field.label,String(data[field.key]||'')));
  }else if(data._deviceType==='pipeline'&&['category','_categoryPath'].includes(field.key)){
  wrap.append(V2CommonFields.cascade(V2PipelineSchema.category,'设备类别',String(data.category||'')));
@@ -465,7 +465,7 @@ function createInstallation(entry,api){
     const holder=V2EquipmentPage.control({key:'region',label:field.label,type:'region'},data);
     wrap.replaceChildren(holder.querySelector('.boiler-cascade'));
    }
-   if(field.label==='单位所属行业'||field.key==='_installationCategory'){
+   if(['单位所属行业','所属行业'].includes(field.label)||field.key==='_installationCategory'){
     const tree=field.key==='_installationCategory'?V2InstallationSchema.category:V2CommonFields.industry;
     wrap.replaceChildren(V2CommonFields.cascade(tree,field.key==='_installationCategory'?'设备类别':field.label,data[field.key]||'',value=>data[field.key]=value,!entry.editing));
    }

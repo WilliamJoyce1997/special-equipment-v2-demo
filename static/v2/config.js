@@ -735,7 +735,7 @@ const ropewayAdvanced=advancedFields([
 const explicitAdvanced={elevator:elevatorAdvanced,crane:craneAdvanced,vehicle:vehicleAdvanced,amusement:amusementAdvanced,ropeway:ropewayAdvanced};
 const flatten=tree=>Object.entries(tree).flatMap(([p,cs])=>[p,...cs.map(c=>p+' / '+c)]);
 function optionsFor(type,f){
- if(f.label==='单位所属行业')return V2CommonFields.flatten(V2CommonFields.industry);
+ if(['单位所属行业','所属行业'].includes(f.label))return V2CommonFields.flatten(V2CommonFields.industry);
  if(f.label==='组织单元')return V2CommonFields.organizationUnits;
  if(type==='pipeline')return V2PipelineSchema.optionsFor(f);
  if(type==='installation'){

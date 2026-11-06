@@ -55,7 +55,7 @@ const {chromium}=require(path.join(process.env.APPDATA,'npm/node_modules/@playwr
   await dialog.getByRole('button',{name:'下一页',exact:true}).click();assert.notEqual(await dialog.locator('tbody td').nth(2).innerText(),first);
   await dialog.getByLabel('跳至页',{exact:true}).fill('1');await dialog.getByLabel('跳至页',{exact:true}).press('Tab');
   assert.equal(await dialog.locator('tbody td').nth(2).innerText(),first);
-  await dialog.getByLabel('所在地区',{exact:true}).selectOption('演示省 / 云岚市');
+  await dialog.getByLabel('所在地区',{exact:true}).selectOption(await page.evaluate(()=>V2InspectionUnits.rows[0].region));
   await dialog.getByLabel('综合查询',{exact:true}).fill('云岚');await dialog.getByRole('button',{name:'查询',exact:true}).click();
   assert.equal(await dialog.locator('tbody tr').count(),1);
   await dialog.getByRole('button',{name:'选择',exact:true}).click();assert.equal(await agency.inputValue(),first);
