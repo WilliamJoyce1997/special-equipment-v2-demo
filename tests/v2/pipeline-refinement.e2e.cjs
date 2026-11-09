@@ -78,7 +78,7 @@ const {chromium}=require(path.join(process.env.APPDATA,'npm/node_modules/@playwr
   }
   await page.locator('#tabs .tab.active .tab-close').click();
   await page.locator('.table-toolbar').getByRole('button',{name:/设\s*置/}).click();
-  assert.deepEqual(await page.locator('#dialog .settings-grid label').allTextContents(),await page.evaluate(()=>V2.types.pipeline.columns.map(c=>c.label)));
+  assert.deepEqual(await page.locator('#dialog .boiler-setting-name').evaluateAll(es=>es.map(e=>e.childNodes[0].textContent)),await page.evaluate(()=>V2.types.pipeline.columns.map(c=>c.label)));
   await page.locator('#dialog-close').click();
   const downloaded=page.waitForEvent('download');await page.locator('.table-toolbar').getByRole('button',{name:'导出',exact:true}).click();assert((await downloaded).suggestedFilename());
   assert.deepEqual(errors,[]);

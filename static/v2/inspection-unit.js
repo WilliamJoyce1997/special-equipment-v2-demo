@@ -212,7 +212,7 @@ function qualificationInfo(row,onSave){
    const td=el('td');td.append(button('删除','link',()=>{details.splice(i,1);drawDetails();}));tr.append(td);body.append(tr);
   }
   if(!details.length){const td=el('td','empty','暂无数据');td.colSpan=5;const tr=el('tr');tr.append(td);body.append(tr);}
-  table.append(head,body);const add=button('+','qualification-detail-add',()=>{details.push({});drawDetails();});add.setAttribute('aria-label','新增许可项目明细');holder.replaceChildren(table,add);
+  table.append(head,body);const columns=['许可项目类别','许可项目级别','许可项目品种','备注'].map(label=>({key:label,label,width:190}));V2TableSettings.decorate(table,'unit/inspection-unit/qualification-license-details',columns,0,1);const settingsBar=el('div','table-toolbar');settingsBar.append(button('设置','link',()=>V2TableSettings.open('unit/inspection-unit/qualification-license-details',columns,drawDetails)));const add=button('+','qualification-detail-add',()=>{details.push({});drawDetails();});add.setAttribute('aria-label','新增许可项目明细');holder.replaceChildren(settingsBar,table,add);
  }
  drawDetails();
  const remarks=el('textarea','control');remarks.setAttribute('aria-label','备注');

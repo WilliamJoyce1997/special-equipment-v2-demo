@@ -1,4 +1,4 @@
-/* Only query plans use localStorage. No personnel or qualification snapshots are stored. */
+/* Persist query plans independently of table presentation settings and business archives. */
 window.V2QueryPlans=(()=>{
 'use strict';
 const instances=new Map();
@@ -20,7 +20,7 @@ actions.append(submit,button('重置','secondary',()=>{filters={creator:'',from:
 const notice=el('p','notice',loadError||'仅当前浏览器、当前预览地址的本机演示方案。创建人为演示身份，不代表已认证账号。清除浏览器存储会丢失方案；业务档案不写入本机方案存储。');root.append(notice);
 const panel=el('section','panel table-panel'),toolbar=el('div','table-toolbar'),holder=el('div');
 function matched(){return searched?plans.filter(p=>(!filters.creator||p.createdBy.includes(filters.creator))&&(!filters.from||localTime(p.createdAt).slice(0,10)>=filters.from)&&(!filters.to||localTime(p.createdAt).slice(0,10)<=filters.to)):[];}
-function redraw(){holder.replaceChildren(U.table({title:title+'方案',columns,rows:matched(),st,emptyText:searched?'没有找到符合条件的数据':'请点击查询查看已保存方案',actions:p=>[button('编辑','row-action',()=>edit(p)),button('执行','row-action',()=>{try{if(p._compatibilityError){compatibility(p);return;}U.view(p,api);}catch(e){api.announce(e.message);}}),button('删除','row-action',()=>remove([p.id]))]}));}
+function redraw(){holder.replaceChildren(U.table({title:title+'方案',tableId:'query-plans/'+domain,columns,rows:matched(),st,emptyText:searched?'没有找到符合条件的数据':'请点击查询查看已保存方案',actions:p=>[button('编辑','row-action',()=>edit(p)),button('执行','row-action',()=>{try{if(p._compatibilityError){compatibility(p);return;}U.view(p,api);}catch(e){api.announce(e.message);}}),button('删除','row-action',()=>remove([p.id]))]}));}
 function compatibility(p){const box=el('div');box.append(el('p','notice',p._compatibilityError));api.show('查询方案需要重新配置',box);}
 function edit(p){if(p?._compatibilityError){compatibility(p);return;}V2QueryBuilder.open(p,api,draft=>{load();if(loadError)throw Error(loadError);const now=new Date().toISOString(),saved={...draft,id:p?.id||'DEMO-QUERY-'+crypto.randomUUID(),createdBy:'演示查询用户',createdAt:p?.createdAt||now,updatedAt:now};if(p&&!plans.some(x=>x.id===p.id))throw Error('方案已不存在，请重新查询');persist(p?plans.map(x=>x.id===p.id?saved:x):[...plans,saved]);searched=true;st.selected.clear();api.close();api.refresh();api.announce('方案已保存至当前浏览器演示存储');},domain);}
 function remove(ids){if(!ids.length){api.announce('请先选择查询方案');return;}const box=el('div'),problem=el('p','form-error');box.append(el('p','notice','确认删除 '+ids.length+' 个本机演示查询方案？不会删除业务档案。'),problem,button('确认删除','primary',()=>{try{load();if(loadError)throw Error(loadError);persist(plans.filter(p=>!ids.includes(p.id)));st.selected.clear();api.close();api.refresh();api.announce('本机查询方案已删除');}catch(e){problem.textContent=e.message;}}),button('取消','secondary',api.close));api.show('确认删除查询方案',box);}

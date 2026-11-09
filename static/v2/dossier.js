@@ -143,7 +143,7 @@ function installationTable(entry,mode,api){
  btn('详情','row-action',()=>api.openDevice?.('pipeline',r)),
  ...['检验信息','修改记录','智慧监管码'].map(name=>btn(name,'row-action',()=>V2MoreDialogs.open(name,'pipeline',r,api.show)))
  ]:[btn('只读','row-action',()=>{const box=el('div');for(const c of columns)box.append(el('p','',c.label+'：'+String(r[c.key]??'—')));api.show('变更登记记录',box);})];
- function redraw(){holder.replaceChildren(U.table({title,columns,rows:rows(),st,actions,actionWidth:isPipes?(innerWidth<=650?220:470):120,emptyText:'暂无数据'}));}
+ function redraw(){holder.replaceChildren(U.table({title,columns,rows:rows(),st,actions,tableId:'device/'+entry.type+'/installation-'+mode,actionWidth:isPipes?(innerWidth<=650?220:470):120,emptyText:'暂无数据'}));}
  if(!isPipes){
  const form=el('form','dossier-table-query'),label=el('label','','变更方式：'),method=el('select','control');method.setAttribute('aria-label','变更方式');
  for(const name of ['',...new Set((entry.row.registrationChanges||[]).filter(r=>r.installationId===entry.row.id).map(r=>r['变更方式']).filter(Boolean))]){const o=el('option','',name||'请选择');o.value=name;method.append(o);}method.value=filters.method;label.append(method);
@@ -171,7 +171,7 @@ function componentTable(entry){
  const body=el('tbody'),records=componentsFor(entry.row);
  for(const r of records){const line=el('tr');line.dataset.id=r.id;for(const label of componentHeaders)line.append(el('td','',label==='操作'?'只读':String(r[label]??'—')));body.append(line);}
  if(!records.length){const line=el('tr'),cell=el('td','pipeline-component-empty','暂无数据');cell.colSpan=6;line.append(cell);body.append(line);}
- table.append(head,body);wrap.append(table);card.append(wrap);return card;
+ table.append(head,body);const columns=componentHeaders.slice(0,-1).map(label=>({key:label,label,width:190})),id='device/pipeline/components';V2TableSettings.decorate(table,id,columns,0,1);const bar=el('div','table-toolbar');bar.append(btn('设置','link',()=>V2TableSettings.open(id,columns,()=>card.replaceWith(componentTable(entry)))));wrap.append(table);card.append(bar,wrap);return card;
 }
 function datedRecord(record){const date=String(record?.['检验日期']||'');return /^\d{4}-\d{2}-\d{2}$/.test(date)&&Number.isFinite(Date.parse(date+'T00:00:00Z'))&&new Date(date+'T00:00:00Z').toISOString().slice(0,10)===date;}
 function recentInspection(type,row){return histories(type,row).filter(datedRecord).sort((a,b)=>b['检验日期'].localeCompare(a['检验日期'])||String(a.id).localeCompare(String(b.id)))[0]||null;}
@@ -332,7 +332,10 @@ function recordTable(entry,id,title,labels,rows,mode=null,options={}){
  const actions=el('td','fixed actions');if(options.renderActions)actions.append(options.renderActions(row));else actions.textContent='只读';tr.append(cell,el('td','fixed sequence',String((st.page-1)*st.size+i+1)));if(!options.omitOperation)tr.append(actions);
  for(const l of labels)tr.append(el('td','',String(row[l]??'—')));tbody.append(tr);
  }
- table.append(cg,thead,tbody);scroll.append(table);
+ table.append(cg,thead,tbody);
+ const configId='records/'+entry.type+'/'+id+'/'+title,configColumns=labels.map(label=>({key:label,label,width:label.length>8?230:180}));
+ V2TableSettings.decorate(table,configId,configColumns,options.omitOperation?2:3);
+ const settingsBar=el('div','table-toolbar');settingsBar.append(btn('设置','link',()=>V2TableSettings.open(configId,configColumns,replace)));card.append(settingsBar);scroll.append(table);
  const footer=el('div','table-footer'),pagination=el('div','pagination'),prev=btn('‹','',()=>{st.page--;replace();});prev.disabled=st.page<=1;prev.setAttribute('aria-label',title+'上一页');
  const size=el('select');size.setAttribute('aria-label',title+'每页条数');for(const n of options.pageSizes||[5,10,20]){const o=el('option','',n+' 条/页');o.value=n;size.append(o);}size.value=st.size;size.onchange=()=>{st.size=Number(size.value);st.page=1;replace();};
  const pages=Math.ceil(all.length/st.size)||1;const next=btn('›','',()=>{st.page++;replace();});next.disabled=st.page>=pages;next.setAttribute('aria-label',title+'下一页');
@@ -440,7 +443,7 @@ function chooseInspectionUnit(api,onSelect){
    body.append(tr);
   }
   if(!rows.length){const td=el('td','empty','暂无数据');td.colSpan=10;const tr=el('tr');tr.append(td);body.append(tr);}
-  table.append(head,body);scroll.append(table);
+  table.append(head,body);const columns=[['name','单位名称'],['address','单位地址'],['creditCode','统一社会信用代码'],['regionCode','地区代码'],['region','所在地区'],['phone','电话'],['legalPerson','法定代表人'],['enabled','是否启用']].map(([key,label])=>({key,label,width:190}));V2TableSettings.decorate(table,'picker/inspection-unit',columns,2);const bar=el('div','table-toolbar');bar.append(button('设置','link',()=>V2TableSettings.open('picker/inspection-unit',columns,paint)));holder.append(bar);scroll.append(table);
   const footer=el('div','table-footer'),pages=el('div','pagination'),prev=button('‹','secondary',()=>{page--;paint();}),next=button('›','secondary',()=>{page++;paint();}),select=el('select','control'),jump=el('input','control');
   prev.setAttribute('aria-label','上一页');next.setAttribute('aria-label','下一页');prev.disabled=page===1;next.disabled=page*size>=rows.length;
   select.setAttribute('aria-label','每页条数');for(const n of [2,5,10,20]){const o=el('option','',n+' 条/页');o.value=n;select.append(o);}select.value=size;

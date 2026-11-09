@@ -264,6 +264,12 @@ dialog.inspection-record-dialog[open]{display:flex;flex-direction:column;width:m
 .valve-import input[type=file]{max-width:100%}.valve-import-notes{color:red;font-size:17px;margin:22px 0}.valve-import-notes p{margin:12px 0}.valve-import-notes a{color:var(--blue);margin-left:10px}
 .valve-import .form-error{color:#bd312c;white-space:pre-wrap;line-height:1.8}
 .valve-import-actions{display:flex;justify-content:center;gap:24px;margin:22px 0 8px}.valve-import-actions button{min-width:100px}
+#dialog.personnel-import-dialog{width:min(680px,95vw)}
+.personnel-import input[type=file]{width:6.5em;color:transparent}
+.personnel-import input[type=file]::file-selector-button{width:100%;margin:0;color:ButtonText}
+.personnel-import-filename{overflow-wrap:anywhere;max-width:100%}
+.personnel-import .form-error{max-height:12em;overflow:auto;overflow-wrap:anywhere}
+.personnel-import [role=status]:empty,.personnel-import .form-error:empty{display:none}
 .table-panel:has(table[aria-label="安全阀管理列表"]) .fixed.check{padding-left:8px;padding-right:8px}.table-panel:has(table[aria-label="安全阀管理列表"]) .fixed.check input{margin:0}
 .table-panel:has(table[aria-label="安全阀管理列表"]) [data-action="新增"] .tool-icon,.table-panel:has(table[aria-label="安全阀管理列表"]) [data-action="导入"] .tool-icon{background:#4887fa}
 .table-panel:has(table[aria-label="安全阀管理列表"]) [data-action="删除"] .tool-icon{background:#ff6474}
@@ -381,3 +387,16 @@ dialog.inspection-record-dialog[open]{display:flex;flex-direction:column;width:m
 .qualification-info-body .unit-info-field>span{text-align:right;line-height:1.5}
 .qualification-detail-table .empty{height:80px}
 .boiler-advanced [name=projectCategory]:disabled,.boiler-advanced [name=projectLevel]:disabled{background:#f3f3f5;cursor:not-allowed}
+/* Shared table configuration keeps business cells and fixed function columns aligned. */
+table[data-table-config]{table-layout:fixed}
+table[data-table-config] .v2-table-fixed{position:sticky!important;z-index:2;background:#fff;box-shadow:1px 0 0 #e3e7ee}
+table[data-table-config] th.v2-table-fixed{z-index:5;background:#f7f8fa}
+table[data-table-config] th.fixed.actions,table[data-table-config] td.fixed.actions{z-index:6}
+table[data-table-config] th.fixed.actions{z-index:7}
+.table-settings-child{padding:0;border:1px solid #dce1e8;border-radius:6px;width:min(960px,96vw);max-height:92vh;color:#303b4b}
+.table-settings-child .table-settings-body{overflow:auto;max-height:calc(92vh - 85px);padding:24px}
+.table-settings-child .dialog-header{padding:20px 24px;display:flex;align-items:center;border-bottom:1px solid #e3e7ee;gap:16px}
+.table-settings-child .dialog-header h2{margin:0;flex:1;font-size:22px;font-weight:400}
+.table-settings-child .boiler-settings table{width:100%;min-width:500px}
+.table-settings-child .boiler-modal-actions{position:sticky;bottom:-24px;background:white;padding:16px 0;margin-bottom:0;z-index:8}
+table[data-table-config] td[data-field] .status{color:inherit}

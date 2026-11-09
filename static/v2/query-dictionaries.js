@@ -10,12 +10,12 @@ const specs=[
 ['position','职务','text'],['responsibility','负责工作','text'],['title','职称','enum'],['education','学历','enum'],
 ['college','毕业院校','text'],['major','所学专业','text'],['archiveNumber','档案编号','text'],
 ['application','申请类别','enum',['演示首次申请','演示延续申请'],'申请类别'],
-['certificateStatus','持证状态','enum',['演示未持证','演示资料待核'],'持证状态'],
+['certificateStatus','持证状态','enum',window.V2Personnel?.enums?.statuses||[],'持证状态'],
 ['examNumber','考核号','text',null,'考核号'],['examOrg','考核机构','text',null,'考核机构'],
 ['issuingOrg','发证机构','text',null,'发证机构'],['certificate','证书编号','text',null,'证书编号'],
 ['certificateCard','证书底卡编号','text',null,'证书底卡编号'],
 ['projectLevel','持证项目级别','enum',['演示一级','演示二级'],'持证项目级别'],
-['project','批准项目','enum',['演示项目A','演示项目B'],'批准项目'],
+['project','批准项目','enum',window.V2Personnel?.enums?.project||[],'批准项目'],
 ['approvalDetails','批准资格明细','text',null,'批准资格明细'],
 ['approvedDate','批准日期','date',null,'批准日期'],['validUntil','有效日期至','date',null,'有效日期'],
 ['firstCertificateDate','初次取证日期','date',null,'初次取证日期'],['examConclusion','最终考核结论','enum',[],'最终考核结论']
@@ -51,4 +51,5 @@ function get(domain,type,subtype){
 }
 return {person,fields,get,unitFields,unitTypes,equipmentTypes};
 })();
+
 

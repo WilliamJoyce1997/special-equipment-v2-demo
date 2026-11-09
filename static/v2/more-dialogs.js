@@ -108,7 +108,7 @@ function open(name,row,api){
  const wrap=el('label','elevator-form-field',label),select=['category','status','registration'].includes(key),input=el(select?'select':'input','control');if(select){const common=V2EquipmentSchema.optionsFor('elevator',{key,label});for(const value of common?['',...common]:[String(row[key]??'')]){const o=el('option','',value||'请选择');o.value=value;input.append(o);}input.value=String(row[key]??'');input.disabled=true;}else{input.value=String(row[key]??'');input.readOnly=true;}input.setAttribute('aria-label',label);wrap.append(input);facts.append(wrap);
  }root.append(facts);
  const group=el('details','dossier-group');group.open=true;group.append(el('summary','','已完成检测信息'));
- group.append(U().table({title:'已完成检测信息',columns,rows:records(row),st:U().state(),actions:r=>[button('只读','row-action',()=>{api.announce('仅展示当前电梯已关联的前端检测记录，不提供真实报告');})],emptyText:'暂无数据'}));root.append(group);
+ group.append(U().table({title:'已完成检测信息',tableId:'device/elevator/detection',settingsButton:true,columns,rows:records(row),st:U().state(),actions:r=>[button('只读','row-action',()=>{api.announce('仅展示当前电梯已关联的前端检测记录，不提供真实报告');})],emptyText:'暂无数据'}));root.append(group);
  footer.append(button('确认','primary',api.close),button('取消','secondary',api.close));root.append(footer);api.show('检测信息',root,'elevator-dialog');return;
  }
  const form=el('form'),grid=el('div','elevator-three-grid'),inputs={};

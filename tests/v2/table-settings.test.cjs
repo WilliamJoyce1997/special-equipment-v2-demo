@@ -1,0 +1,10 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const data=new Map(),ctx={window:{},localStorage:{getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v)}};ctx.window=ctx;vm.createContext(ctx);vm.runInContext(fs.readFileSync('static/v2/query-results.js','utf8'),ctx);
+const T=ctx.V2TableSettings,cols=[{key:'a',label:'甲',width:120},{key:'b',label:'乙',width:200}];
+assert(T,'shared table settings service');
+assert.equal(T.read('one',cols)[0].key,'a');
+T.save('one',cols,[{key:'b',shown:false,color:'#ff0000',frozen:true},{key:'a',shown:true,color:'#000000',frozen:false}]);
+assert.equal(T.read('one',cols)[0].key,'b');assert.equal(T.read('one',cols)[0].shown,false);assert.equal(T.read('two',cols)[0].key,'a');
+assert.equal(T.read('one',[...cols,{key:'c',label:'丙'}])[2].key,'c');
+T.save('one',cols,cols.map(c=>({...c,shown:false})));assert(T.read('one',cols).every(c=>!c.shown));
+console.log('PASS independent table storage, reconciliation and validation');
