@@ -1,10 +1,10 @@
-/* Safety valve session-only demo; no network mutations or legal calibration rules. */
+/* Safety valve demo records and browser-local edits. */
 window.V2SafetyValves=(()=>{
 'use strict';
 const schema=V2SafetyValveSchema,fields=schema.fields,el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
 const button=(text,cls,fn)=>{const b=el('button',cls,text);b.type='button';b.onclick=fn;return b;};
 const keyOf=v=>String(v??'').trim().toLowerCase();
-let sequence=10,numberSequence=0,clipboard=null;
+let numberSequence=0,clipboard=null;
 const units=[...new Set(V2.fixtures.boiler.map(r=>r.unit))],manufacturer=V2.fixtures.boiler[0].manufacturer;
 const rows=Array.from({length:10},(_,i)=>({
  id:'DEMO-SAFETY-VALVE-'+(i+1),unitName:units[i%units.length],creditCode:'DEMO-USAGE-CREDIT-'+(i%units.length+1),unitAddress:'DEMO-使用单位地址-'+(i%units.length+1),
@@ -12,23 +12,44 @@ const rows=Array.from({length:10},(_,i)=>({
  installationName:'DEMO-装置-'+(i+1),position:'DEMO-POS-'+(i+1),valveType:'弹簧',model:'DEMO-SV-MODEL-'+(i+1),nominalPressure:1.6,nominalDiameter:8+i,
  productNumber:'DEMO-SV-'+String(i+1).padStart(3,'0'),equipment:'DEMO-所属设备示例-'+(i+1),manufacturer,workingPressure:0.28,medium:'演示水/蒸汽',
  requiredSetPressure:0.3,requiredReseatPressure:'',calibrationMethod:'',calibrationMedium:'',setPressure:'',reseatPressure:'',openingHeight:'',sealPressure:'',
- outletSealTest:'',leadSeal:'',businessTag:'演示待校验',status:'正常',inspectionDate:'2026-02-'+String(i+1).padStart(2,'0'),nextInspectionDate:'2027-04-'+String(i+1).padStart(2,'0')
+ outletSealTest:'',leadSeal:'',businessTag:'',status:'正常',inspectionDate:'2026-02-'+String(i+1).padStart(2,'0'),nextInspectionDate:'2027-04-'+String(i+1).padStart(2,'0')
 }));
+const storageKey='v2:safety-valves:v1';
+function readStored(){
+ const raw=localStorage.getItem(storageKey);
+ if(!raw)return null;
+ const saved=JSON.parse(raw);
+ if(saved?.version!==1||!Array.isArray(saved.rows)||saved.rows.some(row=>typeof row?.id!=='string'||typeof row.productNumber!=='string')||
+    new Set(saved.rows.map(row=>row.id)).size!==saved.rows.length)throw Error('安全阀本地数据格式无效');
+ return saved.rows;
+}
+try{const saved=readStored();if(saved)rows.splice(0,rows.length,...saved);}catch{/* Keep the original samples when storage cannot be read. */}
+
+function commit(change,closed=()=>false){
+ return V2ExcelImport.withLock(storageKey,()=>{
+  if(closed())return false;
+  let next;
+  try{next=structuredClone(readStored()??rows);}catch{throw Error('无法读取安全阀本地数据');}
+  change(next);
+  V2ExcelImport.store(storageKey,{version:1,rows:next});
+  rows.splice(0,rows.length,...next);
+  return true;
+ });
+}
 const col=(key,label,width=190)=>({key,label,width,type:'text',sortable:true}),q=(key,label,type='text')=>({key,label,type,options:[],placeholder:'请输入'});
 V2.fixtures['safety-valve']=rows;
 V2.types['safety-valve']={title:'安全阀管理',entity:'safety-valve',implemented:true,defaultPageSize:10,
  columns:[col('unitName','使用单位名称',300),col('installationName','装置名称',240),col('valveType','安全阀类型',170),col('model','安全阀型号',210),
  col('manufacturer','制造单位',300),col('productNumber','产品编号',230),col('inspectionDate','检验日期',170),col('nextInspectionDate','下检日期',170),col('status','状态',140)],
  queries:[q('unitName','使用单位'),q('installationName','装置名称'),q('inspectionDate','检验日期','dateRange'),q('nextInspectionDate','下检日期','dateRange'),q('productNumber','产品编号')],
- actions:['新增','导入','删除','导出'],icons:{新增:'⊞',导入:'↧',删除:'▥',导出:'↥'},
- rowActions:[['编辑','valve-edit'],['复制','valve-copy'],['更多>>','valve-more']],operationWidth:270,pageSizes:[5,10,20],exportAllColumns:true,
- advancedFields:[['model','安全阀型号'],['manufacturer','制造单位']]};
-function allocateId(){let id;do{id='DEMO-SAFETY-VALVE-'+(++sequence)}while(rows.some(r=>r.id===id));return id;}
-function uniqueNumber(base){let number;do{number=String(base||'DEMO-SV')+'-COPY-'+(++numberSequence)}while(rows.some(r=>keyOf(r.productNumber)===keyOf(number)));return number;}
+ actions:['新增','导入','删除'],icons:{新增:'⊞',删除:'▥'},
+ rowActions:[['编辑','valve-edit'],['复制','valve-copy'],['更多>>','valve-more']],operationWidth:270,pageSizes:[5,10,20]};
+function allocateId(){return 'DEMO-SAFETY-VALVE-'+crypto.randomUUID();}
+function uniqueNumber(base,records=rows){let number;do{number=String(base||'DEMO-SV')+'-COPY-'+(++numberSequence)}while(records.some(r=>keyOf(r.productNumber)===keyOf(number)));return number;}
 function dateValid(s){return /^\d{4}-\d{2}-\d{2}$/.test(s)&&Number.isFinite(Date.parse(s+'T00:00:00Z'))&&new Date(s+'T00:00:00Z').toISOString().slice(0,10)===s;}
-function validateRecord(input,excludeId=null){
+function validateFields(input,definitions){
  const record={},errors=[];
- for(const f of schema.importFields){
+ for(const f of definitions){
  let value=input[f.key]??'';if(typeof value==='string')value=value.trim();
  if(f.required&&value===''){errors.push(f.label+'为必填项');continue;}
  if(value===''){record[f.key]='';continue;}
@@ -42,54 +63,144 @@ function validateRecord(input,excludeId=null){
  }
  record[f.key]=value;
  }
- if(record.inspectionDate&&record.nextInspectionDate&&record.nextInspectionDate<record.inspectionDate)errors.push('下检日期不能早于检验日期（仅日期次序校验，不推算期限）');
- if(record.productNumber&&rows.some(r=>r.id!==excludeId&&keyOf(r.productNumber)===keyOf(record.productNumber)))errors.push('产品编号重复：'+record.productNumber);
  return {record,errors};
 }
-function footerButtons(api,title,body,actions,cleanup=()=>{}){
+function validateInspectionDates(record,errors){
+ if(record.inspectionDate&&record.nextInspectionDate&&record.nextInspectionDate<record.inspectionDate){
+  errors.push('下次检验日期不能早于检验日期');
+ }
+}
+function validateRecord(input,excludeId=null,records=rows){
+ const {record,errors}=validateFields(input,schema.importFields);
+ validateInspectionDates(record,errors);
+ if(record.productNumber&&records.some(r=>r.id!==excludeId&&keyOf(r.productNumber)===keyOf(record.productNumber)))errors.push('产品编号重复：'+record.productNumber);
+ return {record,errors};
+}
+function currentRecord(records,id){
+ const row=records.find(record=>record.id===id);
+ if(!row)throw Error('该安全阀记录已不存在，请重新查询');
+ return row;
+}
+function footerButtons(api,title,body,actions,mode=''){
  const buttons=actions.map(([label,fn])=>button(label,'primary',fn));
- api.show(title,body,'organization-dialog valve-dialog',()=>{for(const b of buttons)b.remove();cleanup();});
+ api.show(title,body,'organization-dialog valve-dialog'+mode,()=>{for(const b of buttons)b.remove();});
  document.querySelector('#dialog .dialog-footer').prepend(...buttons);
+}
+function fieldControl(f,value){
+ const label=el('label');label.htmlFor='valve-'+f.key;
+ if(f.required){const star=el('span','required-mark','*');star.setAttribute('aria-hidden','true');label.append(star);}
+ label.append(document.createTextNode(f.label));
+ const input=el(f.type==='select'?'select':'input','control product-control');input.id=label.htmlFor;input.setAttribute('aria-label',f.label);
+ if(f.type==='select'){
+  for(const option of ['',...f.options]){const o=el('option','',option||'请选择');o.value=option;input.append(o);}
+ }else{
+  input.type=f.type;
+  if(f.type==='number'){input.step='any';input.min='0';input.max='1000000000';}
+ }
+ input.value=value??'';
+ return {label,input};
+}
+function readControls(definitions,controls){
+ const draft={};
+ for(const f of definitions){
+  const input=controls[f.key];
+  if(input.validity.badInput)throw Error(f.label+'格式不正确');
+  draft[f.key]=input.value;
+ }
+ return draft;
+}
+function saveForm(form,error,api,prepare,message){
+ let saving=false;
+ form.onsubmit=async event=>{
+  event.preventDefault();
+  if(saving)return;
+  saving=true;error.textContent='';
+  const closed=()=>!form.closest('dialog')?.open;
+  try{
+   const change=prepare();
+   if(await commit(change,closed)&&!closed()){api.close();api.refresh();api.announce(message);}
+  }catch(problem){if(!closed()){error.textContent=problem.message;error.scrollIntoView({block:'nearest'});}}
+  finally{saving=false;}
+ };
 }
 function edit(existing,api){
  const root=el('form','valve-form');root.noValidate=true;root.dataset.valveId=existing?.id||'new';
- root.append(el('p','notice','演示模式：仅当前前端会话保存，刷新后恢复样本；不写数据库，不生成法定校验证明或自动计算校验期限。'));
+ root.append(el('p','notice','安全阀演示记录保存在当前浏览器。日期仅作记录，不自动推算校验期限。'));
  const grid=el('div','unit-info-grid valve-form-grid'),controls={},error=el('p','form-error');error.setAttribute('role','alert');
- let extraDates={inspectionDate:existing?.inspectionDate||'',nextInspectionDate:existing?.nextInspectionDate||''};
+ let pastedDates=null;
  for(const f of fields){
- const holder=el('div','unit-info-field valve-form-field'+(f.wide?' full-width':'')),label=el('label');label.htmlFor='valve-'+f.key;
- if(f.required){const star=el('span','required-mark','*');star.setAttribute('aria-hidden','true');label.append(star)}label.append(document.createTextNode(f.label));
- const input=el(f.type==='select'?'select':'input','control product-control');input.id='valve-'+f.key;input.setAttribute('aria-label',f.label);
- if(f.type==='select'){for(const value of ['',...f.options]){const o=el('option','',value||'请选择');o.value=value;input.append(o)}}
- else{input.type=f.type==='date'?'date':f.type==='number'?'number':'text';if(f.type==='number'){input.step='any';input.min='0';input.max='1000000000'}}
- input.value=existing?.[f.key]??(f.key==='status'?'正常':'');controls[f.key]=input;holder.append(label,input);
+ const holder=el('div','unit-info-field valve-form-field'+(f.wide?' full-width':''));
+ const {label,input}=fieldControl(f,existing?.[f.key]??(f.key==='status'?'正常':''));
+ controls[f.key]=input;holder.append(label,input);
  if(['unitName','equipment','manufacturer'].includes(f.key)){const list=el('datalist');list.id='valve-options-'+f.key;input.setAttribute('list',list.id);for(const value of f.key==='unitName'?units:f.key==='manufacturer'?[manufacturer]:V2.fixtures.boiler.map(r=>r.equipmentCode)){const o=el('option');o.value=value;list.append(o)}holder.append(list)}
  grid.append(holder);
  }
  function showError(message){error.textContent=message;error.scrollIntoView({block:'nearest'});}
  root.append(grid,error);
- root.onsubmit=e=>{e.preventDefault();const draft={...extraDates};
- for(const f of fields){const c=controls[f.key];if(c.validity.badInput){showError(f.label+'格式不正确');return;}draft[f.key]=c.value}
- const result=validateRecord(draft,existing?.id);if(result.errors.length){showError(result.errors.join('；'));return;}
- if(existing)Object.assign(existing,result.record);else rows.push({...result.record,id:allocateId()});
- api.close();api.refresh();api.announce('安全阀已保存至当前前端演示会话，未写入服务器');
- };
+ saveForm(root,error,api,()=>{
+  const draft=readControls(fields,controls),dates=pastedDates;
+  return records=>{
+   const row=existing?currentRecord(records,existing.id):null;
+   const inspectionDates=dates??{inspectionDate:row?.inspectionDate||'',nextInspectionDate:row?.nextInspectionDate||''};
+   const result=validateRecord({...draft,...inspectionDates},existing?.id,records);
+   if(result.errors.length)throw Error(result.errors.join('；'));
+   if(row)Object.assign(row,result.record);else records.push({...result.record,id:allocateId()});
+  };
+ },'安全阀已保存至当前浏览器');
  footerButtons(api,existing?'安全阀编辑':'安全阀新增',root,[['保存',()=>root.requestSubmit()],['粘贴',()=>{
  if(!clipboard){showError('没有可粘贴的已复制安全阀记录，请先在列表复制。');return;}
  for(const f of fields)controls[f.key].value=clipboard[f.key]??'';
- controls.productNumber.value=uniqueNumber(clipboard.productNumber);extraDates={inspectionDate:clipboard.inspectionDate||'',nextInspectionDate:clipboard.nextInspectionDate||''};
- showError('已粘贴至表单；点击保存后才更新当前演示会话。');
+ controls.productNumber.value=uniqueNumber(clipboard.productNumber);pastedDates={inspectionDate:clipboard.inspectionDate||'',nextInspectionDate:clipboard.nextInspectionDate||''};
+ showError('已粘贴至表单，点击保存后更新记录。');
  }]]);
 }
-function copy(row,api){
- const clone={...structuredClone(row),id:allocateId(),productNumber:uniqueNumber(row.productNumber)};
- rows.push(clone);clipboard=structuredClone(row);api.refresh();api.announce('复制成功 · 仅当前前端演示会话有效');
+function inspection(row,api){
+ const form=el('form','valve-inspection-form'),grid=el('div','valve-inspection-grid'),error=el('p','form-error');
+ form.noValidate=true;
+ error.setAttribute('role','alert');
+ const controls={};
+ for(const f of schema.inspectionFields){
+  const field=el('div','valve-inspection-field'+(f.wide?' full-width':'')),cell=el('div','valve-inspection-value');
+  const {label,input}=fieldControl(f,row[f.key]);
+  controls[f.key]=input;
+  cell.append(input);field.append(label,cell);grid.append(field);
+ }
+ form.append(grid,error);
+ saveForm(form,error,api,()=>{
+  const draft=readControls(schema.inspectionFields,controls);
+  const {record,errors}=validateFields(draft,schema.inspectionFields);
+  validateInspectionDates(record,errors);
+  if(errors.length)throw Error(errors.join('；'));
+  return records=>Object.assign(currentRecord(records,row.id),record);
+ },'检验信息已保存至当前浏览器');
+ footerButtons(api,'检验信息',form,[['保存',()=>form.requestSubmit()]],' valve-inspection-dialog');
+}
+async function copy(row,api){
+ let source;
+ try{
+  await commit(records=>{
+   source=structuredClone(currentRecord(records,row.id));
+   records.push({...source,id:allocateId(),productNumber:uniqueNumber(source.productNumber,records)});
+  });
+  clipboard=source;api.refresh();api.announce('复制成功，已保存至当前浏览器');
+ }catch(error){api.announce(error.message);}
 }
 function remove(api){
  const ids=new Set(api.selected);if(!ids.size){api.announce('请先选择需要删除的安全阀记录');return;}
- const body=el('div');body.append(el('p','notice','确认删除选中的 '+ids.size+' 条安全阀？仅删除当前前端演示会话数据，取消不发生变化。'));
- const confirm=button('确认删除','primary',()=>{for(let i=rows.length-1;i>=0;i--)if(ids.has(rows[i].id))rows.splice(i,1);api.selected.clear();api.close();api.refresh();api.announce('已删除当前演示会话中的选中记录');});
- body.append(confirm,button('取消','secondary',api.close));api.show('确认删除安全阀',body,'organization-dialog valve-dialog');
+ const body=el('div'),error=el('p','form-error');
+ body.append(el('p','notice','确认删除当前浏览器中的 '+ids.size+' 条选中安全阀记录？'));
+ error.setAttribute('role','alert');
+ const confirm=button('确认删除','primary',async()=>{
+  confirm.disabled=true;
+  const closed=()=>!body.closest('dialog')?.open;
+  try{
+   if(await commit(records=>{for(let i=records.length-1;i>=0;i--)if(ids.has(records[i].id))records.splice(i,1);},closed)&&!closed()){
+    api.selected.clear();api.close();api.refresh();api.announce('已删除选中安全阀记录');
+   }
+  }catch(problem){if(!closed())error.textContent=problem.message;}
+  finally{confirm.disabled=false;}
+ });
+ body.append(confirm,button('取消','secondary',api.close),error);api.show('确认删除安全阀',body,'organization-dialog valve-dialog');
 }
 async function parseImport(file){
  if(!file||!/\.(xls|xlsx)$/i.test(file.name))throw Error('文件格式不支持：仅支持.xls、.xlsx');
@@ -129,18 +240,31 @@ function importDialog(api){
  const error=el('p','form-error');error.setAttribute('role','alert');let disposed=false,busy=false;
  const actions=el('div','valve-import-actions'),upload=button('上传','primary',async()=>{
  if(busy)return;busy=true;upload.disabled=true;error.textContent='';
- try{const staged=await parseImport(file.files[0]);if(disposed)return;for(const record of staged)rows.push({...record,id:allocateId()});api.close();api.refresh();api.announce('已本地导入 '+staged.length+' 条至当前前端演示会话，未上传服务器');}
+ try{
+  const staged=await parseImport(file.files[0]);
+  const saved=await commit(records=>{
+   const numbers=new Set(records.map(row=>keyOf(row.productNumber)));
+   for(const record of staged){
+    if(numbers.has(keyOf(record.productNumber)))throw Error('产品编号重复：'+record.productNumber);
+    records.push({...record,id:allocateId()});
+   }
+  },()=>disposed);
+  if(saved&&!disposed){api.close();api.refresh();api.announce('已导入 '+staged.length+' 条安全阀记录，保存在当前浏览器');}
+ }
  catch(e){if(!disposed)error.textContent=e.message}
  finally{busy=false;if(!disposed)upload.disabled=false}
  });
- actions.append(upload,button('取消','secondary',api.close));root.append(label,notes,el('p','more-context-note','“上传”仅在本地浏览器解析，不发送文件。整批校验通过才导入；单次最多1000条/5MB，刷新不保留。'),error,actions);
+ actions.append(upload,button('取消','secondary',api.close));root.append(label,notes,el('p','more-context-note','文件在当前浏览器解析。整批校验通过才保存，单次最多 1000 条、5 MB。'),error,actions);
  api.show('安全阀导入',root,'organization-dialog valve-dialog valve-import-dialog',()=>{disposed=true});
 }
 function toolbar(name,api){if(name==='新增')edit(null,api);else if(name==='导入')importDialog(api);else if(name==='删除')remove(api);}
 function action(kind,row,trigger,api){
  if(!rows.some(r=>r.id===row.id))throw Error('安全阀记录上下文无效');
  if(kind==='valve-edit')edit(row,api);else if(kind==='valve-copy')copy(row,api);
- else V2Dossier.more(trigger,name=>V2MoreDialogs.open(name,'safety-valve',row,api.show),['修改记录']);
+ else V2Dossier.more(trigger,name=>{
+  if(name==='检验信息')inspection(row,api);
+  else V2MoreDialogs.open(name,'safety-valve',row,api.show);
+ },['修改记录','检验信息']);
 }
 return {rows,fields,validateRecord,parseImport,toolbar,action};
 })();

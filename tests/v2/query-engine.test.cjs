@@ -17,6 +17,14 @@ const number={type:'number',label:'数值测试'};E.validateRule({op:'between',v
 assert(E.compare('是',{op:'eq',value:true},{type:'boolean'}));assert(!E.compare(null,{op:'eq',value:false},{type:'boolean'}));ok('generic boolean operations and missing semantics');
 assert(E.compare(null,{op:'empty'},{type:'text'}));assert(!E.compare(null,{op:'ne',value:'x'},{type:'text'}));ok('missing values only satisfy explicit empty operators');
 assert.equal(E.execute(plan(g('and',g('or',r('person.name','eq','不存在'),r('person.name','contains','甲')),r('person.sex','eq','男')))).length,1);ok('nested AND OR expressions with explicit groups');
+const first=r('person.name','contains','甲'),second={...r('person.name','eq','不存在'),join:'or'},last={...r('person.sex','eq','女'),join:'and'};
+assert.equal(E.execute(plan(g('and',first,second,last))).length,0);
+assert.equal(E.execute(plan(g('and',first,second,{...last,join:'or'}))).length,1);
+assert.throws(()=>E.validatePlan(plan(g('and',first,{...second,join:'xor'}))));
+assert.equal(E.execute(plan(g('and',r('person.birthDate','ne','1991-02-01'),r('person.birthDate','lte','1990-01-01')))).length,1);
+assert(E.compare(10,{op:'gt',value:'2'},number));
+assert.throws(()=>E.validateRule({op:'contains',value:'2'},number));
+ok('per-row connectors execute in order and date/number comparisons stay typed');
 p.qualifications=[{id:'q1',personId:p.id,'证书编号':'DEMO-Q-A','考核机构':'机构A'},{id:'q2',personId:p.id,'证书编号':'DEMO-Q-B','考核机构':'机构B'},{id:'foreign',personId:'DEMO-PERSON-001','证书编号':'DEMO-Q-A','考核机构':'机构B'}];
 assert.equal(E.execute(plan(g('and',r('qualification.certificate','eq','DEMO-Q-A'),r('qualification.examOrg','eq','机构B')))).length,0);
 assert.equal(E.execute(plan(g('and',r('qualification.certificate','eq','DEMO-Q-A'),r('qualification.examOrg','eq','机构A')))).length,1);ok('same qualification row constraints, foreign person rows rejected');

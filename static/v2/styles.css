@@ -259,6 +259,22 @@ dialog.inspection-record-dialog[open]{display:flex;flex-direction:column;width:m
 .valve-dialog .dialog-footer{display:flex;justify-content:center;gap:14px}.valve-dialog .dialog-footer #dialog-done{background:white;border:1px solid #8abfff;color:#566171}
 .valve-form-field.valve-form-field{grid-template-columns:205px minmax(0,1fr)}
 .valve-form>.form-error{color:#c33430;margin:4px 12px;white-space:pre-wrap;line-height:1.7}
+#dialog.valve-inspection-dialog[open]{width:min(1000px,96vw)}
+.valve-inspection-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid #d4d4d4;border-left:1px solid #d4d4d4}
+.valve-inspection-field{display:grid;grid-template-columns:40% minmax(0,1fr);min-height:58px;border-right:1px solid #d4d4d4;border-bottom:1px solid #d4d4d4}
+.valve-inspection-field.full-width{grid-column:1/-1;grid-template-columns:20% minmax(0,1fr)}
+.valve-inspection-field>label,.valve-inspection-value{display:flex;align-items:center;padding:8px 12px}
+.valve-inspection-field>label{border-right:1px solid #d4d4d4;color:#424b55}
+.valve-inspection-value{min-width:0;padding-left:4px;padding-right:14px}
+.valve-inspection-field.full-width .control{width:37.5%}
+.valve-inspection-field:first-child>label{color:#d8372b;text-decoration:underline}
+.valve-inspection-form .form-error:empty{display:none}
+@media(max-width:650px){
+ .valve-inspection-grid{grid-template-columns:minmax(0,1fr)}
+ .valve-inspection-field.full-width{grid-template-columns:40% minmax(0,1fr)}
+ .valve-inspection-field.full-width .control{width:100%}
+ .valve-inspection-field>label{padding-inline:8px}
+}
 .valve-import-dialog .dialog-footer{display:none}.valve-import-dialog .dialog-header h2{font-size:22px}
 #dialog.valve-import-dialog{width:min(1040px,95vw)}.valve-import{line-height:1.8}.valve-import>label{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:16px}
 .valve-import input[type=file]{max-width:100%}.valve-import-notes{color:red;font-size:17px;margin:22px 0}.valve-import-notes p{margin:12px 0}.valve-import-notes a{color:var(--blue);margin-left:10px}
@@ -271,8 +287,9 @@ dialog.inspection-record-dialog[open]{display:flex;flex-direction:column;width:m
 .excel-import .form-error{max-height:12em;overflow:auto;overflow-wrap:anywhere}
 .excel-import [role=status]:empty,.excel-import .form-error:empty{display:none}
 .table-panel:has(table[aria-label="安全阀管理列表"]) .fixed.check{padding-left:8px;padding-right:8px}.table-panel:has(table[aria-label="安全阀管理列表"]) .fixed.check input{margin:0}
-.table-panel:has(table[aria-label="安全阀管理列表"]) [data-action="新增"] .tool-icon,.table-panel:has(table[aria-label="安全阀管理列表"]) [data-action="导入"] .tool-icon{background:#4887fa}
-.table-panel:has(table[aria-label="安全阀管理列表"]) [data-action="删除"] .tool-icon{background:#ff6474}
+.tool-icon.import-icon{background:transparent}
+.tool-icon.add-icon{background:#4887fa}
+.tool-icon.delete-icon{background:#ff6474}
 @media(max-width:1100px){.valve-form-field.valve-form-field{grid-template-columns:155px minmax(0,1fr)}}
 @media(max-width:650px){.valve-dialog #dialog-body{padding:14px 12px}.valve-form-field.valve-form-field{grid-template-columns:120px minmax(0,1fr)}.valve-import-notes{font-size:14px}.valve-dialog .dialog-footer{gap:10px}.valve-dialog .dialog-footer button{padding:0 14px}.valve-import>label{font-size:14px}}
 
@@ -401,4 +418,4 @@ table[data-table-config] th.fixed.actions{z-index:7}
 .table-settings-child .boiler-modal-actions{position:sticky;bottom:-24px;background:white;padding:16px 0;margin-bottom:0;z-index:8}
 table[data-table-config] td[data-field] .status{color:inherit}
 
-.product-query-actions{justify-content:center;padding-left:0}
+.compact-query-actions{justify-content:center;padding-left:0}

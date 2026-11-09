@@ -91,7 +91,7 @@ async function exercise(browser, base, isStatic) {
     const valveCount = await rows().count();
     assert(valveCount > 0);
     await rows().first().getByRole('button', { name: '复制', exact: true }).click();
-    assert.match(await page.locator('#announcement').innerText(), /复制成功/);
+    await page.locator('#announcement').filter({ hasText: '复制成功' }).waitFor({ state: 'attached' });
     await toolbar().getByRole('button', { name: '导入', exact: true }).click();
     const template = await download(dialog().getByRole('link', { name: '下载模板' }));
     assert(template.equals(fs.readFileSync(path.join(output, 'static/v2/templates/safety-valve-import.xlsx'))));
@@ -105,6 +105,7 @@ async function exercise(browser, base, isStatic) {
       await main.getByRole('button', { name: /新增/ }).click();
       if (key === 'unit-query') await dialog().getByRole('radio', { name: '检验单位', exact: true }).check();
       await dialog().getByLabel('查询条件名称', { exact: true }).fill('DEMO Pages ' + key);
+      await dialog().getByRole('checkbox', { name: /^结果字段 / }).first().check();
       await dialog().getByRole('button', { name: '保存', exact: true }).click();
       await main.getByRole('button', { name: '执行', exact: true }).click();
       assert(Number(await dialog().locator('.count-total').innerText()) > 0, key);
