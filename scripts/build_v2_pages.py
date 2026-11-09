@@ -31,7 +31,7 @@ def build_assets():
         relative = PurePosixPath(name)
         if not (
             name == "static/v2.html"
-            or re.fullmatch(r"static/v2/(?:[a-z0-9-]+\.(?:js|css|html)|vendor/(?:qrcode\.js|xlsx\.full\.min\.js)|templates/(?:safety-valve-import\.xlsx|jyryExp\.xls))", name)
+            or re.fullmatch(r"static/v2/(?:[a-z0-9-]+\.(?:js|css|html)|vendor/(?:qrcode\.js|xlsx\.full\.min\.js)|templates/(?:safety-valve-import\.xlsx|jyryExp\.xls|product-(?:boiler|vessel|elevator|crane|pipe-component|pipe-project)\.xlsx))", name)
             or name in LICENSES
         ):
             raise ValueError(f"Unexpected public asset: {name}")

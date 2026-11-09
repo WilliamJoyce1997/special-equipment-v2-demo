@@ -52,63 +52,24 @@ function importRegion(code){
  return region?{province,area,region}:null;
 }
 
-async function parseImport(file){
- const extension=/\.(xls|xlsx)$/i.exec(file?.name??'')?.[1]?.toLowerCase();
- if(!extension)throw Error('请选择 .xls 或 .xlsx 文件');
- if(!file.size||file.size>5*1024*1024)throw Error('文件大小须大于 0 且不超过 5 MB');
- if(typeof XLSX==='undefined')throw Error('本地 Excel 解析库未加载');
- const bytes=new Uint8Array(await file.arrayBuffer());
- const signature=extension==='xls'?[0xd0,0xcf,0x11,0xe0,0xa1,0xb1,0x1a,0xe1]:[0x50,0x4b,3,4];
- if(!signature.every((byte,index)=>bytes[index]===byte))throw Error('文件内容与扩展名不一致，或文件已损坏');
- let book;
- try{
-  const options={type:'array',sheetRows:1002,cellNF:true,cellFormula:true};
-  if(extension==='xls'){
-   const compound=XLSX.CFB.read(bytes,{type:'array'});
-   const stream=(XLSX.CFB.find(compound,'Workbook')||XLSX.CFB.find(compound,'Book'))?.content;
-   if(!stream?.length)throw Error('Workbook stream missing');
-   book=XLSX.read(stream,options);
-  }else{
-   book=XLSX.read(bytes,options);
-   if(book.bookType!=='xlsx')throw Error('Unexpected workbook type');
+function parseImport(file){
+ const seen=new Set(rows.map(person=>identityKey(person.identity)));
+ return V2ExcelImport.parse(file,{
+  sheetName:'Sheet1',fields:importFields,
+  normalize(key,value,cell){
+   if(V2ExcelImport.isDateCell(cell))throw Error('须填写文本，不能使用日期格式');
+   if(cell.t!=='s'&&(!['regionCode','unitPhone','postalCode','phone','mobile'].includes(key)||!Number.isSafeInteger(cell.v)||cell.v<0))throw Error('须按文本填写');
+   return cell.t==='n'&&/^\d+$/.test(cell.w||'')?cell.w:value;
+  },
+  validate(record,problems){
+   const location=record.regionCode&&importRegion(record.regionCode);
+   if(record.regionCode&&!location)problems.push('地区代码无法匹配现有地区字典');
+   if(location)Object.assign(record,location);
+   const identity=identityKey(record.identity);
+   if(identity&&seen.has(identity))problems.push('身份证号重复（同批或已存在）');
+   if(identity)seen.add(identity);
   }
- }catch{throw Error('Excel 文件无法解析，可能已损坏、加密或格式不正确');}
- if(book.SheetNames.length!==1||book.SheetNames[0]!=='Sheet1')throw Error('工作表须与模板一致，仅保留 Sheet1');
- const sheet=book.Sheets.Sheet1;
- const range=XLSX.utils.decode_range(sheet['!fullref']||sheet['!ref']||'A1');
- if(range.e.r>1000)throw Error('第 2 行起最多支持 1000 行，请分批导入');
- if(range.e.c>=importFields.length||range.s.r!==0||range.s.c!==0||range.e.c!==importFields.length-1||sheet['!merges']?.length){
-  throw Error('工作表结构或表头不一致，请按模板保留 14 列及其顺序，勿合并单元格');
- }
- const cellAt=(r,c)=>sheet[XLSX.utils.encode_cell({r,c})];
- if(importFields.some(([label],c)=>cellAt(0,c)?.v!==label||cellAt(0,c)?.f)){
-  throw Error('第 1 行表头名称或顺序与模板不一致');
- }
- const records=[],issues=[],seen=new Set(rows.map(person=>identityKey(person.identity)));
- for(let r=1;r<=range.e.r;r++){
-  const record={},problems=[];
-  let hasData=false;
-  for(const [c,[label,key,required]] of importFields.entries()){
-   const cell=cellAt(r,c);
-   const value=String(cell?.v??'').trim();
-   const formula=cell?.f||cell?.F||cell?.t==='e';
-   if(value||formula)hasData=true;
-   if(formula)problems.push(label+'不能使用公式或错误值');
-   else if(required&&!value)problems.push(label+'必填');
-   else if(value&&(cell.t==='d'||(cell.t==='n'&&XLSX.SSF.is_date(cell.z||''))))problems.push(label+'须填写文本，不能使用日期格式');
-   else if(value&&cell.t!=='s'&&(!['regionCode','unitPhone','postalCode','phone','mobile'].includes(key)||!Number.isSafeInteger(cell.v)||cell.v<0))problems.push(label+'须按文本填写');
-   record[key]=cell?.t==='n'&&/^\d+$/.test(cell.w||'')?cell.w:value;
-  }
-  if(!hasData)continue;
-  const location=record.regionCode&&importRegion(record.regionCode);
-  if(record.regionCode&&!location)problems.push('地区代码无法匹配现有地区字典');
-  const identity=identityKey(record.identity);
-  if(identity&&seen.has(identity))problems.push('身份证号重复（同批或已存在）');
-  if(identity)seen.add(identity);
-  if(problems.length)issues.push('第 '+(r+1)+' 行：'+problems.join('；'));
-  else records.push({...record,...location,rowNumber:r+1});
- }
- return {records,issues};
+ });
 }
 
 function saveImports(records,disposed){
@@ -120,56 +81,16 @@ function saveImports(records,disposed){
   const duplicates=records.filter(record=>seen.has(identityKey(record.identity)));
   if(duplicates.length)throw Error(duplicates.map(record=>'第 '+record.rowNumber+' 行：身份证号已存在').join('\n'));
   const next=stored.concat(records.map(({rowNumber,...record})=>({...record,id:'LOCAL-PERSON-'+crypto.randomUUID()})));
-  try{localStorage.setItem(importStorageKey,JSON.stringify({version:1,records:next}));}
-  catch{throw Error('保存失败，请检查浏览器本地存储权限或剩余空间');}
+  V2ExcelImport.store(importStorageKey,{version:1,records:next});
   restoreImports(next);
   return true;
  };
- return navigator.locks?navigator.locks.request(importStorageKey,save):save();
+ return V2ExcelImport.withLock(importStorageKey,save);
 }
 
 function importDialog(api){
- const root=el('div','valve-import personnel-import'),label=el('label','','选择附件：'),file=el('input');
- const fileName=el('span','personnel-import-filename','未选择任何文件');fileName.setAttribute('aria-hidden','true');
- file.type='file';file.accept='.xls,.xlsx';file.setAttribute('aria-label','选择附件');label.append(file,fileName);
- const notes=el('div','valve-import-notes'),link=el('a','','下载模板');
- link.href='/static/v2/templates/jyryExp.xls';link.download='jyryExp.xls';
- const first=el('p','','1、上传附件格式需与模板格式完全一致');first.append(link);
- notes.append(el('p','','注意：'),first,el('p','','2、模板中字段名称为红色的，必须填写'),el('p','','3、仅支持 xls 和 xlsx 格式'));
- const summary=el('p','more-context-note'),error=el('p','form-error');
- summary.setAttribute('role','status');error.setAttribute('role','alert');
- let staged=[],selection=0,closed=false;
- const upload=button('上传','primary',async()=>{
-  const records=staged;upload.disabled=true;file.disabled=true;error.textContent='';
-  try{
-   if(!await saveImports(records,()=>closed)||closed)return;
-   api.close();api.refresh();api.announce('已导入 '+records.length+' 条人员记录，保存在当前浏览器');
-  }catch(problem){
-   if(!closed){error.textContent=problem.message;file.disabled=false;upload.disabled=false;}
-  }
- });
- upload.disabled=true;
- file.onchange=async()=>{
-  const ticket=++selection;staged=[];upload.disabled=true;error.textContent='';summary.textContent='';
-  fileName.textContent=file.files[0]?.name||'未选择任何文件';
-  if(!file.files.length)return;
-  summary.textContent='正在本地解析 Excel…';
-  try{
-   const {records,issues}=await parseImport(file.files[0]);
-   if(closed||ticket!==selection)return;
-   summary.textContent='共 '+(records.length+issues.length)+' 行（不含空行），有效 '+records.length+' 行，错误 '+issues.length+' 行';
-   if(issues.length){
-    error.textContent=issues.slice(0,20).join('\n')+(issues.length>20?'\n仅显示前 20 个错误行。':'')+'\n请修正后重新选择文件。';
-   }else if(!records.length)error.textContent='模板中没有可导入的数据行';
-   else{staged=records;upload.disabled=false;}
-  }catch(problem){
-   if(closed||ticket!==selection)return;
-   summary.textContent='';error.textContent=problem.message;
-  }
- };
- const actions=el('div','valve-import-actions');actions.append(upload,button('取消','secondary',api.close));
- root.append(label,notes,el('p','more-context-note','文件仅在当前浏览器读取，确认后记录保存在当前浏览器。单次最多 1000 行、5 MB。'),summary,error,actions);
- api.show('人员导入',root,'organization-dialog valve-import-dialog personnel-import-dialog',()=>{closed=true;});
+ V2ExcelImport.show(api,{title:'人员导入',recordLabel:'人员',templateUrl:'/static/v2/templates/jyryExp.xls',
+  templateName:'jyryExp.xls',parse:parseImport,save:saveImports});
 }
 const base=[q('search','综合查询'),{key:'region',label:'所在地区',type:'region'},q('certificateStatus','持证状态',statuses),q('source','数据来源',sources)];
 const date=(key,label)=>({key,label,type:'dateRange'});

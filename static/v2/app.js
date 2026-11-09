@@ -236,11 +236,15 @@ function render(){
  const grid=el('div','query-grid');
  for(const field of (activeQuerySchema()?activeQuerySchema().base:t.queries)){const holder=activeQuerySchema()?V2EquipmentPage.control(field,p.filters):fieldControl(field,p.filters);holder.hidden=!activeQuerySchema()&&p.hiddenQueries.has(field.key);if(holder.hidden)holder.style.display='none';grid.append(holder);}
  const actions=el('div','query-actions'),search=el('button','primary','⌕  查询');search.type='submit';const reset=button('⟳  重置','secondary',()=>{p.hasSearched=false;p.filters={};p.page=1;p.selected.clear();render();announce('已重置查询条件，列表等待查询');});
- const links=el('div','query-links'),helpText=t.entity==='safety-valve'?'按使用单位、装置名称、产品编号及日期范围组合查询；日期为独立虚构字段，不推算或承诺法定校验周期。':t.entity==='product'?'综合查询匹配设备代码、产品名称、产品规格、产品编号；全部为独立虚构产品，编辑及复制仅当前前端会话有效。':t.entity==='person'?'综合查询匹配姓名、演示身份证标识或关联单位名称；地区、持证状态、数据来源按且组合。全部为虚构人员，持证状态不是实际资格结论。':t.entity==='organization'?'单位名称、信用代码、联系人支持文本匹配；地区和超期状态精确组合筛选。超期为预设演示状态，不代表真实资质结论。':'查询条件按“且”组合；综合查询匹配设备代码、注册代码及使用证编号。日期和数值支持仅填单侧边界；表头可排序，表格可横向滚动。全部记录为虚构样本。';
+ if(t.entity==='product')actions.classList.add('product-query-actions');
+ else{
+ const links=el('div','query-links'),helpText=t.entity==='safety-valve'?'按使用单位、装置名称、产品编号及日期范围组合查询；日期为独立虚构字段，不推算或承诺法定校验周期。':t.entity==='person'?'综合查询匹配姓名、演示身份证标识或关联单位名称；地区、持证状态、数据来源按且组合。全部为虚构人员，持证状态不是实际资格结论。':t.entity==='organization'?'单位名称、信用代码、联系人支持文本匹配；地区和超期状态精确组合筛选。超期为预设演示状态，不代表真实资质结论。':'查询条件按“且”组合；综合查询匹配设备代码、注册代码及使用证编号。日期和数值支持仅填单侧边界；表头可排序，表格可横向滚动。全部记录为虚构样本。';
  const showHelp=()=>info('使用说明',helpText);
  const help=['installation','pipeline'].includes(state.key)?V2Help.create(helpText,{compact:true,onClick:showHelp}):button('?','help',showHelp);
  if(help.tagName==='BUTTON')help.setAttribute('aria-label','查询使用说明');
  links.append(help,button('⚙ 设置','link',()=>settings('query')),button(activeQuerySchema()&&p.advanced?'⌕普通查询':'⌕高级查询','link',advanced));
+ actions.append(links);
+ }
  form.append(grid);
  if(activeQuerySchema()&&p.advanced){
   const section=el('section','boiler-advanced'),grid=el('div','query-grid');section.append(el('h2','','高级查询条件'));
@@ -248,7 +252,7 @@ function render(){
   for(const key of config.order)if(!config.hidden.includes(key))grid.append(V2EquipmentPage.control(activeQuerySchema().advanced.find(f=>f.key===key),p.filters));
   section.append(grid);form.append(section);
  }
- actions.append(search,reset,links);const error=el('p','form-error');error.id='form-error';error.setAttribute('role','alert');form.append(actions,error);
+ actions.prepend(search,reset);const error=el('p','form-error');error.id='form-error';error.setAttribute('role','alert');form.append(actions,error);
  form.addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));if(activeQuerySchema()){const problem=activeQuerySchema().valid(data);if(problem){error.textContent=problem;return;}}else if(!validate(data,t,error))return;p.filters=data;p.hasSearched=true;p.page=1;p.selected.clear();renderTable();});
  for(const event of ['input','change'])form.addEventListener(event,e=>{
  if(activeQuerySchema()&&e.target.name)for(const other of form.querySelectorAll('[name]'))if(other!==e.target&&other.name===e.target.name)other.value=e.target.value;
@@ -284,15 +288,20 @@ function filtered(){
  if(p.sort)rows.sort((a,b)=>{const x=a[p.sort],y=b[p.sort];return (typeof x==='number'?x-y:String(x).localeCompare(String(y),'zh-CN',{numeric:true}))*(p.descending?-1:1);});
  return rows;
 }
+function openExcelImport(type,page){
+ const api={show:dialog,close:closeDialog,announce,refresh:()=>{page.hasSearched=true;page.page=1;renderTable();}};
+ if(type.entity==='person')V2Personnel.importDialog(api);
+ else V2ProductImport.show(state.key,api);
+}
 function renderTable(){
  const panel=$('.table-panel');if(!panel)return;const p=pageState(),t=V2.types[state.key],rows=filtered();const validIds=new Set(rows.map(r=>r.id));for(const id of p.selected)if(!validIds.has(id))p.selected.delete(id);p.page=Math.max(1,Math.min(p.page,Math.ceil(rows.length/p.size)||1));panel.replaceChildren();
  const toolbar=el('div','table-toolbar');
- for(const action of t.actions){const b=button('','tool',()=>action==='导出'?exportRows():t.entity==='safety-valve'?V2SafetyValves.toolbar(action,safetyApi()):t.entity==='person'&&action==='导入'?V2Personnel.importDialog({show:dialog,close:closeDialog,announce,refresh:()=>{p.hasSearched=true;p.page=1;renderTable();}}):action==='管道汇总表'?pipelineSummary():t.entity==='organization'&&action==='删除'?V2InspectionUnits.removeUnits([...p.selected],{show:dialog,close:closeDialog,refresh:renderTable,announce}):state.key==='installation'&&action==='新增'?newInstallation():action.startsWith('更多')?moreActions():info(action+' · 未接通后端','该业务操作保留参考系统入口。本批仅实现查询与查看，未提供'+action+'的业务提交接口，不会修改任何记录。'));b.append(icon(t.icons?.[action]||(action==='使用标志'?'▤':action.startsWith('更多')?'⋯':'↥'),action==='使用标志'||action.startsWith('更多')),el('span','',action));if(t.entity==='product'&&action==='导入'){b.disabled=true;b.title='演示模式暂不支持文件解析导入';}if(state.key==='installation'&&action==='管道汇总表'){
+ for(const action of t.actions){const b=button('','tool',()=>action==='导出'?exportRows():t.entity==='safety-valve'?V2SafetyValves.toolbar(action,safetyApi()):action==='导入'&&(t.entity==='person'||t.entity==='product')?openExcelImport(t,p):action==='管道汇总表'?pipelineSummary():t.entity==='organization'&&action==='删除'?V2InspectionUnits.removeUnits([...p.selected],{show:dialog,close:closeDialog,refresh:renderTable,announce}):state.key==='installation'&&action==='新增'?newInstallation():action.startsWith('更多')?moreActions():info(action+' · 未接通后端','该业务操作保留参考系统入口。本批仅实现查询与查看，未提供'+action+'的业务提交接口，不会修改任何记录。'));b.append(icon(t.icons?.[action]||(action==='使用标志'?'▤':action.startsWith('更多')?'⋯':'↥'),action==='使用标志'||action.startsWith('更多')),el('span','',action));if(state.key==='installation'&&action==='管道汇总表'){
  b.title='打印勾选相同单位、相同类别的在用管线信息';
  b.append(el('span','installation-summary-hint','（打印勾选相同单位、相同类别在用管线信息）'));
  }b.dataset.action=action;toolbar.append(b);}
  toolbar.append(button('设 置','link',()=>settings('column')));
- const source=el('div','data-source');source.append(el('span','',(t.entity==='safety-valve'?'数据来源：前端虚构安全阀 · 仅当前会话有效 · 日期非真实法定校验依据':t.entity==='product'?'数据来源：前端虚构产品 · 编辑与复制仅当前会话有效 · 不写入数据库':t.entity==='person'?'数据来源：前端演示人员及浏览器本地导入记录':t.entity==='organization'?'数据来源：前端虚构单位 · 是否超期为预设演示状态 · 不写入数据库':'数据来源：前端虚构样本 · 非法定检验数据 · 不写入数据库')));
+ const source=el('div','data-source');source.append(el('span','',(t.entity==='safety-valve'?'数据来源：前端虚构安全阀 · 仅当前会话有效 · 日期非真实法定校验依据':t.entity==='product'?'数据来源：前端演示产品及浏览器本地导入记录':t.entity==='person'?'数据来源：前端演示人员及浏览器本地导入记录':t.entity==='organization'?'数据来源：前端虚构单位 · 是否超期为预设演示状态 · 不写入数据库':'数据来源：前端虚构样本 · 非法定检验数据 · 不写入数据库')));
  const wrap=el('div','table-scroll');wrap.tabIndex=0;wrap.setAttribute('aria-label',t.title+(t.entity==='organization'||t.entity==='person'||t.entity==='product'||t.entity==='safety-valve'?'列表':'设备列表')+'，可横向滚动');
  const table=el('table',t.inlineSelection?'inline-selection':'');table.setAttribute('aria-label',t.title+(t.entity==='organization'||t.entity==='person'||t.entity==='product'||t.entity==='safety-valve'?'列表':'设备列表'));
  const cols=t.columns,cg=el('colgroup');

@@ -1,4 +1,4 @@
-/* Boiler products are separate from equipment assets. Session memory only. */
+/* Shared product editor and session-only copy and inspection actions. */
 window.V2BoilerProducts=(()=>{
 'use strict';
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
@@ -33,25 +33,31 @@ const inspectionFields=[
 ];
 function makeForm(fields,values,mode,config=definitions.get('boiler-product')){
  const form=el('form','product-form');form.noValidate=true;
- form.append(el('p','notice',mode==='readonly'?'演示模式，仅供查看。当前未接通本产品编辑保存，不修改前端记录或数据库。':mode==='edit'?'演示模式：修改仅作用于当前前端会话，刷新后不保留；不写入服务器、SQLite或在用设备台账。':'模拟产品检验信息，仅当前前端会话保存，无法定检验效力；不改变设备许可或法定检验状态。'));
+ const notice=mode==='readonly'?'产品信息仅供查看。':mode==='category-edit'?'设备类别可修改并保存在当前浏览器。':mode==='edit'?
+  (values.id?.startsWith('LOCAL-PRODUCT-')?'导入产品的修改保存在当前浏览器。':'设备类别保存在当前浏览器，其他修改仅在本次会话有效。'):
+  '模拟产品检验信息仅在当前会话保存，无法定检验效力。';
+ form.append(el('p','notice',notice));
  const grid=el('div','unit-info-grid product-form-grid'),controls={};
  for(const [key,label,kind='text',required=false,wide=false,choices=[]] of fields){
  const holder=el('div','unit-info-field product-form-field'+(wide?' full-width':'')+(config.rowStarts?.includes(key)?' product-row-start':'')),caption=el('label');caption.htmlFor='product-field-'+key;
  if(required){const star=el('span','required-mark','*');star.setAttribute('aria-hidden','true');caption.append(star)}caption.append(document.createTextNode(label));
- if(kind==='category'||kind==='category3'){const picker=V2ProductCategories.create(config.productType,values[key]||'',{readonly:mode==='readonly'});controls[key]=picker.input;holder.append(caption,picker.element);grid.append(holder);continue;}
+ if(kind==='category'||kind==='category3'){const picker=V2ProductCategories.create(config.productType,values[key]||'');controls[key]=picker.input;holder.append(caption,picker.element);grid.append(holder);continue;}
  let control=el(kind==='select'||kind==='category'||kind==='category3'?'select':kind==='textarea'?'textarea':'input','control product-control');
  control.id='product-field-'+key;control.name=key;control.setAttribute('aria-label',label);
  if(kind==='select'||kind==='category'||kind==='category3'){for(const value of ['',...((kind==='category'||kind==='category3')?config.categories:choices)]){const option=el('option','',value||'请选择');option.value=value;control.append(option)}}
  else if(kind!=='textarea'){control.type=kind==='number'?'number':kind==='date'?'date':'text';if(kind==='number'){control.step='any';if(!/Temperature/.test(key))control.min='0';}}
  else control.rows=2;
  control.value=values[key]??'';controls[key]=control;holder.append(caption);
+ if(mode==='readonly'||mode==='category-edit'||config.readonlyFields?.has(key)){
+  if(control.tagName==='SELECT')control.disabled=true;
+  else control.readOnly=true;
+ }
  const accessory=config.accessories?.[key];if(accessory){const wrapper=el('div','product-field-accessory'),extra=button(accessory.label,'secondary product-accessory-button',()=>{});extra.disabled=true;extra.title=accessory.title;wrapper.append(control,extra);holder.append(wrapper);}else holder.append(control);
  if(kind==='manufacturer'||kind==='agency'){const datalist=el('datalist');datalist.id='product-options-'+key;control.setAttribute('list',datalist.id);for(const value of kind==='agency'?V2InspectionUnits.rows.map(r=>r.name):manufacturers){const option=el('option');option.value=value;datalist.append(option)}holder.append(datalist);}
  grid.append(holder);
  }
  const error=el('p','form-error');error.setAttribute('role','alert');form.append(grid,error);
  if(controls.agency)controls.agency.addEventListener('input',()=>{const unit=V2InspectionUnits.rows.find(r=>r.name===controls.agency.value);if(unit)controls.agencyCreditCode.value=unit.creditCode;});
- if(mode==='readonly')for(const control of Object.values(controls)){if(control.tagName==='SELECT')control.disabled=true;else control.readOnly=true;}
  return {form,controls,error};
 }
 function fail(view,message,input){view.error.textContent=message;view.error.scrollIntoView({block:'nearest'});input?.focus({preventScroll:true});return null;}
@@ -73,13 +79,41 @@ function openForm(title,view,api,onSave){
  document.querySelector('#dialog .dialog-footer').prepend(save);
 }
 function edit(row,api){
- const config=definitions.get(row.productType||'boiler-product'),view=makeForm(config.fields,row,config.readonly?'readonly':'edit',config);view.form.dataset.productId=row.id;view.form.dataset.productType=row.productType||'boiler-product';
- if(config.readonly){view.form.onsubmit=e=>e.preventDefault();api.show(config.title,view.form,'organization-dialog product-dialog');return;}
- openForm(config.title,view,api,()=>{
- const draft=validate(config.fields,view);if(!draft)return;
- if(V2.fixtures[row.productType||'boiler-product'].some(r=>r.id!==row.id&&(r.equipmentCode===draft.equipmentCode||r.productNumber===draft.productNumber))){fail(view,'设备代码或产品编号重复，请使用独立演示标识');return;}
- if(draft.category&&!V2ProductCategories.path(row.productType||'boiler-product',draft.category).length){fail(view,'请选择本类产品适用的设备类别');return;}
- Object.assign(row,draft,{categoryGroup:V2ProductCategories.path(row.productType||'boiler-product',draft.category)[0]||''});api.close();api.refresh();api.announce('已更新当前前端演示会话，未写入服务器');
+ const type=row.productType||'boiler-product',config=definitions.get(type);
+ const extras=V2ProductImport.extraFields(type,row,config.fields);
+ const fields=[...config.fields,...extras];
+ const mode=config.readonly?(fields.some(([key])=>key==='category')?'category-edit':'readonly'):'edit';
+ const view=makeForm(fields,row,mode,{
+  ...config,readonlyFields:new Set(extras.map(([key])=>key))
+ });
+ view.form.dataset.productId=row.id;
+ view.form.dataset.productType=type;
+ if(mode==='readonly'){
+  view.form.onsubmit=event=>event.preventDefault();
+  api.show(config.title,view.form,'organization-dialog product-dialog');
+  return;
+ }
+ let saving=false;
+ openForm(config.title,view,api,async()=>{
+  if(saving)return;
+  const draft=config.readonly?{category:view.controls.category.value}:validate(config.fields,view);
+  if(!draft)return;
+  if(!config.readonly&&V2.fixtures[type].some(r=>r.id!==row.id&&(r.equipmentCode===draft.equipmentCode||r.productNumber===draft.productNumber))){
+   fail(view,'设备代码或产品编号重复，请使用独立演示标识');return;
+  }
+  const path=V2ProductCategories.path(type,draft.category);
+  if(draft.category&&!path.length){fail(view,'请选择本类产品适用的设备类别');return;}
+  draft.categoryGroup=path[0]||'';
+  const dialog=view.form.closest('dialog');
+  const saveButton=dialog.querySelector('[data-product-save]');
+  saving=true;
+  saveButton.disabled=true;
+  try{
+   if(await V2ProductImport.saveEdit(type,row,draft,()=>!dialog.open||!view.form.isConnected)===false)return;
+   Object.assign(row,draft);
+   if(dialog.open&&view.form.isConnected){api.close();api.refresh();api.announce('已更新产品信息');}
+  }catch(error){fail(view,error.message);}
+  finally{saving=false;saveButton.disabled=false;}
  });
 }
 function inspectionFor(id,type='boiler-product'){return structuredClone(inspections.get(type+'|'+id)||{});}
@@ -95,8 +129,9 @@ function copy(row,api){
  try{
  const target=V2.fixtures[row.productType||'boiler-product'];
  let candidate;
- do{const n=++copyCounter;candidate={...structuredClone(row),auditRecords:[],id:'DEMO-'+(row.productType||'boiler-product').toUpperCase()+'-COPY-'+n,equipmentCode:row.equipmentCode+'-COPY-'+n,productNumber:row.productNumber+'-COPY-'+n,createdAt:new Date().toISOString().slice(0,19).replace('T',' ')};}
- while(target.some(r=>r.id===candidate.id||r.equipmentCode===candidate.equipmentCode||r.productNumber===candidate.productNumber));
+ do{const n=++copyCounter;candidate={...structuredClone(row),auditRecords:[],id:'DEMO-'+(row.productType||'boiler-product').toUpperCase()+'-COPY-'+n,createdAt:new Date().toISOString().slice(0,19).replace('T',' ')};
+ for(const key of ['equipmentCode','productNumber'])if(row[key])candidate[key]=row[key]+'-COPY-'+n;}
+ while(target.some(r=>r.id===candidate.id||(candidate.equipmentCode&&r.equipmentCode===candidate.equipmentCode)||(candidate.productNumber&&r.productNumber===candidate.productNumber)));
  target.push(candidate);api.refresh();api.announce('复制成功 · 仅当前前端演示会话有效，刷新后不保留');
  }catch(error){api.announce('复制失败，未创建产品副本：'+error.message);}
 }
@@ -120,7 +155,7 @@ function action(kind,row,trigger,api){
 function register(key,config){
  config.productType=key;config.categories=V2ProductCategories.labels(key);definitions.set(key,config);
  for(const row of config.rows){row.productType=key;row.auditRecords??=[];if(row.category&&!V2ProductCategories.path(key,row.category).length)throw Error('产品样本类别不在字典中：'+row.category);}
- V2.fixtures[key]=config.rows;V2.types[key]={...V2.types['boiler-product'],title:config.pageTitle,columns:config.columns||columns,searchKeys:config.searchKeys||V2.types['boiler-product'].searchKeys,advancedFields:config.advancedFields,queries:config.queries||[q('search','综合查询'),q('manufacturer','制造单位'),{...q('category','设备类别',config.categories),productCategory:key}],rowActions:V2.types['boiler-product'].rowActions.map(([label,kind])=>[kind==='product-menu'&&config.menuLabel?config.menuLabel:label,kind])};
+ V2.fixtures[key]=config.rows;V2.types[key]={...V2.types['boiler-product'],title:config.pageTitle,columns:config.columns||columns,searchKeys:config.searchKeys||V2.types['boiler-product'].searchKeys,queries:config.queries||[q('search','综合查询'),q('manufacturer','制造单位'),{...q('category','设备类别',config.categories),productCategory:key}],rowActions:V2.types['boiler-product'].rowActions.map(([label,kind])=>[kind==='product-menu'&&config.menuLabel?config.menuLabel:label,kind])};
 }
 Object.assign(V2.types['boiler-product'].queries.find(f=>f.key==='category'),{productCategory:'boiler-product',options:V2ProductCategories.labels('boiler-product')});
 return {rows,columns,productFields,inspectionFields,inspectionFor,register,action,closeMenu:()=>closeMenu()};

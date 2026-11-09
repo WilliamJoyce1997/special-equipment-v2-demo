@@ -45,8 +45,7 @@ V2BoilerProducts.register('pipe-project',{
  columns:[col('manufacturer','制造单位名称',300),col('name','工程项目名称',270),col('contractNumber','合同编号',220),col('executionStandard','执行标准',220),
  col('customer','委托方（订货单位）',270),col('carNumber','车号'),col('issueDate','出证日期'),col('totalLength','总长度',160),col('specification','规格',220),col('steelGrade','钢级',180)],
  queries:[q('search','综合查询'),q('manufacturer','制造单位'),q('executionStandard','执行标准')],
- searchKeys:['name','contractNumber','executionStandard','customer','carNumber','specification','steelGrade'],
- advancedFields:[['contractNumber','合同编号'],['steelGrade','钢级']]
+ searchKeys:['name','contractNumber','executionStandard','customer','carNumber','specification','steelGrade']
 });
 })();
 
