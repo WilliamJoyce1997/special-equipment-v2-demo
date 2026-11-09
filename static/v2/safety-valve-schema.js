@@ -1,4 +1,4 @@
-/* Single source for form fields, import columns and the downloadable template. */
+/* Safety valve form fields and original Excel import schema. */
 window.V2SafetyValveSchema=(()=>{
 const enums={
  valveType:['弹簧','重锤式','杠杆式'],
@@ -24,7 +24,17 @@ const fields=[
  ['businessTag','最新业务标签','select',false,false,enums.businessTag],
  ['status','状态','select',false,false,enums.status]
 ].map(([key,label,type='text',required=false,wide=false,options=[]])=>({key,label,type,required,wide,options}));
-const importFields=[...fields,{key:'inspectionDate',label:'检验日期',type:'date'},{key:'nextInspectionDate',label:'下检日期',type:'date'}];
+const recordFields=[...fields,{key:'inspectionDate',label:'检验日期',type:'date'},{key:'nextInspectionDate',label:'下检日期',type:'date'}];
+const templateName='安全阀管理.xlsx';
+const importLabels={
+ calibrationMethod:'检验方式校（  01验台/02在线/03回座校验台）',
+ calibrationMedium:'检验介质',setPressure:'整定压力',reseatPressure:'回座压力',
+ openingHeight:'开启高度',sealPressure:'密封试验压力'
+};
+// The original worksheet omits the credit code and linked equipment, and marks every header red.
+const importFields=fields.filter(field=>!['creditCode','equipment'].includes(field.key)).map(field=>({
+ ...field,label:importLabels[field.key]??field.label,required:true
+}));
 const inspectionFields=[
  ['inspectionAgency','检验机构','text',true],
  ['inspectionNature','检验性质','select',false,V2BoilerSchema.enums.inspectionNature],
@@ -37,6 +47,6 @@ const inspectionFields=[
  ['inspector','检验人员'],
  ['inspectionProblems','检验主要问题','text',true]
 ].map(([key,label,type='text',wide=false,options=[]])=>({key,label,type,wide,options}));
-return {fields,importFields,inspectionFields,sheetName:'安全阀导入',headers:importFields.map(f=>f.label)};
+return {fields,recordFields,importFields,inspectionFields,templateName,sheetName:templateName,headers:importFields.map(f=>f.label)};
 })();
 

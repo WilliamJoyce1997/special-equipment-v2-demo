@@ -71,7 +71,7 @@ function validateInspectionDates(record,errors){
  }
 }
 function validateRecord(input,excludeId=null,records=rows){
- const {record,errors}=validateFields(input,schema.importFields);
+ const {record,errors}=validateFields(input,schema.recordFields);
  validateInspectionDates(record,errors);
  if(record.productNumber&&records.some(r=>r.id!==excludeId&&keyOf(r.productNumber)===keyOf(record.productNumber)))errors.push('产品编号重复：'+record.productNumber);
  return {record,errors};
@@ -209,25 +209,53 @@ async function parseImport(file){
  const bytes=new Uint8Array(await file.arrayBuffer()),isXlsx=/\.xlsx$/i.test(file.name);
  const zip=bytes[0]===0x50&&bytes[1]===0x4b,ole=[0xd0,0xcf,0x11,0xe0,0xa1,0xb1,0x1a,0xe1].every((v,i)=>bytes[i]===v);
  if(isXlsx?!zip:!ole)throw Error('文件内容与扩展名不一致或不是有效Excel文件');
- let wb;try{wb=XLSX.read(bytes,{type:'array',sheetRows:1002,cellDates:false,cellFormula:true,cellText:false,bookVBA:false})}catch(e){throw Error('Excel文件无法解析，可能损坏、加密或格式错误')}
- const sheet=wb.Sheets[schema.sheetName];if(!sheet)throw Error('工作表必须为“'+schema.sheetName+'”，请使用下载模板');
+ let wb;try{wb=XLSX.read(bytes,{type:'array',sheetRows:1002,cellDates:false,cellFormula:true,bookVBA:false})}catch(e){throw Error('Excel文件无法解析，可能损坏、加密或格式错误')}
+ const sheet=wb.Sheets[schema.sheetName];if(!sheet||wb.SheetNames.length!==1)throw Error('工作表必须为“'+schema.sheetName+'”，请使用下载模板');
  const range=XLSX.utils.decode_range(sheet['!fullref']||sheet['!ref']||'A1');
  if(range.e.r>1000||range.e.c>=schema.headers.length)throw Error('超过1000条记录或存在模板以外的列');
  const matrix=XLSX.utils.sheet_to_json(sheet,{header:1,raw:true,defval:''}),head=matrix[0]||[];
  if(head.length!==schema.headers.length||head.some((v,i)=>v!==schema.headers[i]))throw Error('表头或顺序与模板不一致，请使用下载模板');
- for(let c=0;c<schema.headers.length;c++)if(sheet[XLSX.utils.encode_cell({r:0,c})]?.f)throw Error('表头不得含公式');
- const staged=[],seen=new Set(),issues=[];
+ for(let c=0;c<schema.headers.length;c++){
+  const cell=sheet[XLSX.utils.encode_cell({r:0,c})];
+  if(cell?.f||cell?.F)throw Error('表头不得含公式');
+ }
+ const staged=[],seen=new Set(rows.map(row=>keyOf(row.productNumber))),issues=[];
  for(let r=1;r<matrix.length;r++){
- const values=matrix[r],raw={};let hasFormula=false;
- for(let c=0;c<schema.importFields.length;c++){const f=schema.importFields[c],cell=sheet[XLSX.utils.encode_cell({r,c})];if(cell?.f||cell?.t==='e'){issues.push('第'+(r+1)+'行：不接受公式或错误单元格');hasFormula=true;break;}let value=values[c]??'';
- if(f.type==='date'&&typeof value==='number'){const d=XLSX.SSF.parse_date_code(value,{date1904:!!wb.Workbook?.WBProps?.date1904});value=d?String(d.y).padStart(4,'0')+'-'+String(d.m).padStart(2,'0')+'-'+String(d.d).padStart(2,'0'):'非法日期';}
- if(f.key==='productNumber'&&typeof value==='number'){issues.push('第'+(r+1)+'行：产品编号须按文本填写');hasFormula=true;break;}raw[f.key]=value;}
- if(hasFormula)continue;if(!Object.values(raw).some(v=>v!==''))continue;
- const result=validateRecord(raw),number=keyOf(result.record.productNumber);
- if(number&&seen.has(number))result.errors.push('同批产品编号重复：'+result.record.productNumber);
- if(number)seen.add(number);
- if(result.errors.length)issues.push('第'+(r+1)+'行：'+result.errors.join('；'));else staged.push(result.record);
- if(issues.length>=50){issues.push('错误过多，请修正后重新导入');break;}
+  const values=matrix[r],raw={},cellErrors=[];
+  for(const [c,field] of schema.importFields.entries()){
+   const cell=sheet[XLSX.utils.encode_cell({r,c})];
+   if(cell?.f||cell?.F||cell?.t==='e'){
+    cellErrors.push(field.label+'不接受公式或错误单元格');
+    continue;
+   }
+   let value=values[c]??'';
+   if(field.type==='date'&&typeof value==='number'){
+    const date=XLSX.SSF.parse_date_code(value,{date1904:!!wb.Workbook?.WBProps?.date1904});
+    value=date?[String(date.y).padStart(4,'0'),String(date.m).padStart(2,'0'),String(date.d).padStart(2,'0')].join('-'):'非法日期';
+   }
+   if(field.key==='calibrationMethod'){
+    const code=String(value).trim().padStart(2,'0');
+    const index=['01','02','03'].indexOf(code);
+    if(index>=0)value=field.options[index];
+   }
+   if(field.key==='productNumber'&&typeof value==='number'){
+    if(!Number.isSafeInteger(value)||value<0||value>=1e15){
+     cellErrors.push('产品编号须按文本填写，避免 Excel 丢失精度');
+     continue;
+    }
+    value=/^\d+$/.test(cell.w||'')?cell.w:String(value);
+   }
+   raw[field.key]=value;
+  }
+  if(cellErrors.length)issues.push('第'+(r+1)+'行：'+cellErrors.join('；'));
+  else if(Object.values(raw).some(value=>String(value).trim()!=='')){
+   const {record,errors}=validateFields(raw,schema.importFields),number=keyOf(record.productNumber);
+   if(number&&seen.has(number))errors.push('产品编号重复（已存在或同批重复）：'+record.productNumber);
+   if(number)seen.add(number);
+   if(errors.length)issues.push('第'+(r+1)+'行：'+errors.join('；'));
+   else staged.push(record);
+  }
+  if(issues.length>=50){issues.push('错误过多，请修正后重新导入');break;}
  }
  if(issues.length)throw Error(issues.join('\n'));
  if(!staged.length)throw Error('文件中没有可导入记录');
@@ -235,7 +263,7 @@ async function parseImport(file){
 }
 function importDialog(api){
  const root=el('div','valve-import'),label=el('label','','选择附件：'),file=el('input');file.type='file';file.accept='.xls,.xlsx';file.setAttribute('aria-label','选择附件');label.append(file);
- const notes=el('div','valve-import-notes'),link=el('a','','下载模板');link.href='/static/v2/templates/safety-valve-import.xlsx';link.download='安全阀导入模板.xlsx';
+ const notes=el('div','valve-import-notes'),link=el('a','','下载模板');link.href='/static/v2/templates/safety-valve-import.xlsx';link.download=schema.templateName;
  const first=el('p','','1、上传文件格式必须与模板一致。');first.append(link);notes.append(el('p','','注意：'),first,el('p','','2、模板中红色字段为必填。'),el('p','','3、仅支持 .xls、.xlsx 格式。'));
  const error=el('p','form-error');error.setAttribute('role','alert');let disposed=false,busy=false;
  const actions=el('div','valve-import-actions'),upload=button('上传','primary',async()=>{
@@ -254,7 +282,7 @@ function importDialog(api){
  catch(e){if(!disposed)error.textContent=e.message}
  finally{busy=false;if(!disposed)upload.disabled=false}
  });
- actions.append(upload,button('取消','secondary',api.close));root.append(label,notes,el('p','more-context-note','文件在当前浏览器解析。整批校验通过才保存，单次最多 1000 条、5 MB。'),error,actions);
+ actions.append(upload,button('取消','secondary',api.close));root.append(label,notes,el('p','more-context-note','检验方式可填 01（校验台）、02（在线）或 03（回座校验台），状态填「正常」或「无效」。文件在当前浏览器解析，整批校验通过才保存，单次最多 1000 条、5 MB。'),error,actions);
  api.show('安全阀导入',root,'organization-dialog valve-dialog valve-import-dialog',()=>{disposed=true});
 }
 function toolbar(name,api){if(name==='新增')edit(null,api);else if(name==='导入')importDialog(api);else if(name==='删除')remove(api);}

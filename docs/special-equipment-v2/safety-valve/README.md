@@ -1,16 +1,18 @@
 # 安全阀管理交付记录
 
+下文的页面与测试记录描述首轮交付，Excel 导入小节记录当前原版模板规则。
+
 本轮仅实现基础档案管理 → 安全附件 → 安全阀管理。全部业务数据位于浏览器内存，刷新恢复原始10条虚构样本；不写SQLite、不生成法定证明、不计算法定校验期限。未修改P0、未执行Git提交或推送、未保存本轮参考图片。
 
 ## 文件清单
 
 新增：
-- static/v2/safety-valve-schema.js：30项表单字段、32列导入结构、必填与类型配置。
+- static/v2/safety-valve-schema.js：30项表单字段及原版模板的28列导入配置。
 - static/v2/safety-valve.js：虚构样本、查询配置、共用新增/编辑表单、复制/粘贴、确认删除、本地Excel导入。
 - static/v2/vendor/xlsx.full.min.js、SheetJS-LICENSE.txt：本地SheetJS 0.20.3解析器及许可证。
-- static/v2/templates/safety-valve-import.xlsx：真正的Excel模板，安全阀导入及填写说明两个工作表，8个必填表头红字。
+- static/v2/templates/safety-valve-import.xlsx：原版模板的静态资源，下载文件名为 `安全阀管理.xlsx`。
 - tests/v2/safety-valve.e2e.cjs：25项针对性浏览器检查。
-- docs/special-equipment-v2/safety-valve/：本记录、测试JSON、浏览器截图及测试下载的模板。
+- docs/special-equipment-v2/safety-valve/：本记录、历史测试JSON及浏览器截图。
 
 修改：
 - static/v2.html：引入本地模块与解析器。
@@ -19,7 +21,6 @@
 - static/v2/styles.css：安全阀表单、导入弹窗、工具栏图标及响应式样式。
 - v2_server.py：仅增加上述静态资源的允许访问路径，没有新增业务API。
 
-模板构建脚本保存在.local/template-run/build.mjs，使用artifact-tool创建和渲染；预览为.local/template-run/template-preview.png。模板通过openpyxl独立核对32列、8个红色必填表头。
 
 ## 页面与操作
 
@@ -33,11 +34,11 @@
 
 ## Excel导入
 
-下载入口位于安全阀导入弹窗；文件为/static/v2/templates/safety-valve-import.xlsx。模板含30个表单字段及独立检验日期、下检日期；空日期不会自动推算。填写说明及页面均明确演示用途。
+下载入口提供原版 `安全阀管理.xlsx`。工作表名称为 `安全阀管理.xlsx`，首行 28 列全部为红色必填项，从第 2 行填写。检验方式 `01/02/03` 分别映射为校验台、在线、回座校验台。统一社会信用代码、所属设备、检验日期和下检日期没有模板列，导入时留空。
 
 使用本地SheetJS 0.20.3，运行时不依赖在线二维码或Excel服务，不发送上传请求。来源：[官方独立脚本说明](https://docs.sheetjs.com/docs/getting-started/installation/standalone/)，原始脚本https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js，许可证与脚本一并保存。
 
-支持真实.xlsx与.xls；上限5MB、1000条记录。检查文件扩展名及签名、工作表名、32列标题及顺序、必填项、数值、日期、下拉值、与现有记录及批内重复编号；拒绝公式、错误单元格及数值型产品编号以免损坏前导零。整批校验通过后才加入内存，有错误整批不导入并显示具体行/字段。关闭正在解析的弹窗不会提交结果。
+支持 `.xlsx` 和 `.xls`，单次上限 5 MB、1000 行。检查工作表、表头顺序、必填项、日期、数值、枚举和重复编号。长产品编号应按文本填写以保留精度和前导零。校验通过后整批保存到当前浏览器，错误按行和字段提示。
 
 ## 验证结果
 

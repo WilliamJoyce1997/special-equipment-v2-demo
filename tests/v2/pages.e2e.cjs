@@ -62,10 +62,11 @@ async function exercise(browser, base, isStatic) {
     const toolbar = () => page.locator('#main .table-toolbar');
     const dialog = () => page.locator('#dialog');
     const close = () => page.locator('#dialog-close').click();
-    const download = async control => {
+    const download = async (control, expectedName) => {
       const pending = page.waitForEvent('download');
       await control.click();
       const file = await pending;
+      if (expectedName) assert.equal(file.suggestedFilename(), expectedName);
       return fs.readFileSync(await file.path());
     };
 
@@ -93,7 +94,7 @@ async function exercise(browser, base, isStatic) {
     await rows().first().getByRole('button', { name: '复制', exact: true }).click();
     await page.locator('#announcement').filter({ hasText: '复制成功' }).waitFor({ state: 'attached' });
     await toolbar().getByRole('button', { name: '导入', exact: true }).click();
-    const template = await download(dialog().getByRole('link', { name: '下载模板' }));
+    const template = await download(dialog().getByRole('link', { name: '下载模板' }), '安全阀管理.xlsx');
     assert(template.equals(fs.readFileSync(path.join(output, 'static/v2/templates/safety-valve-import.xlsx'))));
     await close();
 
