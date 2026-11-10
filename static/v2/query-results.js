@@ -58,6 +58,24 @@ if(settingsButton){const bar=el('div','table-toolbar');bar.append(button('设置
 return root;
 }
 function settings(columns,st,refresh,api){V2TableSettings.open(st._tableId,columns,refresh,api);}
+function excelValue(column,value){
+ if(typeof value==='number'&&Number.isInteger(value)&&Math.abs(value)>=1e15)return String(value);
+ const isDate=column.type==='date'||column.key==='createdAt'||column.key==='issueDate';
+ if(!isDate||typeof value!=='string')return value??'';
+ const match=/^(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}:\d{2}:\d{2}))?$/.exec(value);
+ if(!match||match[1]<'1900-01-01')return value;
+ const [,day,time]=match,iso=day+'T'+(time||'00:00:00'),date=new Date(iso+'Z');
+ if(!Number.isFinite(date.getTime())||date.toISOString().slice(0,19)!==iso)return value;
+ // Excel's 1900 date system includes the fictitious 29 February 1900.
+ const serial=(date.getTime()-Date.UTC(1899,11,31))/86400000+(day>='1900-03-01'?1:0);
+ return {t:'n',v:serial,z:time?'yyyy-mm-dd hh:mm:ss':'yyyy-mm-dd'};
+}
+function exportExcel(filename,columns,rows){
+ const values=[columns.map(c=>c.label),...rows.map(row=>columns.map(c=>excelValue(c,row[c.key])))];
+ const workbook=XLSX.utils.book_new();
+ XLSX.utils.book_append_sheet(workbook,XLSX.utils.aoa_to_sheet(values),'数据');
+ XLSX.writeFile(workbook,filename,{bookType:'xlsx',compression:true});
+}
 function csv(columns,rows,title){const cell=v=>'"'+String(v??'').replace(/^[=+@-]/,"'$&").replaceAll('"','""')+'"';const text='\uFEFF'+[columns.map(c=>c.label),...rows.map(r=>columns.map(c=>r[c.key]))].map(r=>r.map(cell).join(',')).join('\r\n');const url=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'})),a=el('a');a.href=url;a.download=title+'-虚构样本.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 function view(plan,api){const E=V2QueryEngine,D=V2QueryDictionaries.get(plan.domain,plan.objectType,plan.subtype),root=el('div','cq-results'),st=state(),holder=el('div'),columns=plan.resultColumns.map(c=>({key:c.fieldId,label:D.fieldMap[c.fieldId].label,type:D.fieldMap[c.fieldId].type,color:c.color,frozen:c.frozen,width:210})),rows=E.execute(plan);
 if(!D.hasSource)root.append(el('p','notice cq-no-source','当前演示环境暂无该类型数据源'));
@@ -67,7 +85,7 @@ holder.append(table({title:'组合查询结果',columns,rows,st,tableId:'query-r
 api.show(D.title+'结果',root,'organization-dialog cq-results-dialog');
 return rows;
 }
-return {el,button,control,state,table,settings,csv,view};
+return {el,button,control,state,table,settings,csv,exportExcel,view};
 })();
 
 

@@ -31,7 +31,13 @@ function print(rows,api){try{validateRows(rows);const token=crypto.randomUUID(),
  for(let i=sessionStorage.length-1;i>=0;i--){const k=sessionStorage.key(i);if(k?.startsWith('v2:elevator-print:')){try{if(Date.now()-JSON.parse(sessionStorage.getItem(k)).created>3600000)sessionStorage.removeItem(k);}catch{sessionStorage.removeItem(k);}}}
  sessionStorage.setItem(key,JSON.stringify(payload));const win=window.open('/scdrpt/rpt_printCrt.shtml?demo='+encodeURIComponent(token),'_blank');if(!win){sessionStorage.removeItem(key);throw Error('浏览器阻止了打印窗口，请允许本地预览打开新窗口后重试');}
  }catch(e){api.announce(e.message);}}
-function toolbar(ctx){const {button}=U(),printButton=button('使用标志','tool',()=>print(ctx.selected(),ctx.api)),more=button('更多>>>','tool',()=>{if(!ctx.selected().length){ctx.api.announce('请先选择电梯记录');return;}V2Dossier.more(more,label=>batch({'重要场所':'important','风险等级':'risk','更新维保':'maintenance'}[label],ctx),['重要场所','风险等级','更新维保']);});printButton.dataset.elevatorTool='print';more.dataset.elevatorTool='more';return [printButton,more];}
+function toolbar(ctx){const {button}=U(),printButton=button('使用标志','tool',()=>print(ctx.selected(),ctx.api)),more=button('更多>>>','tool',()=>{if(!ctx.selected().length){ctx.api.announce('请先选择电梯记录');return;}V2Dossier.more(more,label=>batch({'重要场所':'important','风险等级':'risk','更新维保':'maintenance'}[label],ctx),['重要场所','风险等级','更新维保']);});
+ const icon=document.createElement('img');
+ icon.className='v2-action-icon';
+ icon.src='/static/v2/elevator-use-mark.svg';
+ icon.alt='';
+ printButton.prepend(icon);
+ printButton.dataset.elevatorTool='print';more.dataset.elevatorTool='more';return [printButton,more];}
 function update(root,rows){for(const b of root.querySelectorAll('[data-elevator-tool]')){b.disabled=!rows.length;b.title=rows.length?'':'请至少选择一条电梯记录';}}
 return {toolbar,update,patch,apply,maintenanceFields,printKeys};
 })();

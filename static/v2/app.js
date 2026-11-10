@@ -1,4 +1,24 @@
 
+const V2ExcelExportNames={
+ boiler:'锅炉设备数据导出.xlsx',
+ vessel:'压力容器设备数据导出.xlsx',
+ elevator:'电梯设备数据导出.xlsx',
+ crane:'起重机械设备数据导出.xlsx',
+ vehicle:'场（厂）内机动车辆设备数据导出.xlsx',
+ amusement:'大型游乐设施设备数据导出.xlsx',
+ ropeway:'客运索道设备数据导出.xlsx',
+ installation:'压力管道设备数据导出.xlsx',
+ pipeline:'压力管道管线数据导出.xlsx',
+ 'inspection-unit':'检验单位数据导出.xlsx',
+ personnel:'检验人员.xlsx',
+ 'boiler-product':'锅炉产品数据导出.xlsx',
+ 'vessel-product':'压力容器产品数据导出.xlsx',
+ 'elevator-product':'电梯产品数据导出.xlsx',
+ 'crane-product':'起重机械产品数据导出.xlsx',
+ 'pipe-component':'管道元件产品数据导出.xlsx',
+ 'pipe-project':'管道工程产品数据导出.xlsx'
+};
+
 // Shared artwork for record actions.
 const V2ActionIcons=(()=>{
  const blue='#417bff',red='#ff6268';
@@ -172,7 +192,7 @@ function render(api,key='boiler'){apiRef=api;type=key;st=states[type]??=initial(
  form.onsubmit=e=>{e.preventDefault();const filters=Object.fromEntries(new FormData(form)),problem=S().valid(filters);if(problem){error.textContent=problem;return;}st.filters=filters;st.draft={...filters};st.searched=true;st.table.page=1;st.table.selected.clear();api.refresh();};panel.append(form);root.append(panel);
  const tablePanel=el('section','panel table-panel'),toolbar=el('div','table-toolbar'),agency=V2ActionIcons.prepend(button('更改检验机构','tool',institution),'agency');
  function update(){if(type==='elevator')V2ElevatorTools.update(toolbar,selected());agency.disabled=!S().sameUnit(selected());agency.title=agency.disabled?'请勾选同一使用单位的一条或多条记录':'';}
- function exportRows(){if(!st.searched){api.announce('请先进行查询');return;}const matched=queryRows(),exported=st.table.selected.size?matched.filter(r=>st.table.selected.has(r.id)):matched;U().csv([{key:'seq',label:'序号'},{key:'operation',label:'操作'},...st.columns],exported.map((r,i)=>({...r,seq:i+1,operation:'虚构样本，仅用于演示'})),V2.types[type].title);}
+ function exportRows(){if(!st.searched){api.announce('请先进行查询');return;}const matched=queryRows(),exported=st.table.selected.size?matched.filter(r=>st.table.selected.has(r.id)):matched;U().exportExcel(V2ExcelExportNames[type],[{key:'seq',label:'序号'},{key:'operation',label:'操作'},...st.columns],exported.map((r,i)=>({...r,seq:i+1,operation:'虚构样本，仅用于演示'})));}
  const tools=type==='elevator'?V2ElevatorTools.toolbar({api,selected,refresh:api.refresh,remember:()=>{st.draft=Object.fromEntries(new FormData(form));},agency}):[];toolbar.append(agency,...tools,V2ActionIcons.prepend(button('导出','tool',exportRows),'export'),button('设置','link boiler-table-settings',()=>settings('table')));tablePanel.append(toolbar,el('p','data-source','前端虚构'+V2.types[type].title+'样本 · 不写入数据库 · 地区为离线行政区划选项'));
  const columns=V2.types[type].columns;const rows=queryRows();tablePanel.append(U().table({title:V2.types[type].title+'设备列表',tableId:'main/'+type,columns,rows,st:st.table,actionWidth:300,emptyText:st.searched?'暂无匹配记录':'请设置查询条件后点击“查询”',actions:r=>[
  button('精简档案','row-action',()=>api.show('精简档案',V2Dossier.brief(type,r),'brief-dialog brief-single-scroll')),
@@ -464,6 +484,13 @@ function moreActions(){const box=el('div');box.append(el('p','notice','导出当
 function exportRows(){
  if(!pageState().hasSearched){info('请先进行查询','尚未执行查询，请先点击查询后再导出。');return;}
  const p=pageState(),t=V2.types[state.key],rows=filtered().filter(r=>t.entity==='organization'||t.entity==='person'||t.entity==='product'||t.entity==='safety-valve'||!p.selected.size||p.selected.has(r.id)),cols=t.exportAllColumns?t.columns:t.columns.filter(c=>!p.hidden.has(c.key));
+ const filename=V2ExcelExportNames[state.key];
+ if(filename){
+  V2QueryResults.exportExcel(filename,[{key:'seq',label:'序号'},{key:'operation',label:'操作'},...cols],
+   rows.map((row,i)=>({...row,seq:i+1,operation:'只读演示：虚构演示样本，无法定效力'})));
+  announce('已导出 '+rows.length+' 条虚构样本');
+  return;
+ }
  const cell=v=>'"'+String(v??'').replace(/^[=+@-]/,"'$&").replaceAll('"','""')+'"';
  const exported=[['序号','操作',...cols.map(c=>c.label)],...rows.map((r,i)=>[i+1,'只读演示：虚构演示样本，无法定效力',...cols.map(c=>r[c.key])])];
  const csv='\uFEFF'+exported.map(row=>row.map(cell).join(',')).join('\r\n');

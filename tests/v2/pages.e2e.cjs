@@ -4,6 +4,36 @@ const http = require('node:http');
 const path = require('node:path');
 const playwrightPath = process.env.V2_PLAYWRIGHT || 'playwright';
 const { chromium } = require(playwrightPath);
+const XLSX = require('../../static/v2/vendor/xlsx.full.min.js');
+
+const exportNames = {
+  boiler: '锅炉设备数据导出.xlsx',
+  vessel: '压力容器设备数据导出.xlsx',
+  elevator: '电梯设备数据导出.xlsx',
+  crane: '起重机械设备数据导出.xlsx',
+  vehicle: '场（厂）内机动车辆设备数据导出.xlsx',
+  amusement: '大型游乐设施设备数据导出.xlsx',
+  ropeway: '客运索道设备数据导出.xlsx',
+  installation: '压力管道设备数据导出.xlsx',
+  pipeline: '压力管道管线数据导出.xlsx',
+  'inspection-unit': '检验单位数据导出.xlsx',
+  personnel: '检验人员.xlsx',
+  'boiler-product': '锅炉产品数据导出.xlsx',
+  'vessel-product': '压力容器产品数据导出.xlsx',
+  'elevator-product': '电梯产品数据导出.xlsx',
+  'crane-product': '起重机械产品数据导出.xlsx',
+  'pipe-component': '管道元件产品数据导出.xlsx',
+  'pipe-project': '管道工程产品数据导出.xlsx',
+};
+
+function readExport(bytes) {
+  assert.equal(bytes.subarray(0, 4).toString('hex'), '504b0304');
+  const workbook = XLSX.read(bytes, { type: 'buffer', bookFiles: true });
+  assert(workbook.files['xl/workbook.xml']);
+  assert.equal(workbook.SheetNames.length, 1);
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  return { sheet, rows: XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' }) };
+}
 
 const output = path.resolve(__dirname, '../../dist-pages');
 const prefix = '/special-equipment-v2-demo/';
@@ -71,6 +101,9 @@ async function exercise(browser, base, isStatic) {
     };
 
     await open('boiler');
+    const exportButton = () => toolbar().getByRole('button', { name: /导出/ });
+    await exportButton().click();
+    await page.locator('#announcement').filter({ hasText: '请先进行查询' }).waitFor();
     await query();
     const total = await page.locator('#main .count-total').innerText();
     assert.equal(total, '8');
@@ -81,11 +114,71 @@ async function exercise(browser, base, isStatic) {
     await rows().first().getByRole('button', { name: '精简档案' }).click();
     assert(await dialog().isVisible());
     await close();
-    assert.match((await download(toolbar().getByRole('button', { name: /导出/ }))).toString('utf8'), /设备代码/);
+    const fullBoiler = readExport(await download(exportButton(), exportNames.boiler));
+    assert(fullBoiler.rows[0].includes('设备代码'));
+    assert.equal(fullBoiler.rows.length, 9);
     const search = page.locator('#query-form [name=search]');
     await search.fill('DEMO-GL-001');
     await query();
     assert.equal(await page.locator('#main .count-total').innerText(), '1');
+    assert.equal(readExport(await download(exportButton(), exportNames.boiler)).rows.length, 2);
+    await search.fill('DEMO-不存在的设备');
+    await query();
+    assert.deepEqual(readExport(await download(exportButton(), exportNames.boiler)).rows, [fullBoiler.rows[0]]);
+    await search.fill('');
+    await query();
+
+    for (const [key, filename] of Object.entries(exportNames)) {
+      await open(key);
+      await query();
+      if (key === 'personnel') {
+        // Synthetic identifiers exercise leading zeros and values longer than Excel's number precision.
+        await page.evaluate(() => {
+          Object.assign(V2.fixtures.personnel[0], {
+            identity: '00000000000012345678', phone: '=1+1', mobile: '001234567890',
+          });
+        });
+        await query();
+      }
+      const total = Number(await page.locator('#main .count-total').innerText());
+      assert(total > 0, key);
+      const header = await page.locator('#main th[data-field] button').evaluateAll(buttons =>
+        buttons.map(button => button.getAttribute('aria-label').slice('按'.length, -'排序'.length)));
+      const columns = await page.evaluate(key => V2.types[key].columns, key);
+      assert.deepEqual(header, columns.map(c => c.label), key);
+      const visibleIds = await rows().evaluateAll(lines => lines.map(line => line.dataset.id));
+      const values = await page.evaluate(({ key, visibleIds }) => {
+        return visibleIds.map(id => {
+          const row = V2.fixtures[key].find(r => r.id === id);
+          return V2.types[key].columns.map(c => row[c.key] ?? '');
+        });
+      }, { key, visibleIds });
+      const exported = readExport(await download(exportButton(), filename));
+      assert.deepEqual(exported.rows[0], ['序号', '操作', ...header], key);
+      assert.equal(exported.rows.length, total + 1, key);
+      for (const [i, row] of values.entries()) {
+        const record = exported.rows[i + 1];
+        assert.equal(record[0], String(i + 1), key);
+        for (const [j, value] of row.entries()) {
+          const cell = exported.sheet[XLSX.utils.encode_cell({ r: i + 1, c: j + 2 })];
+          if (typeof value === 'number') assert.equal(cell.v, value, columns[j].label);
+          else assert.equal(record[j + 2], String(value), columns[j].label);
+          if (typeof value === 'string' && (/^0\d+$/.test(value) || /^[=+@-]/.test(value))) {
+            assert.equal(cell.t, 's', columns[j].label);
+            assert.equal(cell.f, undefined, columns[j].label);
+          }
+          if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2}:\d{2})?$/.test(value)) {
+            assert.equal(cell.t, 'n', columns[j].label);
+          }
+        }
+      }
+      await rows().first().locator('input[type=checkbox]').check();
+      const selected = readExport(await download(exportButton(), filename));
+      const exportsSelection = !key.endsWith('-product') && !['inspection-unit', 'personnel', 'pipe-component', 'pipe-project'].includes(key);
+      assert.deepEqual(selected.rows, exportsSelection ? exported.rows.slice(0, 2) : exported.rows, key);
+      assert.equal(await page.locator('#main .count-selected').innerText(), '1', key);
+    }
+    console.log('PASS XLSX names, column order, typed cells, row mapping and selection for 17 modules', base);
 
     await open('safety-valve');
     await query();
@@ -110,6 +203,8 @@ async function exercise(browser, base, isStatic) {
       await dialog().getByRole('button', { name: '保存', exact: true }).click();
       await main.getByRole('button', { name: '执行', exact: true }).click();
       assert(Number(await dialog().locator('.count-total').innerText()) > 0, key);
+      const csv = await download(dialog().getByRole('button', { name: '导出', exact: true }), 'DEMO Pages ' + key + '-虚构样本.csv');
+      assert.match(csv.toString('utf8'), /^\uFEFF"/);
       await close();
     }
 
@@ -124,7 +219,7 @@ async function exercise(browser, base, isStatic) {
     const expectedPrint = isStatic ? base + 'static/v2/elevator-print.html' : base + 'scdrpt/rpt_printCrt.shtml';
     assert.equal(print.url().split('?')[0], expectedPrint);
     assert.deepEqual(problems, []);
-    console.log('PASS filters, paging, dialog, CSV, copy, XLSX, query lists and print', base);
+    console.log('PASS filters, paging, dialog, copy, XLSX, query lists and print', base);
     return menu;
   } finally {
     await context.close();

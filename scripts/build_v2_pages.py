@@ -30,7 +30,7 @@ def build_assets():
     for name in sorted(sources):
         relative = PurePosixPath(name)
         if not (
-            name == "static/v2.html"
+            name in {"static/v2.html", "static/v2/elevator-use-mark.svg"}
             or re.fullmatch(r"static/v2/(?:[a-z0-9-]+\.(?:js|css|html)|vendor/(?:qrcode\.js|xlsx\.full\.min\.js)|templates/(?:safety-valve-import\.xlsx|jyryExp\.xls|product-(?:boiler|vessel|elevator|crane|pipe-component|pipe-project)\.xlsx))", name)
             or name in LICENSES
         ):
