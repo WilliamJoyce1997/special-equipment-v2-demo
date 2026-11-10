@@ -25,7 +25,7 @@ function render(ctx){
  const rows=V2Dossier.histories(type,row),options={
  queryFirst:true,operationWidth:360,pageSizes:[1,5,10,20],
  strictInspectionKinds:['elevator','crane','vehicle','amusement','ropeway','installation'].includes(type),inspectionKinds:type==='installation'?V2InstallationSchema.inspectionKinds:V2EquipmentSchema.optionsFor(type,{key:'inspectionKind',label:'检验类别'})||[...new Set(rows.map(r=>r['检验类别']))],
- toolbar:()=>{const tools=el('div','more-table-toolbar');tools.append(disabled('⊕ 新增'),disabled('⊖ 删除'),el('span','','演示模式暂不支持修改'));return tools;},
+ toolbar:()=>{const tools=el('div','more-table-toolbar');tools.append(V2ActionIcons.prepend(disabled('新增'),'add'),V2ActionIcons.prepend(disabled('删除'),'delete'),el('span','','演示模式暂不支持修改'));return tools;},
  renderActions:record=>{const actions=el('div','more-inspection-actions');for(const name of ['详情','报告','报告附件','意见书'])actions.append(button(name,'row-action',()=>recordSubview(ctx,listing,record,name,V2Dossier.inspectionHeaders)));return actions;}
  };
  listing.append(V2Dossier.recordTable(entry,'completed','已完成检验信息',V2Dossier.inspectionHeaders,rows,'history',options));

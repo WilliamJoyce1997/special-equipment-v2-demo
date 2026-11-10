@@ -91,7 +91,7 @@ function confirmation(title,message,onConfirm,show,api){
  const root=el('div'),error=el('p','form-error'),actions=el('div','boiler-modal-actions');
  root.append(el('p','notice',message),error,actions);
  actions.append(button('确认删除','primary',()=>{try{onConfirm();api.close();api.refresh?.();}catch(e){error.textContent=e.message;}}),button('取消','secondary',api.close));
- show(title,root,'organization-dialog');
+ show(title,root,'compact-dialog');
 }
 function removeUnits(ids,api){
  if(!ids.length){api.announce('请先选择需要删除的检验单位');return;}
@@ -209,10 +209,10 @@ function qualificationInfo(row,onSave){
   for(const [i,row]of details.entries()){
    const tr=el('tr');
    for(const key of ['category','level','variety','remarks']){const td=el('td'),input=el('input','control');input.setAttribute('aria-label','许可项目'+(i+1)+' '+key);input.value=row[key]||'';input.oninput=()=>row[key]=input.value;td.append(input);tr.append(td);}
-   const td=el('td');td.append(button('删除','link',()=>{details.splice(i,1);drawDetails();}));tr.append(td);body.append(tr);
+   const td=el('td');td.append(V2ActionIcons.prepend(button('删除','link',()=>{details.splice(i,1);drawDetails();}),'delete'));tr.append(td);body.append(tr);
   }
   if(!details.length){const td=el('td','empty','暂无数据');td.colSpan=5;const tr=el('tr');tr.append(td);body.append(tr);}
-  table.append(head,body);const columns=['许可项目类别','许可项目级别','许可项目品种','备注'].map(label=>({key:label,label,width:190}));V2TableSettings.decorate(table,'unit/inspection-unit/qualification-license-details',columns,0,1);const settingsBar=el('div','table-toolbar');settingsBar.append(button('设置','link',()=>V2TableSettings.open('unit/inspection-unit/qualification-license-details',columns,drawDetails)));const add=button('+','qualification-detail-add',()=>{details.push({});drawDetails();});add.setAttribute('aria-label','新增许可项目明细');holder.replaceChildren(settingsBar,table,add);
+  table.append(head,body);const columns=['许可项目类别','许可项目级别','许可项目品种','备注'].map(label=>({key:label,label,width:190}));V2TableSettings.decorate(table,'unit/inspection-unit/qualification-license-details',columns,0,1);const settingsBar=el('div','table-toolbar');settingsBar.append(button('设置','link',()=>V2TableSettings.open('unit/inspection-unit/qualification-license-details',columns,drawDetails)));const add=V2ActionIcons.prepend(button('','qualification-detail-add',()=>{details.push({});drawDetails();}),'add');add.setAttribute('aria-label','新增许可项目明细');holder.replaceChildren(settingsBar,table,add);
  }
  drawDetails();
  const remarks=el('textarea','control');remarks.setAttribute('aria-label','备注');
@@ -252,7 +252,7 @@ function qualification(row,show,api={}){
   const records=(owner?.qualifications||[]).filter(r=>r.unitId===row.id&&(!category.value||r['申请类别']===category.value)&&(!certificate.value||r['证书编号'].includes(certificate.value.trim()))&&(!date.value||r['发证日期']===date.value));
   result.replaceChildren(V2Dossier.recordTable(entry,'qualifications','资质记录',qualificationFields,records,null,{sortable:true,omitOperation:true,emptyText:'暂无数据'}));
  }
- tools.append(button('新增','secondary',()=>qualificationInfo(row,()=>{entry.tables={};draw();})),button('删除','secondary',()=>{
+ tools.append(V2ActionIcons.prepend(button('新增','secondary',()=>qualificationInfo(row,()=>{entry.tables={};draw();})),'add'),V2ActionIcons.prepend(button('删除','secondary',()=>{
   const selected=entry.tables.qualifications?.selected||new Set();
   if(!selected.size){error.textContent='请先选择需要删除的资质';return;}
   const ids=new Set(selected),shell=childDialog('确认删除资质'),message=el('p','notice','确认删除选中的 '+ids.size+' 条资质？'),failure=el('p','form-error');
@@ -260,7 +260,7 @@ function qualification(row,show,api={}){
    try{mutate(records=>{const owner=records.find(r=>r.id===row.id);if(!owner)throw Error('所属单位已删除');owner.qualifications=owner.qualifications.filter(q=>!ids.has(q.id));});selected.clear();shell.close();draw();}
    catch(e){failure.textContent=e.message;}
   }),button('取消','secondary',shell.close));
- }));
+ }),'delete'));
  const fetch=button('获取资质','more-disabled',()=>{});fetch.disabled=true;fetch.title='当前演示环境无外部资质数据接口';tools.append(fetch);
  form.onsubmit=e=>{e.preventDefault();entry.tables={};draw();};root.append(form,tools,error,result);draw();show('资质管理',root,'more-dialog organization-dialog');
 }

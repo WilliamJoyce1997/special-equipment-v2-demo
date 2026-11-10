@@ -1,4 +1,37 @@
 
+// Shared artwork for record actions.
+const V2ActionIcons=(()=>{
+ const blue='#417bff',red='#ff6268';
+ const shapes={
+  export:`<rect x="0" y="0" width="24" height="24" rx="3" fill="#72c914"/>
+          <path d="M12 19V5m-4 4 4-4 4 4m-7 10h6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`,
+  add:`<rect x="2" y="2" width="17" height="18" rx="2" fill="none" stroke="${blue}" stroke-width="2"/>
+       <rect x="5" y="5" width="18" height="18" rx="2" fill="${blue}"/>
+       <path d="M14 10v8m-4-4h8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>`,
+  delete:`<path d="M5 6h14v14.5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="${red}"/>
+          <path d="M2.5 6h19M8 6V4l1.5-2h5L16 4v2" fill="none" stroke="${red}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8.5 10v9m3.5-9v9m3.5-9v9" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/>`,
+  agency:`<rect x=".5" y="1" width="18.5" height="21.5" rx="1.7" fill="${blue}"/>
+          <path d="M4 6h5m-5 5h9m-9 5h6" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="18.5" cy="18.5" r="5" fill="${blue}" stroke="#fff" stroke-width="1.2"/>
+          <circle cx="18.5" cy="17" r="1.35" fill="#fff"/>
+          <path d="M15.9 21a2.6 2.6 0 0 1 5.2 0z" fill="#fff"/>`
+ };
+ function create(kind){
+  const icon=document.createElement('span');
+  icon.className='v2-action-icon';
+  icon.dataset.actionIcon=kind;
+  icon.setAttribute('aria-hidden','true');
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 24 24');
+  svg.innerHTML=shapes[kind];
+  icon.append(svg);
+  return icon;
+ }
+ function prepend(button,kind){button.prepend(create(kind));return button;}
+ return {prepend};
+})();
+
 // Shared help for device queries and both field settings dialogs.
 const V2Help=(()=>{
  let serial=0;
@@ -137,10 +170,10 @@ function render(api,key='boiler'){apiRef=api;type=key;st=states[type]??=initial(
  const actions=el('div','query-actions'),submit=el('button','primary','⌕ 查询');submit.type='submit';const links=el('div','query-links');links.append(V2Help.create(usageHelp),button('⚙ 设置','link',()=>{st.draft=Object.fromEntries(new FormData(form));settings('query');}),button(st.advanced?'⌕普通查询':'⌕高级查询','link',()=>{st.draft=Object.fromEntries(new FormData(form));st.advanced=!st.advanced;if(!st.advanced)for(const f of S().advanced)if(!S().base.some(base=>base.key===f.key))for(const suffix of ['', '_min','_max'])delete st.draft[f.key+suffix];api.refresh();}));
  actions.append(submit,button('⟳ 重置','secondary',()=>{st.searched=false;st.filters={};st.draft={};st.table.page=1;st.table.selected.clear();api.refresh();}),links);const error=el('p','form-error');error.id='form-error';error.setAttribute('role','alert');form.append(actions,error);
  form.onsubmit=e=>{e.preventDefault();const filters=Object.fromEntries(new FormData(form)),problem=S().valid(filters);if(problem){error.textContent=problem;return;}st.filters=filters;st.draft={...filters};st.searched=true;st.table.page=1;st.table.selected.clear();api.refresh();};panel.append(form);root.append(panel);
- const tablePanel=el('section','panel table-panel'),toolbar=el('div','table-toolbar'),agency=button('▤ 更改检验机构','tool',institution);
+ const tablePanel=el('section','panel table-panel'),toolbar=el('div','table-toolbar'),agency=V2ActionIcons.prepend(button('更改检验机构','tool',institution),'agency');
  function update(){if(type==='elevator')V2ElevatorTools.update(toolbar,selected());agency.disabled=!S().sameUnit(selected());agency.title=agency.disabled?'请勾选同一使用单位的一条或多条记录':'';}
  function exportRows(){if(!st.searched){api.announce('请先进行查询');return;}const matched=queryRows(),exported=st.table.selected.size?matched.filter(r=>st.table.selected.has(r.id)):matched;U().csv([{key:'seq',label:'序号'},{key:'operation',label:'操作'},...st.columns],exported.map((r,i)=>({...r,seq:i+1,operation:'虚构样本，仅用于演示'})),V2.types[type].title);}
- const tools=type==='elevator'?V2ElevatorTools.toolbar({api,selected,refresh:api.refresh,remember:()=>{st.draft=Object.fromEntries(new FormData(form));},agency}):[];toolbar.append(agency,...tools,button('↥ 导出','tool',exportRows),button('设置','link boiler-table-settings',()=>settings('table')));tablePanel.append(toolbar,el('p','data-source','前端虚构'+V2.types[type].title+'样本 · 不写入数据库 · 地区为离线行政区划选项'));
+ const tools=type==='elevator'?V2ElevatorTools.toolbar({api,selected,refresh:api.refresh,remember:()=>{st.draft=Object.fromEntries(new FormData(form));},agency}):[];toolbar.append(agency,...tools,V2ActionIcons.prepend(button('导出','tool',exportRows),'export'),button('设置','link boiler-table-settings',()=>settings('table')));tablePanel.append(toolbar,el('p','data-source','前端虚构'+V2.types[type].title+'样本 · 不写入数据库 · 地区为离线行政区划选项'));
  const columns=V2.types[type].columns;const rows=queryRows();tablePanel.append(U().table({title:V2.types[type].title+'设备列表',tableId:'main/'+type,columns,rows,st:st.table,actionWidth:300,emptyText:st.searched?'暂无匹配记录':'请设置查询条件后点击“查询”',actions:r=>[
  button('精简档案','row-action',()=>api.show('精简档案',V2Dossier.brief(type,r),'brief-dialog brief-single-scroll')),
  button('详情','row-action',()=>api.openDevice(type,r)),
@@ -158,13 +191,6 @@ const state={key:'boiler',tabs:['boiler'],pages:{},details:{},openGroups:new Set
 const labels=Object.fromEntries(V2.groups.flatMap(g=>g[1]));
 let returnFocus=null,dialogCleanup=null,bodyOverflowBeforeDialog=null;
 const icon=(text,blue=false)=>{const i=el('span','tool-icon'+(blue?' blue':''),text);i.setAttribute('aria-hidden','true');return i;};
-function safetyActionIcon(action){
- const symbol=V2.types['safety-valve'].icons[action];
- if(!symbol)return null;
- const node=icon(symbol);
- node.classList.add(action==='新增'?'add-icon':'delete-icon');
- return node;
-}
 function importIcon(){
  const wrapper=icon('');
  wrapper.classList.add('import-icon');
@@ -212,9 +238,10 @@ function tabs(){
  }));
 }
 function open(key){
- if(!labels[key])key='boiler';state.key=key;if(!state.tabs.includes(key))state.tabs.push(key);
+ if(!labels[key])key='boiler';const changed=key!==state.key;state.key=key;if(!state.tabs.includes(key))state.tabs.push(key);
  const u=new URL(location.href);u.hash=key;history.replaceState(null,'',u);document.title=labels[key]+' · 特种设备综合管理系统';
  document.body.classList.remove('mobile-menu');nav();tabs();render();
+ if(changed)$('#workspace-content').scrollTop=0;
 }
 function pipeQueryConfig(p){
  if(p.queryFields)return p.queryPreview||p.queryFields;
@@ -256,7 +283,7 @@ function pipeSchema(){return state.key==='installation'?V2InstallationSchema:sta
 function render(){
  V2InspectionUnits.closeMenu();V2BoilerProducts.closeMenu();document.getElementById('record-more-menu')?.remove();const main=$('#main'),t=V2.types[state.key];main.replaceChildren();if(state.details[state.key]?.creating){main.append(V2Dossier.createInstallation(state.details[state.key],{show:dialog,close:closeDialog}));return;}if(state.details[state.key]){main.append(V2Dossier.page(state.details[state.key],{show:dialog,close:closeDialog,openDevice}));return;}
  if(V2EquipmentSchema.supported.includes(state.key)){main.append(V2EquipmentPage.render({show:dialog,close:closeDialog,refresh:render,announce,openDevice},state.key));return;}
- if(['person-query','unit-query','equipment-query'].includes(state.key)){main.append(V2QueryPlans.render({show:dialog,close:closeDialog,refresh:render,announce,safetyActionIcon},state.key.replace('-query','')));return;}
+ if(['person-query','unit-query','equipment-query'].includes(state.key)){main.append(V2QueryPlans.render({show:dialog,close:closeDialog,refresh:render,announce},state.key.replace('-query','')));return;}
  if(!t?.implemented){const panel=el('section','panel planned');panel.append(el('span','planned-label','后续设计 · 尚未开发'),el('h1','',labels[state.key]),el('p','','本批已实现设备管理下九类设备页面，其他基础档案模块保留后续设计。'),el('p','','此菜单保留信息架构，未接通业务操作及数据接口。'));if(t?.queryPlan)panel.append(el('p','','已规划查询字段：'+t.queryPlan.join('、')));main.append(panel);return;}
  const p=pageState(),panel=el('section','panel query-panel'),form=el('form');form.id='query-form';form.setAttribute('aria-label',t.title+'查询条件');
  const grid=el('div','query-grid');
@@ -323,9 +350,10 @@ function renderTable(){
  const panel=$('.table-panel');if(!panel)return;const p=pageState(),t=V2.types[state.key],rows=filtered();const validIds=new Set(rows.map(r=>r.id));for(const id of p.selected)if(!validIds.has(id))p.selected.delete(id);p.page=Math.max(1,Math.min(p.page,Math.ceil(rows.length/p.size)||1));panel.replaceChildren();
  const toolbar=el('div','table-toolbar');
  for(const action of t.actions){const b=button('','tool',()=>action==='导出'?exportRows():t.entity==='safety-valve'?V2SafetyValves.toolbar(action,safetyApi()):action==='导入'&&(t.entity==='person'||t.entity==='product')?openExcelImport(t,p):action==='管道汇总表'?pipelineSummary():t.entity==='organization'&&action==='删除'?V2InspectionUnits.removeUnits([...p.selected],{show:dialog,close:closeDialog,refresh:renderTable,announce}):state.key==='installation'&&action==='新增'?newInstallation():action.startsWith('更多')?moreActions():info(action+' · 未接通后端','该业务操作保留参考系统入口。本批仅实现查询与查看，未提供'+action+'的业务提交接口，不会修改任何记录。'));
- const specialIcon=t.entity==='safety-valve'?safetyActionIcon(action):null;
- const actionIcon=action==='导入'?importIcon():specialIcon||icon(t.icons?.[action]||(action==='使用标志'?'▤':action.startsWith('更多')?'⋯':'↥'),action==='使用标志'||action.startsWith('更多'));
- b.append(actionIcon,el('span','',action));
+ b.append(el('span','',action));
+ if(action==='新增'||action==='管道汇总表')V2ActionIcons.prepend(b,'add');
+ else if(action==='删除')V2ActionIcons.prepend(b,'delete');
+ else b.prepend(action==='导入'?importIcon():icon(t.icons?.[action]||(action==='使用标志'?'▤':action.startsWith('更多')?'⋯':'↥'),action==='使用标志'||action.startsWith('更多')));
  if(state.key==='installation'&&action==='管道汇总表'){
  b.title='打印勾选相同单位、相同类别的在用管线信息';
  b.append(el('span','installation-summary-hint','（打印勾选相同单位、相同类别在用管线信息）'));
@@ -388,16 +416,16 @@ function pipelineSummary(){
  box.append(el('p','','装置数量：'+rows.length+'；在用管线数量：'+pipes.length+'；管线总长度：'+total+' m'));
  for(const r of pipes)box.append(el('p','',r.installationName+' / '+r.pipeName+' / '+r.pipelineNumber+' / '+r.length+' m'));
  if(!pipes.length)box.append(el('p','','所选装置暂无在用虚构管线'));
- dialog('管道汇总表 · 虚构管线预览',box);
+ dialog('管道汇总表 · 虚构管线预览',box,'wide-table-dialog');
 }
 
 
-function info(title,text){const box=el('div');box.append(el('p','notice',text));dialog(title,box);}
+function info(title,text){const box=el('div');box.append(el('p','notice',text));dialog(title,box,'compact-dialog');}
 function detail(row){
  const t=V2.types[state.key],box=el('div');box.append(el('p','notice',row.source+'。本弹窗为只读档案展示；检验与许可状态均不具有法定效力。'));
  const dl=el('dl','detail-grid'),seen=new Set();
  for(const c of t.detailFields){if(seen.has(c.key))continue;seen.add(c.key);const f=el('div','detail-field');f.append(el('dt','',c.label),el('dd','',String(c.key==='sequence'?filtered().findIndex(r=>r.id===row.id)+1:row[c.key]??'—')));dl.append(f);}
- box.append(dl);dialog(t.title+'设备详情 · '+row.equipmentCode,box);
+ box.append(dl);dialog(t.title+'设备详情 · '+row.equipmentCode,box,'detail-dialog');
 }
 function inspection(row){const box=el('div');box.append(el('p','notice','模拟信息：本批不实施检测、检验或验收流程，以下日期为虚构样本，不代表法定检验结论。'));
  const dl=el('dl','detail-grid'),fields=V2.types[state.key].columns.filter(c=>c.key==='equipmentCode'||/检验|检测|下检/.test(c.label));
@@ -432,7 +460,7 @@ function advanced(){
  const submit=el('button','primary','应用高级查询');submit.type='submit';submit.style.marginTop='18px';form.append(submit);
  form.onsubmit=e=>{e.preventDefault();const normal=Object.fromEntries(new FormData($('#query-form')));if(!validate(normal,V2.types[state.key],$('#form-error')))return;Object.assign(p.filters,normal,Object.fromEntries(new FormData(form)));p.hasSearched=true;p.page=1;p.selected.clear();renderTable();$('#dialog').close();announce('高级查询已应用');};box.append(form);dialog('高级查询',box);
 }
-function moreActions(){const box=el('div');box.append(el('p','notice','导出当前查询结果为虚构样本 CSV；本批未接通业务批量修改。'),button('导出演示数据 CSV','secondary',()=>{$('#dialog').close();exportRows();}));dialog('更多操作',box);}
+function moreActions(){const box=el('div');box.append(el('p','notice','导出当前查询结果为虚构样本 CSV；本批未接通业务批量修改。'),button('导出演示数据 CSV','secondary',()=>{$('#dialog').close();exportRows();}));dialog('更多操作',box,'compact-dialog');}
 function exportRows(){
  if(!pageState().hasSearched){info('请先进行查询','尚未执行查询，请先点击查询后再导出。');return;}
  const p=pageState(),t=V2.types[state.key],rows=filtered().filter(r=>t.entity==='organization'||t.entity==='person'||t.entity==='product'||t.entity==='safety-valve'||!p.selected.size||p.selected.has(r.id)),cols=t.exportAllColumns?t.columns:t.columns.filter(c=>!p.hidden.has(c.key));

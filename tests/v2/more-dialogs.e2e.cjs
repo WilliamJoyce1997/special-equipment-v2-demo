@@ -31,7 +31,7 @@ for(const [type,prefix] of Object.entries(codes)){
  await close();assert.deepEqual(await listState(),before);ok(type+' QR close restores page/sort/query/selection');
  await more('检验信息');assert.equal(await page.locator('#dialog-title').innerText(),'历史检验信息');
  const completed=modal.locator('[data-table="completed"]');assert.deepEqual(await headers(completed),histHeaders);assert.deepEqual(await headers(modal.locator('[data-table="delay"]')),delayHeaders);
- assert.equal(await modal.locator('.dossier-table-card').count(),3);assert.equal(await modal.getByRole('button',{name:'⊕ 新增',exact:true}).isDisabled(),true);assert(await modal.getByRole('button',{name:'登记',exact:true}).isDisabled());
+ assert.equal(await modal.locator('.dossier-table-card').count(),3);assert.equal(await modal.getByRole('button',{name:'新增',exact:true}).isDisabled(),true);assert(await modal.getByRole('button',{name:'登记',exact:true}).isDisabled());
  const originalRows=await dataRows(completed);
  const options=await modal.getByLabel('历史检验类别',{exact:true}).locator('option').allTextContents();if(type==='boiler')for(const name of ['内部检验','外部检验','水质检验','安装监检','驻厂监检','进口监检'])assert(options.includes(name));else assert(!originalRows.some(r=>['内部检验','外部检验','水质检验'].includes(r[0])));
  if(type==='boiler'){

@@ -148,7 +148,7 @@ function qualification(person,show){
  controls[f.key]=input;label.append(input);field.append(label);grid.append(field);
  }
  const actions=el('div','query-actions'),submit=el('button','primary','查询');submit.type='submit';actions.append(submit,button('重置','secondary',()=>{form.reset();entry.tables={};redraw()}));form.append(grid,actions);
- const toolbar=el('div','more-table-toolbar');for(const name of ['新增','删除']){const b=button(name,'more-disabled',()=>{});b.disabled=true;b.title='演示模式暂不支持'+name;toolbar.append(b)}toolbar.append(el('span','','演示模式不支持修改或保存真实资格记录'));
+ const toolbar=el('div','more-table-toolbar');for(const [name,icon] of [['新增','add'],['删除','delete']]){const b=button(name,'more-disabled',()=>{});b.disabled=true;b.title='演示模式暂不支持'+name;toolbar.append(V2ActionIcons.prepend(b,icon))}toolbar.append(el('span','','演示模式不支持修改或保存真实资格记录'));
  const entry={type:'personnel',row:person,tables:{}},result=el('div','person-qualification-result');
  function redraw(){
  const mapping={application:'申请类别',status:'持证状态',project:'批准项目',category:'资格类别',level:'持证级别',certificate:'证书编号'};

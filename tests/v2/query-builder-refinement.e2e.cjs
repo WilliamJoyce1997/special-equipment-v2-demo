@@ -25,7 +25,7 @@ async function run() {
     const save = () => button(dialog,'保存').click();
     const close = () => page.locator('#dialog-close').click();
     const scheme = () => main.locator('tbody tr[data-id]');
-    const icon = control => control.locator('.tool-icon').evaluate(el=>[el.textContent,getComputedStyle(el).backgroundColor,el.offsetWidth,el.offsetHeight]);
+    const icon = control => control.locator('.v2-action-icon').evaluate(el=>[el.firstElementChild.outerHTML,el.offsetWidth,el.offsetHeight]);
     async function assertEmptyResultSelection() {
       const selectAll = dialog.getByRole('checkbox',{name:'选择全部结果字段',exact:true});
       assert.equal(await selectAll.isChecked(),false);

@@ -42,7 +42,7 @@ V2.types['safety-valve']={title:'安全阀管理',entity:'safety-valve',implemen
  columns:[col('unitName','使用单位名称',300),col('installationName','装置名称',240),col('valveType','安全阀类型',170),col('model','安全阀型号',210),
  col('manufacturer','制造单位',300),col('productNumber','产品编号',230),col('inspectionDate','检验日期',170),col('nextInspectionDate','下检日期',170),col('status','状态',140)],
  queries:[q('unitName','使用单位'),q('installationName','装置名称'),q('inspectionDate','检验日期','dateRange'),q('nextInspectionDate','下检日期','dateRange'),q('productNumber','产品编号')],
- actions:['新增','导入','删除'],icons:{新增:'⊞',删除:'▥'},
+ actions:['新增','导入','删除'],
  rowActions:[['编辑','valve-edit'],['复制','valve-copy'],['更多>>','valve-more']],operationWidth:270,pageSizes:[5,10,20]};
 function allocateId(){return 'DEMO-SAFETY-VALVE-'+crypto.randomUUID();}
 function uniqueNumber(base,records=rows){let number;do{number=String(base||'DEMO-SV')+'-COPY-'+(++numberSequence)}while(records.some(r=>keyOf(r.productNumber)===keyOf(number)));return number;}
@@ -200,7 +200,7 @@ function remove(api){
   }catch(problem){if(!closed())error.textContent=problem.message;}
   finally{confirm.disabled=false;}
  });
- body.append(confirm,button('取消','secondary',api.close),error);api.show('确认删除安全阀',body,'organization-dialog valve-dialog');
+ body.append(confirm,button('取消','secondary',api.close),error);api.show('确认删除安全阀',body,'valve-dialog compact-dialog');
 }
 async function parseImport(file){
  if(!file||!/\.(xls|xlsx)$/i.test(file.name))throw Error('文件格式不支持：仅支持.xls、.xlsx');
