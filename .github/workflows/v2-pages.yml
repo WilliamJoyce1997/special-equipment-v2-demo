@@ -31,11 +31,12 @@ jobs:
           python scripts/build_v2_pages.py
           python scripts/build_v2_pages.py --check
           node --test tests/v2/*.test.cjs
-      - name: Verify root and project-path behavior in Chromium
+      - name: Install Playwright and Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
-          node tests/v2/pages.e2e.cjs
+      - name: Verify root and project-path behavior in Chromium
+        run: node tests/v2/pages.e2e.cjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

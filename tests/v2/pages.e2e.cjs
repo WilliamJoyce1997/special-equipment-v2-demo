@@ -37,7 +37,7 @@ function readExport(bytes) {
 
 const output = path.resolve(__dirname, '../../dist-pages');
 const prefix = '/special-equipment-v2-demo/';
-const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript',
+const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml',
   '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
 const server = http.createServer((req, res) => {
   const pathname = new URL(req.url, 'http://localhost').pathname;
@@ -65,9 +65,13 @@ async function exercise(browser, base, isStatic) {
     if (res.status() >= 400) problems.push(res.status() + ' ' + res.url());
   });
   try {
-    const page = await context.newPage();
-    page.setDefaultTimeout(8000);
-    await page.goto(base);
+    async function newPage() {
+      const tab = await context.newPage();
+      tab.setDefaultTimeout(8000);
+      await tab.goto(base);
+      return tab;
+    }
+    let page = await newPage();
     const nav = key => page.locator('#nav [data-page="' + key + '"]');
     const open = async key => {
       const group = nav(key).locator('xpath=../preceding-sibling::button[1]');
@@ -83,6 +87,15 @@ async function exercise(browser, base, isStatic) {
       assert.equal(new URL(page.url()).hash, '#' + key);
       assert.equal(await nav(key).getAttribute('aria-current'), 'page');
       assert((await page.locator('#main').innerText()).trim(), key);
+      if (key === 'elevator') {
+        const icon = page.locator('[data-elevator-tool="print"] img');
+        const src = await icon.evaluate(img => img.src);
+        assert.equal(src, new URL('static/v2/elevator-use-mark.svg', base).href);
+        const response = await context.request.get(src);
+        assert.equal(response.status(), 200, src);
+        assert.match(response.headers()['content-type'], /^image\/svg\+xml\b/, src);
+        await icon.evaluate(img => img.decode());
+      }
       menu.push([key, await page.title()]);
     }
     console.log('PASS 21 menu pages', base);
@@ -93,9 +106,10 @@ async function exercise(browser, base, isStatic) {
     const dialog = () => page.locator('#dialog');
     const close = () => page.locator('#dialog-close').click();
     const download = async (control, expectedName) => {
-      const pending = page.waitForEvent('download');
-      await control.click();
-      const file = await pending;
+      const url = page.url();
+      const [file] = await Promise.all([page.waitForEvent('download'), control.click()]).catch(cause => {
+        throw new Error('Download failed for ' + expectedName + ' at ' + url, { cause });
+      });
       if (expectedName) assert.equal(file.suggestedFilename(), expectedName);
       return fs.readFileSync(await file.path());
     };
@@ -125,10 +139,12 @@ async function exercise(browser, base, isStatic) {
     await search.fill('DEMO-不存在的设备');
     await query();
     assert.deepEqual(readExport(await download(exportButton(), exportNames.boiler)).rows, [fullBoiler.rows[0]]);
-    await search.fill('');
-    await query();
 
     for (const [key, filename] of Object.entries(exportNames)) {
+      // Chromium throttles bursts of downloads in one frame. Give each module
+      // a fresh frame while still checking both downloads in the same module session.
+      await page.close();
+      page = await newPage();
       await open(key);
       await query();
       if (key === 'personnel') {
@@ -231,6 +247,7 @@ async function run() {
   try {
     const browser = await chromium.launch(process.env.V2_CHROME_CHANNEL ? { channel: process.env.V2_CHROME_CHANNEL } : {});
     try {
+      console.log('Chromium ' + browser.version() + ' on ' + process.platform);
       const root = 'http://127.0.0.1:' + server.address().port + '/';
       const rootMenu = await exercise(browser, root, true);
       assert.deepEqual(await exercise(browser, root + prefix.slice(1), true), rootMenu);
