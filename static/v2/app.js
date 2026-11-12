@@ -185,11 +185,32 @@ function settings(kind){
 }
 
 function render(api,key='boiler'){apiRef=api;type=key;st=states[type]??=initial();const {el,button}=U(),root=el('div','boiler-page'),panel=el('section','panel query-panel'),form=el('form');form.id='query-form';form.setAttribute('aria-label',V2.types[type].title+'查询条件');
+ function applyQuery(filters,searched){
+  st.draft={...filters};
+  st.filters=searched?filters:{};
+  st.searched=searched;
+  st.table.page=1;
+  st.table.selected.clear();
+ }
  form.addEventListener('input',e=>{const source=e.target;if(source.name)for(const target of form.querySelectorAll('[name]'))if(target!==source&&target.name===source.name)target.value=source.value;});form.addEventListener('change',e=>{const source=e.target;if(source.name)for(const target of form.querySelectorAll('[name]'))if(target!==source&&target.name===source.name)target.value=source.value;});const grid=el('div','query-grid');for(const f of S().base)grid.append(control(f,st.draft));form.append(grid);
  if(st.advanced){const advanced=el('section','boiler-advanced'),h=el('h2','','高级查询条件'),g=el('div','query-grid');advanced.append(h);for(const key of st.queryOrder)if(!st.hiddenQueries.has(key))g.append(control(S().advanced.find(f=>f.key===key),st.draft));advanced.append(g);form.append(advanced);}
- const actions=el('div','query-actions'),submit=el('button','primary','⌕ 查询');submit.type='submit';const links=el('div','query-links');links.append(V2Help.create(usageHelp),button('⚙ 设置','link',()=>{st.draft=Object.fromEntries(new FormData(form));settings('query');}),button(st.advanced?'⌕普通查询':'⌕高级查询','link',()=>{st.draft=Object.fromEntries(new FormData(form));st.advanced=!st.advanced;if(!st.advanced)for(const f of S().advanced)if(!S().base.some(base=>base.key===f.key))for(const suffix of ['', '_min','_max'])delete st.draft[f.key+suffix];api.refresh();}));
- actions.append(submit,button('⟳ 重置','secondary',()=>{st.searched=false;st.filters={};st.draft={};st.table.page=1;st.table.selected.clear();api.refresh();}),links);const error=el('p','form-error');error.id='form-error';error.setAttribute('role','alert');form.append(actions,error);
- form.onsubmit=e=>{e.preventDefault();const filters=Object.fromEntries(new FormData(form)),problem=S().valid(filters);if(problem){error.textContent=problem;return;}st.filters=filters;st.draft={...filters};st.searched=true;st.table.page=1;st.table.selected.clear();api.refresh();};panel.append(form);root.append(panel);
+ const actions=el('div','query-actions'),submit=el('button','primary','⌕ 查询'),error=el('p','form-error');submit.type='submit';const links=el('div','query-links');
+ links.append(V2Help.create(usageHelp),button('⚙ 设置','link',()=>{st.draft=Object.fromEntries(new FormData(form));settings('query');}),button(st.advanced?'⌕普通查询':'⌕高级查询','link',()=>{
+  const values=new FormData(form);
+  if(st.advanced){
+   const names=new Set([...grid.querySelectorAll('[name]:enabled')].map(input=>input.name));
+   const invalid=[...form.querySelectorAll('[name]:enabled')].find(input=>names.has(input.name)&&input.validity&&!input.validity.valid);
+   if(invalid){invalid.reportValidity();return;}
+   // The ordinary controls appear first in the form, even for shared field names.
+   const ordinary=Object.fromEntries([...names].filter(name=>values.has(name)).map(name=>[name,values.get(name)]));
+   const problem=S().valid(ordinary);if(problem){error.textContent=problem;return;}
+   applyQuery(ordinary,st.searched);
+  }else st.draft=Object.fromEntries(values);
+  st.advanced=!st.advanced;
+  api.refresh();
+ }));
+ actions.append(submit,button('⟳ 重置','secondary',()=>{applyQuery({},false);api.refresh();}),links);error.id='form-error';error.setAttribute('role','alert');form.append(actions,error);
+ form.onsubmit=e=>{e.preventDefault();const filters=Object.fromEntries(new FormData(form)),problem=S().valid(filters);if(problem){error.textContent=problem;return;}applyQuery(filters,true);api.refresh();};panel.append(form);root.append(panel);
  const tablePanel=el('section','panel table-panel'),toolbar=el('div','table-toolbar'),agency=V2ActionIcons.prepend(button('更改检验机构','tool',institution),'agency');
  function update(){if(type==='elevator')V2ElevatorTools.update(toolbar,selected());agency.disabled=!S().sameUnit(selected());agency.title=agency.disabled?'请勾选同一使用单位的一条或多条记录':'';}
  function exportRows(){if(!st.searched){api.announce('请先进行查询');return;}const matched=queryRows(),exported=st.table.selected.size?matched.filter(r=>st.table.selected.has(r.id)):matched;U().exportExcel(V2ExcelExportNames[type],[{key:'seq',label:'序号'},{key:'operation',label:'操作'},...st.columns],exported.map((r,i)=>({...r,seq:i+1,operation:'虚构样本，仅用于演示'})));}

@@ -127,9 +127,72 @@ async function exercise(browser, base) {
       }
       await page.locator('#dialog-close').click();
     }
+
+    await page.getByRole('button', { name: /重置/ }).click();
+    await query();
+    await page.locator('.pagination select').selectOption('10');
+    const personnelRows = () => page.locator('#main tbody tr[data-id]').evaluateAll(rows => rows.map(row => ({
+      id: row.dataset.id, name: row.cells[3].textContent, unit: row.cells[6].textContent
+    })).sort((a, b) => a.id.localeCompare(b.id)));
+    const beforeDeletion = await personnelRows();
+    assert.equal(beforeDeletion.length, 6);
+    const queryPeople = () => page.evaluate(() => {
+      const domain = V2QueryDictionaries.person;
+      const field = domain.fieldMap['person.unitName'];
+      return domain.types.flatMap(({id}) => domain.rows(id).map(person => ({
+        id: person.id, type: id, unitId: person.unitId, unit: domain.value(person, null, field),
+        qualifications: domain.qualifications(person)
+      }))).sort((a, b) => a.id.localeCompare(b.id));
+    });
+    const beforeQueryPeople = await queryPeople();
+    const storedImports = await page.evaluate(() => localStorage.getItem('v2:personnel-import:v1'));
+    const switchPage = key => page.evaluate(key => { location.hash = key; }, key);
+    await switchPage('inspection-unit');
+    await page.getByLabel('单位名称', { exact: true }).waitFor();
+    await query();
+    await page.getByRole('button', { name: '按单位名称排序', exact: true }).click();
+    await page.locator('tr[data-id="DEMO-ORG-001"] input[type=checkbox]').check();
+    await page.locator('.table-toolbar').getByRole('button', { name: '删除', exact: true }).click();
+    await dialog.getByRole('button', { name: '确认删除', exact: true }).click();
+    assert.equal(await total.innerText(), '3');
+    await switchPage('personnel');
+    await page.getByLabel('持证状态', { exact: true }).waitFor();
+    await query();
+    const afterDeletion = await personnelRows();
+    const afterQueryPeople = await queryPeople();
+    assert.deepEqual(afterQueryPeople, beforeQueryPeople.map(person => person.id === 'DEMO-PERSON-001'
+      ? { ...person, unit: null }
+      : person));
+    assert.deepEqual(afterDeletion.map(({id, name}) => ({id, name})), beforeDeletion.map(({id, name}) => ({id, name})));
+    assert.deepEqual(afterDeletion.filter(person => person.id !== 'DEMO-PERSON-001'),
+      beforeDeletion.filter(person => person.id !== 'DEMO-PERSON-001'));
+    assert(!afterDeletion.find(person => person.id === 'DEMO-PERSON-001').unit.includes('云岚'));
+    await page.reload();
+    await query();
+    assert.deepEqual(await personnelRows(), afterDeletion, 'reload preserves every person and their remaining unit data');
+    assert.deepEqual(await queryPeople(), afterQueryPeople, 'reload preserves comprehensive-query identities and qualifications');
+    assert.equal(await page.evaluate(() => localStorage.getItem('v2:personnel-import:v1')), storedImports);
+    await page.locator('tr[data-id="DEMO-PERSON-001"]').getByRole('button', { name: '编辑', exact: true }).click();
+    assert.match(await dialog.innerText(), /关联单位已不存在.*DEMO-ORG-001/);
+    await page.locator('#dialog-close').click();
+    await switchPage('person-query');
+    await page.getByRole('button', { name: '新增', exact: true }).click();
+    await dialog.getByLabel('查询条件名称', { exact: true }).fill('DEMO-单位删除回归');
+    await dialog.getByRole('radio', { name: '无损检验人员', exact: true }).check();
+    await dialog.getByLabel('结果字段 姓名', { exact: true }).check();
+    await dialog.getByLabel('结果字段 单位名称', { exact: true }).check();
+    await dialog.getByRole('button', { name: '保存', exact: true }).click();
+    await page.getByRole('button', { name: '执行', exact: true }).click();
+    const resultRows = dialog.getByRole('table', { name: '组合查询结果' }).locator('tbody tr[data-id]');
+    assert.equal(await resultRows.count(), 2);
+    const people = await resultRows.evaluateAll(rows => Object.fromEntries(rows.map(row =>
+      [row.cells[2].textContent, row.cells[3].textContent])));
+    assert.match(people['演示人员甲'], /^(?:—)?$/);
+    assert.equal(people['演示人员丙'], beforeQueryPeople.find(person => person.id === 'DEMO-PERSON-003').unit);
+    await page.locator('#dialog-close').click();
     assert.deepEqual(errors, []);
     assert(requests.every(([method, url]) => ['GET','HEAD'].includes(method) && url.startsWith(base)));
-    console.log('PASS personnel XLS/XLSX download, validation, cancel, persist, query, pagination and row actions', base);
+    console.log('PASS personnel XLS/XLSX, query and stable identity before/after organization deletion and reload', base);
   } finally {
     await context.close();
   }

@@ -8,8 +8,14 @@ const q=(key,label,options)=>({key,label,type:options?'select':'text',options:op
 const sources=['第三方机构上传','MIS系统'],statuses=['已持证','待发证','已吊销','已注销','变更中','换证中','补证中','无效'];
 const enums={sources,statuses,project:[],level:[],method:[]};
 const organization=person=>V2InspectionUnits.rows.find(u=>u.id===person.unitId);
-const rows=V2InspectionUnits.rows.slice(0,4).map((unit,i)=>{
- const person={id:'DEMO-PERSON-00'+(i+1),name:'演示人员'+['甲','乙','丙','丁'][i],sex:i%2?'女':'男',identity:'DEMO-ID-PERSON-00'+(i+1),birthDate:'199'+i+'-01-01',archiveNumber:'DEMO-ARCHIVE-00'+(i+1),ndt:i%2?'否':'是',unitId:unit.id,phone:'DEMO-PHONE-00'+(i+1),mobile:'DEMO-MOBILE-00'+(i+1),source:sources[i%2],certificateStatus:statuses[i<2?0:1],position:['演示无损检测岗','演示检验岗','演示试验岗','演示资料岗'][i],education:'演示学历资料',qualifications:[],auditRecords:[]};
+const roster=[
+ ['DEMO-PERSON-001','DEMO-ORG-001','甲','演示无损检测岗'],
+ ['DEMO-PERSON-002','DEMO-ORG-002','乙','演示检验岗'],
+ ['DEMO-PERSON-003','DEMO-ORG-003','丙','演示试验岗'],
+ ['DEMO-PERSON-004','DEMO-ORG-004','丁','演示资料岗']
+];
+const rows=roster.map(([id,unitId,name,position],i)=>{
+ const person={id,name:'演示人员'+name,sex:i%2?'女':'男',identity:'DEMO-ID-PERSON-00'+(i+1),birthDate:'199'+i+'-01-01',archiveNumber:'DEMO-ARCHIVE-00'+(i+1),ndt:i%2?'否':'是',unitId,phone:'DEMO-PHONE-00'+(i+1),mobile:'DEMO-MOBILE-00'+(i+1),source:sources[i%2],certificateStatus:statuses[i<2?0:1],position,education:'演示学历资料',qualifications:[],auditRecords:[]};
  for(const [key,orgKey] of [['unitName','name'],['unitAddress','address'],['unitPhone','phone'],['unitPostalCode','postalCode'],['region','region'],['regionCode','regionCode'],['province','province'],['area','area']])Object.defineProperty(person,key,{enumerable:true,get:()=>organization(person)?.[orgKey]??''});
  person.postalCode='DEMO-POST-00'+(i+1);return person;
 });
@@ -120,6 +126,7 @@ const infoFields=[
 function edit(person,show){
  const root=el('div','person-info');root.dataset.personId=person.id;
  root.append(el('h2','person-heading','检验检测人员信息'),el('p','more-context-note',person.unitId?'演示模式，仅供查看。全部为虚构人员资料，未接通保存；单位资料通过单位ID关联，未提供字段留空。':'浏览器本地导入记录，仅供查看。未提供字段留空。'));
+ if(person.unitId&&!organization(person))root.append(el('p','more-context-note','关联单位已不存在（原单位 ID：'+person.unitId+'）。'));
  const grid=el('div','unit-info-grid person-info-grid');
  for(const [key,name,kind='text',required=false,wide=false] of infoFields){
  const field=el('div','unit-info-field person-info-field'+(wide?' full-width':'')),label=el('label');
